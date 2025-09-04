@@ -4,204 +4,249 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fuel Tracker</title>
-  
-  <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Chart.js -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
-    body { background: #f8f9fa; }
-    .card { border-radius: 12px; }
-    canvas { max-width: 100%; height: auto; }
+    body { background-color: #000; color: #fff; }
+    .btn-primary { background-color: #007bff; border-color: #007bff; }
+    .btn-primary:hover { background-color: #0056b3; }
+    input[readonly] { background-color: #444; }
   </style>
 </head>
-<body>
-  <div class="container my-4">
-    <h2 class="text-center mb-4">⛽ Fuel Tracker</h2>
-    
-    <!-- Input Form -->
-    <div class="card shadow-sm mb-4">
-      <div class="card-body">
-        <h5 class="card-title">Add Refill</h5>
-        <form id="fuelForm" class="row g-3">
-          <div class="col-md-4">
-            <label class="form-label">Date</label>
-            <input type="date" name="date" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Odometer (km)</label>
-            <input type="number" name="odometer" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Liters</label>
-            <input type="number" step="0.01" name="liters" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Price/L</label>
-            <input type="number" step="0.01" name="price" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Station</label>
-            <input type="text" name="station" class="form-control">
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Notes</label>
-            <input type="text" name="notes" class="form-control">
-          </div>
-          <div class="col-12">
-            <button type="submit" class="btn btn-primary w-100">Save Entry</button>
-          </div>
-        </form>
-      </div>
-    </div>
+<body class="p-3">
+  <div class="container">
+    <h1 class="text-center mb-4">⛽ Fuel Tracker</h1>
 
-    <!-- Tabs -->
+    <!-- Nav Tabs -->
     <ul class="nav nav-tabs mb-3" id="fuelTabs" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button" role="tab">📋 Fuel Logs</button>
+        <button class="nav-link active" id="entries-tab" data-bs-toggle="tab" data-bs-target="#entries" type="button" role="tab">Entries</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab">📊 Reports</button>
+        <button class="nav-link" id="reporting-tab" data-bs-toggle="tab" data-bs-target="#reporting" type="button" role="tab">Reporting</button>
       </li>
     </ul>
 
     <div class="tab-content" id="fuelTabsContent">
-      <!-- Logs Tab -->
-      <div class="tab-pane fade show active" id="logs" role="tabpanel">
-        <div id="logsList" class="row"></div>
+      <!-- Entries Tab -->
+      <div class="tab-pane fade show active" id="entries" role="tabpanel">
+        <!-- Form -->
+        <form id="entryForm" class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label">Date</label>
+            <input type="date" name="Date" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Odometer</label>
+            <input type="number" name="Odometer" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Liters</label>
+            <input type="number" step="0.01" name="Liters" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Fuel Price</label>
+            <input type="number" step="0.01" name="FuelPrice" class="form-control" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Notes</label>
+            <input type="text" name="Notes" class="form-control">
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">Add Entry</button>
+          </div>
+        </form>
+<div id="loading" class="text-center my-3">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+        <!-- Table -->
+        <table class="table table-dark table-striped" id="entriesTable">
+          <thead>
+            <tr>
+              <th>Date</th><th>Odometer</th><th>Liters</th><th>Fuel Price</th>
+              <th>Mileage</th><th>Cost/KM</th><th>Notes</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
 
-      <!-- Reports Tab -->
-      <div class="tab-pane fade" id="reports" role="tabpanel">
-        <div class="row">
-          <div class="col-md-12 mb-4">
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <h6 class="card-title">Mileage (km/L)</h6>
-                <canvas id="mileageChart"></canvas>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <h6 class="card-title">Spending per Refill (₹)</h6>
-                <canvas id="spendingChart"></canvas>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <h6 class="card-title">Liters Filled</h6>
-                <canvas id="litersChart"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Reporting Tab -->
+      <div class="tab-pane fade" id="reporting" role="tabpanel">
+        <h3 class="mt-3">Reports</h3>
+        <canvas id="fuelChart" height="100"></canvas>
       </div>
     </div>
   </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzVAk_DfEc-07HJ5wTcBLErOwsmgvJlI0eCAyRoLqKNOkSDba6Wx6_fp2Z8sXbAGXDBtA/exec";
+<script>
+const API_URL = "https://fuel-proxy.surajts05.workers.dev"; // Cloudflare proxy
+let chartInstance = null; // keep track of chart
 
-    // Submit form
-    document.getElementById("fuelForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = {
-        date: formData.get("date"),
-        odometer: parseFloat(formData.get("odometer")),
-        liters: parseFloat(formData.get("liters")),
-        price_per_liter: parseFloat(formData.get("price")),
-        total_cost: parseFloat(formData.get("liters")) * parseFloat(formData.get("price")),
-        station: formData.get("station"),
-        notes: formData.get("notes")
-      };
+// Handle form submission
+document.getElementById('entryForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = Object.fromEntries(new FormData(e.target));
+  if (!formData.ID) {
+    formData.ID = "FUEL-" + Date.now(); // auto-generate ID
+  }
 
-      await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
+  console.log("🚀 Sending data to backend:", formData);
 
-      loadLogs();
-      e.target.reset();
+  try {
+    const response = await fetch(`${API_URL}/entry`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
     });
 
-    // Fetch logs and update UI
-    async function loadLogs() {
-      const res = await fetch(API_URL);
-      let logs = await res.json();
-      
-      logs.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+    const result = await response.json();
+    console.log("📥 Server response:", result);
 
-      // Show logs
-      const container = document.getElementById("logsList");
-      container.innerHTML = "";
-      logs.slice().reverse().forEach(log => {
-        const div = document.createElement("div");
-        div.className = "col-md-6";
-        div.innerHTML = `
-          <div class="card shadow-sm mb-3">
-            <div class="card-body">
-              <h6>${log.Date} - ${log.Station || "Unknown"}</h6>
-              <p class="mb-1">Odo: <b>${log.Odometer} km</b></p>
-              <p class="mb-1">${log.Liters} L @ ₹${log["Price/L"]} = <b>₹${log["Total Cost"]}</b></p>
-              <small class="text-muted">${log.Notes || "-"}</small>
-            </div>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-
-      updateCharts(logs);
+    if (result.debug) {
+      console.group("🛠️ Backend Debug Log");
+      result.debug.forEach(msg => console.log(msg));
+      console.groupEnd();
     }
 
-    // Update Charts
-    function updateCharts(logs) {
-      const labels = logs.map(l => l.Date);
-      const odometers = logs.map(l => parseFloat(l.Odometer));
-      const liters = logs.map(l => parseFloat(l.Liters));
-      const costs = logs.map(l => parseFloat(l["Total Cost"]));
-
-      // Mileage calculation
-      let mileage = [];
-      for (let i = 1; i < logs.length; i++) {
-        const kmDiff = odometers[i] - odometers[i-1];
-        const litersUsed = liters[i];
-        mileage.push((kmDiff / litersUsed).toFixed(2));
-      }
-      let mileageLabels = labels.slice(1);
-
-      // Destroy old charts
-      if (window.mileageChartObj) window.mileageChartObj.destroy();
-      if (window.spendingChartObj) window.spendingChartObj.destroy();
-      if (window.litersChartObj) window.litersChartObj.destroy();
-
-      // Mileage chart
-      window.mileageChartObj = new Chart(document.getElementById("mileageChart"), {
-        type: "line",
-        data: { labels: mileageLabels, datasets: [{ label: "Mileage (km/L)", data: mileage, borderColor: "green", tension: 0.2 }] }
-      });
-
-      // Spending chart
-      window.spendingChartObj = new Chart(document.getElementById("spendingChart"), {
-        type: "bar",
-        data: { labels: labels, datasets: [{ label: "Total Cost (₹)", data: costs, backgroundColor: "blue" }] }
-      });
-
-      // Liters chart
-      window.litersChartObj = new Chart(document.getElementById("litersChart"), {
-        type: "bar",
-        data: { labels: labels, datasets: [{ label: "Liters", data: liters, backgroundColor: "orange" }] }
-      });
+    if (result.status === "success") {
+      e.target.reset();
+      loadData(); // reload table
+    } else {
+      alert("⚠️ Failed to save: " + (result.message || "Unknown error"));
     }
 
-    loadLogs();
-  </script>
+  } catch (err) {
+    console.error("❌ Submit error:", err);
+    alert("⚠️ Network or server error");
+  }
+});
+
+// Load data for table (always) and optionally chart
+
+async function loadData() {
+  try {
+    document.getElementById("loading").style.display = "block";
+    const response = await fetch(`${API_URL}/entries`);
+    const raw = await response.text();   // <-- get raw text
+    console.log("📥 Raw backend response:", raw);
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch (e) {
+      console.error("❌ JSON parse failed:", e);
+      return;
+    }
+
+    document.getElementById("loading").style.display = "none";
+
+    if (data.status === "error") {
+      console.error("❌ Backend error:", data.message);
+      return;
+    }
+
+    // Handle wrapped response
+    const entries = Array.isArray(data) ? data : data.entries || [];
+    renderTable(entries);
+
+    if (document.querySelector("#reporting").classList.contains("active")) {
+      renderChart(entries);
+    } else {
+      window.cachedEntries = entries;
+    }
+
+  } catch (err) {
+    document.getElementById("loading").style.display = "none";
+    console.error("❌ loadData error:", err);
+  }
+}
+
+
+function renderTable(entries) {
+  const tbody = document.querySelector("#entriesTable tbody");
+  tbody.innerHTML = "";
+  entries.forEach(entry => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${entry.Date || ""}</td>
+      <td>${entry.Odometer || ""}</td>
+      <td>${entry.Liters || ""}</td>
+      <td>${entry.FuelPrice || ""}</td>
+      <td>${entry.Mileage || ""}</td>
+      <td>${entry.CostPerKM || ""}</td>
+      <td>${entry.Notes || ""}</td>
+      <td>
+        <button class="btn btn-sm btn-danger" onclick="deleteEntry('${entry.ID}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function renderChart(entries) {
+  const ctx = document.getElementById("fuelChart").getContext("2d");
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  const labels = entries.map(e => e.Date);
+  const mileage = entries.map(e => e.Mileage);
+
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Mileage",
+        data: mileage,
+        borderColor: "blue",
+        backgroundColor: "rgba(0, 123, 255, 0.3)"
+      }]
+    }
+  });
+}
+
+// Handle Reporting tab activation
+document.getElementById("reporting-tab").addEventListener("shown.bs.tab", () => {
+  if (window.cachedEntries) {
+    renderChart(window.cachedEntries);
+  } else {
+    loadData();
+  }
+});
+
+async function deleteEntry(id) {
+  if (!confirm("Delete this entry?")) return;
+  try {
+    const response = await fetch(`${API_URL}/entry`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "delete", id })
+    });
+    const result = await response.json();
+    console.log("🗑️ Delete response:", result);
+
+    if (result.status === "success") {
+      loadData();
+    } else {
+      alert("⚠️ Delete failed: " + (result.message || "Unknown error"));
+    }
+  } catch (err) {
+    console.error("❌ Delete error:", err);
+  }
+}
+
+
+// Initial load (after DOM ready)
+document.addEventListener("DOMContentLoaded", () => {
+  loadData();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
