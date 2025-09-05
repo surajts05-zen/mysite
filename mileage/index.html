@@ -64,16 +64,38 @@
     background: #007bff;
     border: none;
     padding: 10px 18px;
-    border-radius: 8px;
+    border-radius: 50px;
     color: #fff;
     font-weight: 500;
     cursor: pointer;
     transition: 0.3s ease;
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    z-index: 1050; /* always on top */
   }
 
   .btn-signout:hover {
     background: #0056b3;
+  }
+  
+    /* 📱 Mobile-friendly adjustments */
+  @media (max-width: 576px) {
+    .btn-signout {
+      top: auto;
+      bottom: 15px;
+      right: 50%;
+      transform: translateX(50%);
+      width: 90%;
+      max-width: 320px;
+      padding: 12px;
+      font-size: 1rem;
+      text-align: center;
+    }
+  }
+  
+    /* 📊 Chart responsiveness */
+  #fuelChart {
+    width: 100% !important;
+    height: auto !important;
   }
 </style>
 
@@ -378,60 +400,75 @@ function renderChart(entries) {
   document.getElementById("totalLiters").innerText = totalLiters + " L";
 
   // --- Chart rendering ---
-  chartInstance = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Mileage (KM/L)",
-          data: mileage,
-          borderColor: "blue",
-          backgroundColor: "rgba(0, 123, 255, 0.3)",
-          yAxisID: "y1"
-        },
-        {
-          label: "Fuel Price",
-          data: fuelPrice,
-          borderColor: "green",
-          backgroundColor: "rgba(0, 200, 83, 0.3)",
-          yAxisID: "y2"
-        },
-        {
-          label: "Cost per KM",
-          data: costPerKM,
-          type: "bar",
-          backgroundColor: "rgba(255, 99, 132, 0.4)",
-          borderColor: "rgba(255, 99, 132, 1)",
-          yAxisID: "y2"
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      interaction: { mode: "index", intersect: false },
-      stacked: false,
-      plugins: {
-        title: { display: true, text: "Fuel Usage Reporting" }
+ chartInstance = new Chart(ctx, {
+  type: "line",
+  data: {
+    labels,
+    datasets: [
+      {
+        label: "Mileage (KM/L)",
+        data: mileage,
+        borderColor: "blue",
+        backgroundColor: "rgba(0, 123, 255, 0.3)",
+        yAxisID: "y1"
       },
-      scales: {
-        y1: {
-          type: "linear",
-          display: true,
-          position: "left",
-          title: { display: true, text: "Mileage (KM/L)" }
-        },
-        y2: {
-          type: "linear",
-          display: true,
-          position: "right",
-          grid: { drawOnChartArea: false },
-          title: { display: true, text: "₹ / Cost" }
-        }
+      {
+        label: "Fuel Price",
+        data: fuelPrice,
+        borderColor: "green",
+        backgroundColor: "rgba(0, 200, 83, 0.3)",
+        yAxisID: "y2"
+      },
+      {
+        label: "Cost per KM",
+        data: costPerKM,
+        type: "bar",
+        backgroundColor: "rgba(255, 99, 132, 0.4)",
+        borderColor: "rgba(255, 99, 132, 1)",
+        yAxisID: "y2"
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,  // 🔑 allows full responsiveness
+    interaction: { mode: "index", intersect: false },
+    stacked: false,
+    plugins: {
+      title: { 
+        display: true, 
+        text: "Fuel Usage Reporting", 
+        color: "#fff"  // better for dark background
+      },
+      legend: {
+        labels: { color: "#fff" }  // legend text in white
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: "#fff" },
+        grid: { color: "rgba(255,255,255,0.1)" }
+      },
+      y1: {
+        type: "linear",
+        display: true,
+        position: "left",
+        title: { display: true, text: "Mileage (KM/L)", color: "#fff" },
+        ticks: { color: "#fff" },
+        grid: { color: "rgba(255,255,255,0.1)" }
+      },
+      y2: {
+        type: "linear",
+        display: true,
+        position: "right",
+        grid: { drawOnChartArea: false, color: "rgba(255,255,255,0.1)" },
+        title: { display: true, text: "₹ / Cost", color: "#fff" },
+        ticks: { color: "#fff" }
       }
     }
-  });
-}
+  }
+});
+
 
 
 // Handle Reporting tab activation
