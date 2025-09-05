@@ -156,6 +156,23 @@ function handleCredentialResponse(response) {
     alert("Authentication failed. See console for details.");
   }
 }
+  
+// ---------- Initialize Google Identity ----------
+window.onload = function () {
+  google.accounts.id.initialize({
+    client_id: "YOUR_CLIENT_ID.apps.googleusercontent.com", // replace with your client ID
+    callback: handleCredentialResponse,
+    auto_select: true  // 👈 this enables auto sign-in after refresh
+  });
+
+  google.accounts.id.renderButton(
+    document.getElementById("loginButton"),
+    { theme: "outline", size: "large" }
+  );
+
+  google.accounts.id.prompt(); // shows the One Tap / auto login
+};
+
 // ---------------------------------------
 
 // Handle form submission
@@ -377,4 +394,5 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
