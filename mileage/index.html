@@ -18,15 +18,64 @@
 </head>
 <body class="p-3">
 
-  <!-- 🔐 Login Section -->
-  <div id="loginSection" class="text-center">
-    <h2>Login to Fuel Usage Tracker</h2>
-    <div id="g_id_onload"
-      data-client_id="837033230141-1vrh4l4rukhbldh4gvmc2dufhpjkgpp9.apps.googleusercontent.com"
-      data-callback="handleCredentialResponse">
-    </div>
-    <div class="g_id_signin" data-type="standard"></div>
+<!-- 🔐 Login Section -->
+<div id="loginSection" class="login-container">
+  <h2 class="login-title">Login to Fuel Usage Tracker</h2>
+  <div id="g_id_onload"
+    data-client_id="837033230141-1vrh4l4rukhbldh4gvmc2dufhpjkgpp9.apps.googleusercontent.com"
+    data-callback="handleCredentialResponse">
   </div>
+  <div class="g_id_signin" data-type="standard"></div>
+</div>
+
+<!-- 🚪 Sign Out Button -->
+<button id="signOutButton" class="btn-signout" onclick="signOut()">
+  Sign Out
+</button>
+
+<!-- 💅 Styling -->
+<style>
+  .login-container {
+    text-align: center;
+    margin-top: 80px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  }
+
+  .login-title {
+    color: #ffffff;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-signout {
+    display: none;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: #007bff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  }
+
+  .btn-signout:hover {
+    background: #0056b3;
+  }
+</style>
+
 
   <!-- App Container (hidden until login success) -->
   <div class="container" style="display:none;">
@@ -134,6 +183,8 @@ let chartInstance = null; // keep track of chart
 // ---------- Google Auth gating ----------
 const allowedEmails = ["surajts05@gmail.com"]; // <- REPLACE with your email(s)
 
+const allowedEmails = ["surajts05@gmail.com"]; // <- REPLACE with your email(s)
+
 function handleCredentialResponse(response) {
   try {
     const token = response.credential;
@@ -142,6 +193,15 @@ function handleCredentialResponse(response) {
     // decode the ID token payload (base64)
     const payload = JSON.parse(atob(token.split('.')[1]));
     console.log("👤 Google user:", payload);
+
+    // check expiry
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < now) {
+      console.warn("⚠️ Token expired");
+      localStorage.removeItem("google_id_token");
+      google.accounts.id.prompt(); // force re-login
+      return;
+    }
 
     // check allowed emails
     if (!allowedEmails.includes(payload.email)) {
@@ -183,7 +243,7 @@ function signOut() {
 // ---------- Initialize Google Identity ----------
 window.onload = function () {
   google.accounts.id.initialize({
-    client_id: "837033230141-1vrh4l4rukhbldh4gvmc2dufhpjkgpp9.apps.googleusercontent.com", // ✅ your client ID
+    client_id: "837033230141-1vrh4l4rukhbldh4gvmc2dufhpjkgpp9.apps.googleusercontent.com",
     callback: handleCredentialResponse,
     auto_select: true
   });
@@ -201,6 +261,7 @@ window.onload = function () {
     google.accounts.id.prompt(); // show One Tap / login
   }
 };
+
 
 
 // ---------------------------------------
@@ -424,6 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
 
 
