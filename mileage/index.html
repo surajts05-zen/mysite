@@ -136,8 +136,11 @@ const allowedEmails = ["surajts05@gmail.com"]; // <- REPLACE with your email(s)
 
 function handleCredentialResponse(response) {
   try {
+    const token = response.credential;
+    if (!token) throw new Error("Missing token");
+
     // decode the ID token payload (base64)
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const payload = JSON.parse(atob(token.split('.')[1]));
     console.log("👤 Google user:", payload);
 
     // check allowed emails
@@ -147,7 +150,7 @@ function handleCredentialResponse(response) {
     }
 
     // save token in localStorage so we can reuse it on refresh
-    localStorage.setItem("google_id_token", response.credential);
+    localStorage.setItem("google_id_token", token);
 
     // success: hide login block and show app container
     document.getElementById("loginSection").style.display = "none";
@@ -180,7 +183,7 @@ function signOut() {
 // ---------- Initialize Google Identity ----------
 window.onload = function () {
   google.accounts.id.initialize({
-    client_id: "YOUR_CLIENT_ID.apps.googleusercontent.com", // replace with your client ID
+    client_id: "837033230141-1vrh4l4rukhbldh4gvmc2dufhpjkgpp9.apps.googleusercontent.com", // ✅ your client ID
     callback: handleCredentialResponse,
     auto_select: true
   });
@@ -198,6 +201,7 @@ window.onload = function () {
     google.accounts.id.prompt(); // show One Tap / login
   }
 };
+
 
 // ---------------------------------------
 
@@ -420,6 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
 
 
