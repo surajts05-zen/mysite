@@ -95,6 +95,33 @@
       <!-- Reporting Tab -->
       <div class="tab-pane fade" id="reporting" role="tabpanel">
         <h3 class="mt-3">Reports</h3>
+        <div class="row text-center mb-4" id="reportSummary">
+  <div class="col-md-4">
+    <div class="card bg-dark text-white shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Avg Mileage</h5>
+        <p class="card-text fs-4" id="avgMileage">--</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-dark text-white shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Total Fuel Cost</h5>
+        <p class="card-text fs-4" id="totalCost">--</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-dark text-white shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Total Liters</h5>
+        <p class="card-text fs-4" id="totalLiters">--</p>
+      </div>
+    </div>
+  </div>
+</div>
+
         <canvas id="fuelChart" height="100"></canvas>
       </div>
     </div>
@@ -240,21 +267,76 @@ function renderChart(entries) {
   }
 
   const labels = entries.map(e => e.Date);
-  const mileage = entries.map(e => e.Mileage);
+  const mileage = entries.map(e => Number(e.Mileage) || 0);
+  const fuelPrice = entries.map(e => Number(e.FuelPrice) || 0);
+  const costPerKM = entries.map(e => Number(e.CostPerKM) || 0);
 
+  // --- Summary calculations ---
+  const avgMileage = (mileage.reduce((a, b) => a + b, 0) / mileage.length).toFixed(2);
+  const totalCost = fuelPrice.reduce((a, b, i) => a + b * (entries[i].Liters || 0), 0).toFixed(2);
+  const totalLiters = entries.reduce((a, e) => a + (Number(e.Liters) || 0), 0).toFixed(2);
+
+  // --- Update summary cards ---
+  document.getElementById("avgMileage").innerText = avgMileage + " KM/L";
+  document.getElementById("totalCost").innerText = "₹ " + totalCost;
+  document.getElementById("totalLiters").innerText = totalLiters + " L";
+
+  // --- Chart rendering ---
   chartInstance = new Chart(ctx, {
     type: "line",
     data: {
       labels,
-      datasets: [{
-        label: "Mileage",
-        data: mileage,
-        borderColor: "blue",
-        backgroundColor: "rgba(0, 123, 255, 0.3)"
-      }]
+      datasets: [
+        {
+          label: "Mileage (KM/L)",
+          data: mileage,
+          borderColor: "blue",
+          backgroundColor: "rgba(0, 123, 255, 0.3)",
+          yAxisID: "y1"
+        },
+        {
+          label: "Fuel Price",
+          data: fuelPrice,
+          borderColor: "green",
+          backgroundColor: "rgba(0, 200, 83, 0.3)",
+          yAxisID: "y2"
+        },
+        {
+          label: "Cost per KM",
+          data: costPerKM,
+          type: "bar",
+          backgroundColor: "rgba(255, 99, 132, 0.4)",
+          borderColor: "rgba(255, 99, 132, 1)",
+          yAxisID: "y2"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: "index", intersect: false },
+      stacked: false,
+      plugins: {
+        title: { display: true, text: "Fuel Usage Reporting" }
+      },
+      scales: {
+        y1: {
+          type: "linear",
+          display: true,
+          position: "left",
+          title: { display: true, text: "Mileage (KM/L)" }
+        },
+        y2: {
+          type: "linear",
+          display: true,
+          position: "right",
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: "₹ / Cost" }
+        }
+      }
     }
   });
 }
+
 
 // Handle Reporting tab activation
 document.getElementById("reporting-tab").addEventListener("shown.bs.tab", () => {
@@ -295,3 +377,4 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
