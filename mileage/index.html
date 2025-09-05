@@ -130,8 +130,9 @@
 <script>
 const API_URL = "https://fuel-proxy.surajts05.workers.dev"; // Cloudflare proxy
 let chartInstance = null; // keep track of chart
+
 // ---------- Google Auth gating ----------
-const allowedEmails = ["surajts05@gmail.com"]; // <- REPLACE with your email(s), e.g. ["me@gmail.com","friend@gmail.com"]
+const allowedEmails = ["surajts05@gmail.com"]; // <- REPLACE with your email(s)
 
 function handleCredentialResponse(response) {
   try {
@@ -145,9 +146,15 @@ function handleCredentialResponse(response) {
       return;
     }
 
+    // save token in localStorage so we can reuse it on refresh
+    localStorage.setItem("google_id_token", response.credential);
+
     // success: hide login block and show app container
     document.getElementById("loginSection").style.display = "none";
     document.querySelector(".container").style.display = "block";
+
+    // show signout button
+    document.getElementById("signOutButton").style.display = "inline-block";
 
     // load data now that user is authenticated
     loadData();
@@ -156,13 +163,26 @@ function handleCredentialResponse(response) {
     alert("Authentication failed. See console for details.");
   }
 }
-  
+
+function signOut() {
+  // clear stored token
+  localStorage.removeItem("google_id_token");
+
+  // disable Google's auto-select feature
+  google.accounts.id.disableAutoSelect();
+
+  // reset UI
+  document.getElementById("loginSection").style.display = "block";
+  document.querySelector(".container").style.display = "none";
+  document.getElementById("signOutButton").style.display = "none";
+}
+
 // ---------- Initialize Google Identity ----------
 window.onload = function () {
   google.accounts.id.initialize({
     client_id: "YOUR_CLIENT_ID.apps.googleusercontent.com", // replace with your client ID
     callback: handleCredentialResponse,
-    auto_select: true  // 👈 this enables auto sign-in after refresh
+    auto_select: true
   });
 
   google.accounts.id.renderButton(
@@ -170,7 +190,13 @@ window.onload = function () {
     { theme: "outline", size: "large" }
   );
 
-  google.accounts.id.prompt(); // shows the One Tap / auto login
+  // if token is already stored, try to reuse it
+  const storedToken = localStorage.getItem("google_id_token");
+  if (storedToken) {
+    handleCredentialResponse({ credential: storedToken });
+  } else {
+    google.accounts.id.prompt(); // show One Tap / login
+  }
 };
 
 // ---------------------------------------
@@ -394,5 +420,6 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
 
