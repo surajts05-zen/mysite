@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Message Sender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full">
+        <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">Send a WhatsApp Message</h1>
+        
+        <form id="whatsappForm" class="space-y-4">
+            <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                <input type="text" id="phone" name="phone" class="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 transition duration-150 ease-in-out" placeholder="e.g., 14155552671" required>
+                <p class="mt-1 text-xs text-gray-500">Include the country code, but no '+' or '00' at the start.</p>
+            </div>
+            
+            <div>
+                <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+                <textarea id="message" name="message" rows="4" class="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 transition duration-150 ease-in-out" placeholder="Type your message here..." required></textarea>
+            </div>
+            
+            <div id="message-box" class="hidden p-3 rounded-lg text-center font-medium"></div>
+
+            <button type="submit" class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5L5.45 10.5a.25.25 0 000 .416l3.682 2.65a1 1 0 00.867.5c.343 0 .684-.112.96-.328l4.433-3.166a.25.25 0 000-.416l-4.433-3.166A1 1 0 0010 7z" clip-rule="evenodd" />
+                </svg>
+                Send Message
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('whatsappForm').addEventListener('submit', function(event) {
+            // Prevent the default form submission.
+            event.preventDefault();
+
+            // Get the message box element.
+            const messageBox = document.getElementById('message-box');
+
+            // Get the values from the form.
+            let phoneNumber = document.getElementById('phone').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            // Basic validation
+            if (!phoneNumber || !message) {
+                messageBox.textContent = "Please fill out both fields.";
+                messageBox.className = "p-3 rounded-lg text-center font-medium text-red-700 bg-red-100 block";
+                return;
+            }
+
+            // Clean the phone number (remove leading +, 00, spaces, and other non-digit characters)
+            phoneNumber = phoneNumber.replace(/^[+0]+|[^0-9]/g, '');
+
+            // Construct the WhatsApp URL.
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+
+            // Show a success message
+            messageBox.textContent = "Redirecting to WhatsApp...";
+            messageBox.className = "p-3 rounded-lg text-center font-medium text-green-700 bg-green-100 block";
+
+            // Open the URL in a new window or tab after a short delay.
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
