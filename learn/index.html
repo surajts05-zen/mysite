@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Selection</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Theme Styles adapted from the source file to maintain consistency */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue/gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Center vertically and horizontally */
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        .main-container {
+            background-color: #ffffff; /* White card background */
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 700px; /* Max width constraint */
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2d3748; /* Dark text color */
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Button Style based on the .nav-button from the source file */
+        .language-button {
+            background-color: #3182ce; /* Blue theme color */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            border: none;
+            box-shadow: 0 4px 10px rgba(49, 130, 206, 0.3); /* Blue shadow for emphasis */
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .language-button:hover {
+            background-color: #2c5282; /* Darker blue on hover */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(49, 130, 206, 0.4);
+        }
+        
+        .language-icon {
+            font-size: 1.5rem; 
+            margin-right: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>Which language will you explore today?</h1>
+
+        <!-- Responsive Button Grid: Stacks on mobile (cols-1), 2 columns on small screens and up (sm:cols-2) -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            
+            <!-- Button calls goToPage with the target filename -->
+            <button class="language-button" onclick="goToPage('tamil_lessons.html')">
+                <span class="language-icon">🇮🇳</span> Tamil
+            </button>
+            
+            <button class="language-button" onclick="goToPage('kannada_lessons.html')">
+                <span class="language-icon">🇮🇳</span> Kannada
+            </button>
+            
+            <button class="language-button" onclick="goToPage('sanskrit_lessons.html')">
+                <span class="language-icon">🕉️</span> Sanskrit
+            </button>
+            
+            <button class="language-button" onclick="goToPage('russian_lessons.html')">
+                <span class="language-icon">🇷🇺</span> Russian
+            </button>
+        </div>
+
+        <p style="font-size: 0.9rem; color: #718096; margin-top: 1rem;">
+            Click a button to start your journey into a new script and culture.
+        </p>
+    </div>
+
+    <!-- The Custom Alert Box and related JS are removed as we are now doing a navigation -->
+    <script>
+        /**
+         * Navigates the user to the specified lesson page.
+         * Note: Since we are in a single-file environment, this will simulate navigation.
+         * For a real website, this would load the content of the new page.
+         */
+        function goToPage(fileName) {
+            // For a single-page app, you might hide this container and show the next one.
+            // For a traditional website, you simply change the location:
+            // window.location.href = fileName;
+
+            // In this specific canvas environment, we will use a message 
+            // to show where the user would be navigating to.
+            alert(`Navigating to: ${fileName}\n\n(In a real web app, this action would load the specific lesson page.)`);
+        }
+    </script>
+</body>
+</html>
