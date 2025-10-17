@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Kannada Learning Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 1rem;
+            height: 24px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.5rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .achievements-panel {
+            background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        .achievement-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .achievement-badge.unlocked {
+            background: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .achievement-badge:hover {
+            transform: scale(1.05);
+        }
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+        .achievement-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .celebrating {
+            animation: celebrate 0.6s ease;
+        }
+        .word-context {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .context-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 0.75rem;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .mnemonic-hint {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+        .difficulty-stars {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+        .difficulty-star {
+            color: #f59e0b;
+            font-size: 1.2rem;
+        }
+        .difficulty-star.empty {
+            color: #d1d5db;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            color: white;
+        }
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        .main-container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+            text-align: left;
+        }
+        h3 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #f59e0b;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #4a5568;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        li {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        li .kannada-text, li .transliteration, li .translation {
+            margin-right: 0.5rem;
+        }
+        .item-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        .pronounce-button {
+            background-color: #f59e0b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+        .pronounce-button:hover {
+            background-color: #d97706;
+        }
+        .answer-button {
+            background-color: #cbd5e0;
+            color: #2d3748;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+        .answer-button:hover {
+            background-color: #a0aec0;
+            transform: translateY(-2px);
+        }
+        .answer-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #e2e8f0;
+        }
+        .correct {
+            background-color: #48bb78 !important;
+            color: white !important;
+        }
+        .incorrect {
+            background-color: #f56565 !important;
+            color: white !important;
+        }
+        .feedback {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .score-display {
+            font-size: 1.25rem;
+            font-weight: medium;
+            color: #4a5568;
+            text-align: center;
+        }
+        .nav-button {
+            background-color: #f59e0b;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            text-align: center;
+        }
+        .nav-button:hover {
+            background-color: #d97706;
+        }
+        .nav-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #a0aec0;
+        }
+        .hidden {
+            display: none;
+        }
+        .lookup-sheet-container {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .lookup-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        .lookup-table th, .lookup-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .lookup-table th {
+            background-color: #edf2f7;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .lookup-table tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        .lookup-table td:first-child {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        .lookup-pronounce-button {
+            background-color: #f59e0b;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.3rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            margin-left: 0.5rem;
+        }
+        .lookup-pronounce-button:hover {
+            background-color: #d97706;
+        }
+        .lookup-button {
+            background-color: #dc2626;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            margin-bottom: 1rem;
+        }
+        .lookup-button:hover {
+            background-color: #b91c1c;
+        }
+        .grammar-section-content h3 {
+            text-align: left;
+        }
+        .grammar-section-content p {
+            text-align: left;
+        }
+        .grammar-section-content ul {
+            text-align: left;
+        }
+        .grammar-section-content li {
+            justify-content: flex-start;
+        }
+        .grammar-example {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+            color: #2d3748;
+        }
+        .kannada-text {
+            font-weight: 600;
+            color: #dc2626;
+        }
+        .transliteration {
+            font-style: italic;
+            color: #f59e0b;
+        }
+        .translation {
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 id="mainTitle">Comprehensive Kannada Learning Tool</h1>
+
+        
+		<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+			      <a href="index.html" class="nav-button">Home</a>
+            <button class="nav-button" id="navAlphabets">Alphabets</button>
+            <button class="nav-button" id="navWords">Words</button>
+            <button class="nav-button" id="navSentences">Sentences</button>
+            <button class="nav-button" id="navGrammar">Grammar</button>
+        </div>
+
+        <div id="startScreen" class="module-section active">
+            <h2>Welcome to the Kannada Learning Tool!</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalWordsLearned">0</div>
+                    <div class="stat-label">Words Learned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Day Streak 🔥</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCorrect">0</div>
+                    <div class="stat-label">Total Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="overallAccuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="achievements-panel">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">🏆 Achievements</h3>
+                <div class="achievement-grid" id="achievementGrid"></div>
+            </div>
+            
+            <p>This interactive tool will help you learn Kannada alphabets, common words, basic sentences, and fundamental grammar concepts.</p>
+            <p>Navigate using the buttons above to choose your learning module. Click "Alphabets" to start learning the Kannada script!</p>
+        </div>
+
+        <div id="kannadaAlphabetsModule" class="module-section hidden">
+            <h2 class="text-center">Kannada Alphabet Quiz</h2>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="alphabetProgressBar" style="width: 0%">
+                    <span id="alphabetProgressText">0/0</span>
+                </div>
+            </div>
+            
+            <button class="lookup-button" id="toggleAlphabetLookupButton">Show Alphabet Lookup</button>
+
+            <div id="alphabetQuizSection">
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="alphabetChar"></div>
+                    <button class="pronounce-button" id="alphabetPronounceButton">Listen</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="alphabetAnswerButtons"></div>
+                <div class="feedback" id="alphabetFeedback"></div>
+                <p class="score-display">Score: <span id="alphabetScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="alphabetNextButton">Next Alphabet</button>
+                <button class="nav-button hidden" id="alphabetRestartButton">Restart Quiz</button>
+            </div>
+
+            <div class="lookup-sheet-container hidden" id="alphabetLookupSheet">
+                <h3 class="text-center">Kannada Alphabet Lookup</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Kannada</th>
+                            <th>English Pronunciation</th>
+                            <th>Listen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alphabetLookupTableBody"></tbody>
+                </table>
+                <button class="lookup-button" id="hideAlphabetLookupButton">Hide Lookup Sheet</button>
+            </div>
+        </div>
+
+        <div id="kannadaWordsModule" class="module-section hidden">
+            <h2 class="text-center">Kannada Words Quiz</h2>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="wordProgressBar" style="width: 0%">
+                    <span id="wordProgressText">0/0</span>
+                </div>
+            </div>
+            
+            <button class="lookup-button" id="toggleWordLookupButton">Show Words Lookup</button>
+
+            <div id="wordQuizSection">
+                <div class="difficulty-stars" id="wordDifficulty"></div>
+                
+                <div class="word-context" id="wordContext">
+                    <img class="context-image" id="wordImage" style="display: none;" alt="Word illustration">
+                    <div class="mnemonic-hint" id="wordMnemonic" style="display: none;"></div>
+                </div>
+                
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="wordDisplay"></div>
+                    <button class="pronounce-button" id="wordPronounceButton">Listen</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4" id="wordAnswerButtons"></div>
+                <div class="feedback" id="wordFeedback"></div>
+                <p class="score-display">Score: <span id="wordScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="wordNextButton">Next Word</button>
+                <button class="nav-button hidden" id="wordRestartButton">Restart Quiz</button>
+            </div>
+
+            <div class="lookup-sheet-container hidden" id="wordLookupSheet">
+                <h3 class="text-center">Kannada Words Lookup</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Kannada Word</th>
+                            <th>English Meaning</th>
+                            <th>Listen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wordLookupTableBody"></tbody>
+                </table>
+                <button class="lookup-button" id="hideWordLookupButton">Hide Lookup Sheet</button>
+            </div>
+        </div>
+
+        <div id="kannadaSentencesModule" class="module-section hidden">
+            <h2 class="text-center">Kannada Sentences Quiz</h2>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="sentenceProgressBar" style="width: 0%">
+                    <span id="sentenceProgressText">0/0</span>
+                </div>
+            </div>
+            
+            <button class="lookup-button" id="toggleSentenceLookupButton">Show Sentences Lookup</button>
+
+            <div id="sentenceQuizSection">
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="sentenceDisplay"></div>
+                    <button class="pronounce-button" id="sentencePronounceButton">Listen</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4" id="sentenceAnswerButtons"></div>
+                <div class="feedback" id="sentenceFeedback"></div>
+                <p class="score-display">Score: <span id="sentenceScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="sentenceNextButton">Next Sentence</button>
+                <button class="nav-button hidden" id="sentenceRestartButton">Restart Quiz</button>
+            </div>
+
+            <div class="lookup-sheet-container hidden" id="sentenceLookupSheet">
+                <h3 class="text-center">Kannada Sentences Lookup</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Kannada Sentence</th>
+                            <th>English Meaning</th>
+                            <th>Listen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sentenceLookupTableBody"></tbody>
+                </table>
+                <button class="lookup-button" id="hideSentenceLookupButton">Hide Lookup Sheet</button>
+            </div>
+        </div>
+
+        <div id="kannadaGrammarModule" class="module-section hidden">
+            <h2 class="text-center">Kannada Grammar Guide</h2>
+            <div id="grammarContent" class="grammar-section-content"></div>
+            <div class="navigation-buttons">
+                <button id="grammarPrevButton" class="nav-button" disabled>Previous</button>
+                <button id="grammarNextButton" class="nav-button">Next</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const learningData = {
+            stats: {
+                totalWordsLearned: 0,
+                currentStreak: 0,
+                lastStudyDate: null,
+                totalCorrect: 0,
+                totalAttempts: 0
+            },
+            wordMastery: {},
+            achievements: {
+                firstStep: false,
+                tenCorrect: false,
+                perfectScore: false,
+                weekStreak: false,
+                hundredWords: false,
+                speedster: false,
+                persistent: false,
+                polyglot: false
+            },
+            
+            load() {
+                const stored = window.kannadaLearningData;
+                if (stored) {
+                    Object.assign(this.stats, stored.stats || {});
+                    Object.assign(this.wordMastery, stored.wordMastery || {});
+                    Object.assign(this.achievements, stored.achievements || {});
+                }
+                this.updateStreak();
+            },
+            
+            save() {
+                window.kannadaLearningData = {
+                    stats: {...this.stats},
+                    wordMastery: {...this.wordMastery},
+                    achievements: {...this.achievements}
+                };
+            },
+            
+            updateStreak() {
+                const today = new Date().toDateString();
+                if (!this.stats.lastStudyDate) {
+                    this.stats.currentStreak = 0;
+                } else {
+                    const lastDate = new Date(this.stats.lastStudyDate);
+                    const todayDate = new Date(today);
+                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 0) {
+                    } else if (diffDays === 1) {
+                        this.stats.currentStreak++;
+                    } else {
+                        this.stats.currentStreak = 1;
+                    }
+                }
+                this.stats.lastStudyDate = today;
+                this.checkAchievements();
+                this.save();
+            },
+            
+            recordAttempt(itemId, correct) {
+                this.stats.totalAttempts++;
+                if (correct) {
+                    this.stats.totalCorrect++;
+                    if (!this.wordMastery[itemId]) {
+                        this.stats.totalWordsLearned++;
+                    }
+                    this.wordMastery[itemId] = (this.wordMastery[itemId] || 0) + 1;
+                } else {
+                    this.wordMastery[itemId] = Math.max(0, (this.wordMastery[itemId] || 0) - 1);
+                }
+                this.checkAchievements();
+                this.save();
+                this.updateDashboard();
+            },
+            
+            getDifficulty(itemId) {
+                const mastery = this.wordMastery[itemId] || 0;
+                if (mastery >= 5) return 1;
+                if (mastery >= 2) return 2;
+                return 3;
+            },
+            
+            checkAchievements() {
+                const prev = {...this.achievements};
+                
+                if (this.stats.totalCorrect >= 1) this.achievements.firstStep = true;
+                if (this.stats.totalCorrect >= 10) this.achievements.tenCorrect = true;
+                if (this.stats.totalWordsLearned >= 100) this.achievements.hundredWords = true;
+                if (this.stats.currentStreak >= 7) this.achievements.weekStreak = true;
+                
+                Object.keys(this.achievements).forEach(key => {
+                    if (!prev[key] && this.achievements[key]) {
+                        showAchievementUnlock(key);
+                    }
+                });
+                
+                this.save();
+                updateAchievementsDisplay();
+            },
+            
+            updateDashboard() {
+                document.getElementById('totalWordsLearned').textContent = this.stats.totalWordsLearned;
+                document.getElementById('currentStreak').textContent = this.stats.currentStreak;
+                document.getElementById('totalCorrect').textContent = this.stats.totalCorrect;
+                const accuracy = this.stats.totalAttempts > 0 
+                    ? Math.round((this.stats.totalCorrect / this.stats.totalAttempts) * 100)
+                    : 0;
+                document.getElementById('overallAccuracy').textContent = accuracy + '%';
+            }
+        };
+        
+        const achievementDefs = {
+            firstStep: { icon: '🎯', name: 'First Step', desc: 'Get your first correct answer' },
+            tenCorrect: { icon: '⭐', name: 'Star Learner', desc: 'Get 10 correct answers' },
+            perfectScore: { icon: '💯', name: 'Perfect!', desc: 'Complete a quiz with 100%' },
+            weekStreak: { icon: '🔥', name: 'Week Warrior', desc: 'Study for 7 days in a row' },
+            hundredWords: { icon: '📚', name: 'Vocabulary Master', desc: 'Learn 100 words' },
+            speedster: { icon: '⚡', name: 'Speedster', desc: 'Answer 10 in a row quickly' },
+            persistent: { icon: '💪', name: 'Persistent', desc: 'Complete 50 quizzes' },
+            polyglot: { icon: '🌟', name: 'Polyglot', desc: 'Master all modules' }
+        };
+        
+        function showAchievementUnlock(achievementKey) {
+            const achievement = achievementDefs[achievementKey];
+            if (!achievement) return;
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
+                color: white;
+                padding: 2rem;
+                border-radius: 1rem;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                animation: celebrate 0.6s ease;
+            `;
+            notification.innerHTML = `
+                <div style="font-size: 4rem; margin-bottom: 1rem;">${achievement.icon}</div>
+                <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Achievement Unlocked!</div>
+                <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">${achievement.name}</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">${achievement.desc}</div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transition = 'opacity 0.5s';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+        
+        function updateAchievementsDisplay() {
+            const grid = document.getElementById('achievementGrid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            Object.keys(achievementDefs).forEach(key => {
+                const achievement = achievementDefs[key];
+                const unlocked = learningData.achievements[key];
+                
+                const badge = document.createElement('div');
+                badge.className = `achievement-badge ${unlocked ? 'unlocked' : ''}`;
+                badge.title = achievement.desc;
+                badge.innerHTML = `
+                    <div class="achievement-icon" style="filter: ${unlocked ? 'none' : 'grayscale(100%) opacity(0.3)'}">
+                        ${achievement.icon}
+                    </div>
+                    <div class="achievement-name" style="opacity: ${unlocked ? '1' : '0.5'}">
+                        ${achievement.name}
+                    </div>
+                `;
+                grid.appendChild(badge);
+            });
+        }
+        
+        function updateProgressBar(modulePrefix, current, total) {
+            const progressBar = document.getElementById(`${modulePrefix}ProgressBar`);
+            const progressText = document.getElementById(`${modulePrefix}ProgressText`);
+            if (progressBar && progressText) {
+                const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+                progressBar.style.width = percentage + '%';
+                progressText.textContent = `${current}/${total}`;
+            }
+        }
+        
+        function displayDifficulty(containerId, difficulty) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            container.innerHTML = '';
+            for (let i = 1; i <= 3; i++) {
+                const star = document.createElement('span');
+                star.className = `difficulty-star ${i <= difficulty ? '' : 'empty'}`;
+                star.textContent = '★';
+                container.appendChil
+				container.appendChild(star);
+            }
+        }
+        
+        const wordContextData = {
+            'ನಮಸ್ಕಾರ': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f64f.png', mnemonic: 'Imagine greeting with folded hands - ನಮಸ್ಕಾರ!' },
+            'ಧನ್ಯವಾದ': { mnemonic: 'Think "dhanya-vada" - thanking someone' },
+            'ನೀರು': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4a7.png', mnemonic: 'ನೀರು sounds like "nee-ru" - water you need' },
+            'ನಾಯಿ': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f415.png', mnemonic: 'ನಾಯಿ - sounds like "naayi" (dog)' },
+            'ಮರ': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f333.png', mnemonic: 'ಮರ - "mara" like "marathon" under a tree' },
+            'ಮನೆ': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3e0.png', mnemonic: 'ಮನೆ - "mane" like "man\'s" house' },
+            'ಪುಸ್ತಕ': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4d6.png', mnemonic: 'ಪುಸ್ತಕ - sounds like "pusthaka" (book)' }
+        };
+        
+        function showWordContext(word) {
+            const context = wordContextData[word];
+            const imageEl = document.getElementById('wordImage');
+            const mnemonicEl = document.getElementById('wordMnemonic');
+            
+            if (context) {
+                if (context.image && imageEl) {
+                    imageEl.src = context.image;
+                    imageEl.style.display = 'block';
+                } else if (imageEl) {
+                    imageEl.style.display = 'none';
+                }
+                
+                if (context.mnemonic && mnemonicEl) {
+                    mnemonicEl.textContent = '💡 ' + context.mnemonic;
+                    mnemonicEl.style.display = 'block';
+                } else if (mnemonicEl) {
+                    mnemonicEl.style.display = 'none';
+                }
+            } else {
+                if (imageEl) imageEl.style.display = 'none';
+                if (mnemonicEl) mnemonicEl.style.display = 'none';
+            }
+        }
+        
+        function speakKannada(text) {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Web Speech API not supported in this browser.');
+                return;
+            }
+
+            const synth = window.speechSynthesis;
+
+            function getKannadaVoice() {
+                const voices = synth.getVoices();
+                return voices.find(v => v.lang.toLowerCase().includes('kn')) || null;
+            }
+
+            function doSpeak() {
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'kn-IN';
+                const kannadaVoice = getKannadaVoice();
+                if (kannadaVoice) {
+                    utter.voice = kannadaVoice;
+                } else {
+                    console.warn('Kannada voice not found. Using default.');
+                }
+                synth.cancel();
+                setTimeout(() => synth.speak(utter), 150);
+            }
+
+            if (synth.getVoices().length === 0) {
+                synth.onvoiceschanged = doSpeak;
+            } else {
+                doSpeak();
+            }
+        }
+
+        window.speechSynthesis.onvoiceschanged = () => {
+            console.log("SpeechSynthesis voices changed/loaded.");
+        };
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const moduleSections = document.querySelectorAll('.module-section');
+        const navButtons = {
+            alphabets: document.getElementById('navAlphabets'),
+            words: document.getElementById('navWords'),
+            sentences: document.getElementById('navSentences'),
+            grammar: document.getElementById('navGrammar')
+        };
+        let activeModuleId = 'startScreen';
+
+        function showModule(moduleId) {
+            moduleSections.forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('active');
+            });
+            document.getElementById(moduleId).classList.remove('hidden');
+            document.getElementById(moduleId).classList.add('active');
+            activeModuleId = moduleId;
+
+            if (moduleId === 'kannadaAlphabetsModule') {
+                alphabetQuiz.restartQuiz();
+            } else if (moduleId === 'kannadaWordsModule') {
+                wordQuiz.restartQuiz();
+            } else if (moduleId === 'kannadaSentencesModule') {
+                sentenceQuiz.restartQuiz();
+            } else if (moduleId === 'kannadaGrammarModule') {
+                grammarGuide.init();
+            }
+        }
+
+        navButtons.alphabets.addEventListener('click', () => showModule('kannadaAlphabetsModule'));
+        navButtons.words.addEventListener('click', () => showModule('kannadaWordsModule'));
+        navButtons.sentences.addEventListener('click', () => showModule('kannadaSentencesModule'));
+        navButtons.grammar.addEventListener('click', () => showModule('kannadaGrammarModule'));
+
+        const alphabetQuiz = (function() {
+            const data = [
+                { char: 'ಅ', correct: 'a', options: ['a', 'aa', 'i', 'u'] },
+                { char: 'ಆ', correct: 'aa', options: ['aa', 'a', 'e', 'o'] },
+                { char: 'ಇ', correct: 'i', options: ['i', 'ee', 'u', 'e'] },
+                { char: 'ಈ', correct: 'ee', options: ['ee', 'i', 'e', 'ai'] },
+                { char: 'ಉ', correct: 'u', options: ['u', 'oo', 'e', 'o'] },
+                { char: 'ಊ', correct: 'oo', options: ['oo', 'u', 'ei', 'ai'] },
+                { char: 'ಋ', correct: 'ru', options: ['ru', 'ri', 'ra', 'ro'] },
+                { char: 'ಎ', correct: 'e', options: ['e', 'ee', 'ai', 'o'] },
+                { char: 'ಏ', correct: 'e (long)', options: ['e (long)', 'e', 'ai', 'o'] },
+                { char: 'ಐ', correct: 'ai', options: ['ai', 'ei', 'oi', 'ae'] },
+                { char: 'ಒ', correct: 'o', options: ['o', 'oo', 'u', 'a'] },
+                { char: 'ಓ', correct: 'o (long)', options: ['o (long)', 'o', 'au', 'u'] },
+                { char: 'ಔ', correct: 'au', options: ['au', 'ao', 'ou', 'eo'] },
+                { char: 'ಅಂ', correct: 'am (anusvara)', options: ['am (anusvara)', 'ah', 'an', 'ang'] },
+                { char: 'ಅಃ', correct: 'ah (visarga)', options: ['ah (visarga)', 'am', 'an', 'ah'] },
+                { char: 'ಕ', correct: 'ka', options: ['ka', 'kha', 'ga', 'gha'] },
+                { char: 'ಖ', correct: 'kha', options: ['kha', 'ka', 'ga', 'gha'] },
+                { char: 'ಗ', correct: 'ga', options: ['ga', 'gha', 'ka', 'kha'] },
+                { char: 'ಘ', correct: 'gha', options: ['gha', 'ga', 'ka', 'kha'] },
+                { char: 'ಙ', correct: 'nga', options: ['nga', 'na', 'ma', 'nja'] },
+                { char: 'ಚ', correct: 'cha', options: ['cha', 'chha', 'ja', 'jha'] },
+                { char: 'ಛ', correct: 'chha', options: ['chha', 'cha', 'ja', 'jha'] },
+                { char: 'ಜ', correct: 'ja', options: ['ja', 'jha', 'cha', 'chha'] },
+                { char: 'ಝ', correct: 'jha', options: ['jha', 'ja', 'cha', 'chha'] },
+                { char: 'ಞ', correct: 'nja', options: ['nja', 'na', 'ma', 'nga'] },
+                { char: 'ಟ', correct: 'ta (hard)', options: ['ta (hard)', 'tha', 'da', 'dha'] },
+                { char: 'ಠ', correct: 'tha (hard)', options: ['tha (hard)', 'ta', 'da', 'dha'] },
+                { char: 'ಡ', correct: 'da (hard)', options: ['da (hard)', 'dha', 'ta', 'tha'] },
+                { char: 'ಢ', correct: 'dha (hard)', options: ['dha (hard)', 'da', 'ta', 'tha'] },
+                { char: 'ಣ', correct: 'na (hard)', options: ['na (hard)', 'na', 'ma', 'la'] },
+                { char: 'ತ', correct: 'ta', options: ['ta', 'tha', 'da', 'dha'] },
+                { char: 'ಥ', correct: 'tha', options: ['tha', 'ta', 'da', 'dha'] },
+                { char: 'ದ', correct: 'da', options: ['da', 'dha', 'ta', 'tha'] },
+                { char: 'ಧ', correct: 'dha', options: ['dha', 'da', 'ta', 'tha'] },
+                { char: 'ನ', correct: 'na', options: ['na', 'ma', 'la', 'ra'] },
+                { char: 'ಪ', correct: 'pa', options: ['pa', 'pha', 'ba', 'bha'] },
+                { char: 'ಫ', correct: 'pha', options: ['pha', 'pa', 'ba', 'bha'] },
+                { char: 'ಬ', correct: 'ba', options: ['ba', 'bha', 'pa', 'pha'] },
+                { char: 'ಭ', correct: 'bha', options: ['bha', 'ba', 'pa', 'pha'] },
+                { char: 'ಮ', correct: 'ma', options: ['ma', 'na', 'la', 'ra'] },
+                { char: 'ಯ', correct: 'ya', options: ['ya', 'ra', 'la', 'va'] },
+                { char: 'ರ', correct: 'ra', options: ['ra', 'la', 'ya', 'va'] },
+                { char: 'ಲ', correct: 'la', options: ['la', 'ra', 'va', 'ya'] },
+                { char: 'ವ', correct: 'va', options: ['va', 'wa', 'ya', 'la'] },
+                { char: 'ಶ', correct: 'sha', options: ['sha', 'sa', 'shha', 'ha'] },
+                { char: 'ಷ', correct: 'shha', options: ['shha', 'sha', 'sa', 'ha'] },
+                { char: 'ಸ', correct: 'sa', options: ['sa', 'sha', 'shha', 'ha'] },
+                { char: 'ಹ', correct: 'ha', options: ['ha', 'sha', 'sa', 'ga'] },
+                { char: 'ಳ', correct: 'la (retroflex)', options: ['la (retroflex)', 'la', 'ra', 'da'] },
+                { char: 'ಱ', correct: 'ra (hard)', options: ['ra (hard)', 'ra', 'la', 'da'] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let shuffledItems = [];
+
+            const charDisplay = document.getElementById('alphabetChar');
+            const answerButtonsContainer = document.getElementById('alphabetAnswerButtons');
+            const feedbackDisplay = document.getElementById('alphabetFeedback');
+            const scoreDisplay = document.getElementById('alphabetScoreDisplay');
+            const nextButton = document.getElementById('alphabetNextButton');
+            const restartButton = document.getElementById('alphabetRestartButton');
+            const toggleLookupButton = document.getElementById('toggleAlphabetLookupButton');
+            const hideLookupButton = document.getElementById('hideAlphabetLookupButton');
+            const lookupSheet = document.getElementById('alphabetLookupSheet');
+            const quizSection = document.getElementById('alphabetQuizSection');
+            const lookupTableBody = document.getElementById('alphabetLookupTableBody');
+            const pronounceButton = document.getElementById('alphabetPronounceButton');
+
+            function loadQuestion() {
+                feedbackDisplay.textContent = '';
+                feedbackDisplay.className = 'feedback';
+                nextButton.classList.add('hidden');
+                restartButton.classList.add('hidden');
+
+                if (currentQuestionIndex >= shuffledItems.length) {
+                    charDisplay.textContent = 'Quiz Over!';
+                    answerButtonsContainer.innerHTML = '';
+                    const percentage = Math.round((score / shuffledItems.length) * 100);
+                    feedbackDisplay.textContent = `You scored ${score} out of ${shuffledItems.length}! (${percentage}%)`;
+                    feedbackDisplay.classList.add('text-blue-600');
+                    
+                    if (percentage === 100 && shuffledItems.length >= 5) {
+                        learningData.achievements.perfectScore = true;
+                        learningData.checkAchievements();
+                    }
+                    
+                    restartButton.classList.remove('hidden');
+                    return;
+                }
+
+                const currentItem = shuffledItems[currentQuestionIndex];
+                charDisplay.textContent = currentItem.char;
+                
+                updateProgressBar('alphabet', currentQuestionIndex, shuffledItems.length);
+
+                let options = [...currentItem.options].filter(option => option !== undefined);
+                while (options.length < 4) {
+                    options.push(`distractor${options.length}`);
+                }
+                shuffleArray(options);
+
+                answerButtonsContainer.innerHTML = '';
+                options.slice(0, 4).forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('answer-button');
+                    button.addEventListener('click', () => checkAnswer(option, currentItem.correct));
+                    answerButtonsContainer.appendChild(button);
+                });
+                enableButtons();
+            }
+
+            function checkAnswer(selectedOption, correctAnswer) {
+                disableButtons();
+                const itemId = 'alphabet_' + charDisplay.textContent;
+                const correct = selectedOption === correctAnswer;
+                
+                learningData.recordAttempt(itemId, correct);
+                
+                if (correct) {
+                    feedbackDisplay.textContent = 'Correct!';
+                    feedbackDisplay.classList.add('correct');
+                    score++;
+                    charDisplay.classList.add('celebrating');
+                    setTimeout(() => charDisplay.classList.remove('celebrating'), 600);
+                } else {
+                    feedbackDisplay.textContent = `Incorrect! The correct answer was "${correctAnswer}".`;
+                    feedbackDisplay.classList.add('incorrect');
+                    Array.from(answerButtonsContainer.children).forEach(button => {
+                        if (button.textContent === correctAnswer) {
+                            button.classList.add('correct');
+                        } else if (button.textContent === selectedOption) {
+                            button.classList.add('incorrect');
+                        }
+                    });
+                }
+                scoreDisplay.textContent = score;
+                nextButton.classList.remove('hidden');
+            }
+
+            function disableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => { button.disabled = true; });
+                pronounceButton.disabled = true;
+            }
+
+            function enableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => {
+                    button.disabled = false;
+                    button.classList.remove('correct', 'incorrect');
+                });
+                pronounceButton.disabled = false;
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                loadQuestion();
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                scoreDisplay.textContent = score;
+                shuffledItems = shuffleArray([...data]);
+                loadQuestion();
+                quizSection.classList.remove('hidden');
+                lookupSheet.classList.add('hidden');
+                toggleLookupButton.textContent = 'Show Alphabet Lookup';
+            }
+
+            function populateLookupTable() {
+                lookupTableBody.innerHTML = '';
+                let currentSection = '';
+
+                data.forEach(item => {
+                    if (item.char === 'ಅ' && currentSection !== 'vowels') {
+                        const headingRow = document.createElement('tr');
+                        headingRow.innerHTML = `<td colspan="3" class="text-center font-bold text-lg py-2 bg-blue-100">Vowels (ಸ್ವರಗಳು - Swaragalu)</td>`;
+                        lookupTableBody.appendChild(headingRow);
+                        currentSection = 'vowels';
+                    } else if (item.char === 'ಕ' && currentSection !== 'consonants') {
+                        const headingRow = document.createElement('tr');
+                        headingRow.innerHTML = `<td colspan="3" class="text-center font-bold text-lg py-2 bg-blue-100">Consonants (ವ್ಯಂಜನಗಳು - Vyanjanagalu)</td>`;
+                        lookupTableBody.appendChild(headingRow);
+                        currentSection = 'consonants';
+                    }
+
+                    const row = document.createElement('tr');
+                    const kannadaCell = document.createElement('td');
+                    const englishCell = document.createElement('td');
+                    const listenCell = document.createElement('td');
+                    kannadaCell.textContent = item.char;
+                    englishCell.textContent = item.correct;
+                    const listenButton = document.createElement('button');
+                    listenButton.textContent = '🔊';
+                    listenButton.classList.add('lookup-pronounce-button');
+                    listenButton.title = `Listen to ${item.char}`;
+                    listenButton.addEventListener('click', () => speakKannada(item.char));
+                    listenCell.appendChild(listenButton);
+                    row.appendChild(kannadaCell);
+                    row.appendChild(englishCell);
+                    row.appendChild(listenCell);
+                    lookupTableBody.appendChild(row);
+                });
+            }
+
+            function toggleLookupSheet() {
+                lookupSheet.classList.toggle('hidden');
+                quizSection.classList.toggle('hidden');
+                toggleLookupButton.textContent = lookupSheet.classList.contains('hidden') ? 'Show Alphabet Lookup' : 'Hide Lookup Sheet';
+                if (!lookupSheet.classList.contains('hidden')) {
+                    populateLookupTable();
+                }
+            }
+
+            nextButton.addEventListener('click', nextQuestion);
+            restartButton.addEventListener('click', restartQuiz);
+            toggleLookupButton.addEventListener('click', toggleLookupSheet);
+            hideLookupButton.addEventListener('click', toggleLookupSheet);
+            pronounceButton.addEventListener('click', () => speakKannada(charDisplay.textContent));
+
+            return { restartQuiz };
+        })();
+
+        const wordQuiz = (function() {
+            const data = [
+                { text: 'ನಮಸ್ಕಾರ', correct: 'Hello / Greetings', options: ['Hello / Greetings', 'Thank you', 'Goodbye', 'How are you?'] },
+                { text: 'ಧನ್ಯವಾದ', correct: 'Thank you', options: ['Thank you', 'Hello', 'Please', 'Sorry'] },
+                { text: 'ಹೌದು', correct: 'Yes', options: ['Yes', 'No', 'Maybe', 'Please'] },
+                { text: 'ಇಲ್ಲ', correct: 'No', options: ['No', 'Yes', 'Hello', 'Thank you'] },
+                { text: 'ನೀರು', correct: 'Water', options: ['Water', 'Milk', 'Food', 'Bread'] },
+                { text: 'ನಾನು', correct: 'I / Me', options: ['I / Me', 'You', 'He', 'She'] },
+                { text: 'ನೀನು', correct: 'You (informal)', options: ['You (informal)', 'I', 'He', 'They'] },
+                { text: 'ಅವನು', correct: 'He', options: ['He', 'She', 'It', 'They'] },
+                { text: 'ಅವಳು', correct: 'She', options: ['She', 'He', 'It', 'We'] },
+                { text: 'ಅದು', correct: 'It', options: ['It', 'This', 'That', 'These'] },
+                { text: 'ನಾವು', correct: 'We', options: ['We', 'They', 'You', 'I'] },
+                { text: 'ನಾಯಿ', correct: 'Dog', options: ['Dog', 'Cat', 'Bird', 'Fish'] },
+                { text: 'ಮರ', correct: 'Tree', options: ['Tree', 'Flower', 'Bush', 'Grass'] },
+                { text: 'ಮನೆ', correct: 'House', options: ['House', 'School', 'Shop', 'Office'] },
+                { text: 'ಪುಸ್ತಕ', correct: 'Book', options: ['Book', 'Pen', 'Paper', 'Table'] },
+                { text: 'ದೊಡ್ಡ', correct: 'Big', options: ['Big', 'Small', 'New', 'Old'] },
+                { text: 'ಚಿಕ್ಕ', correct: 'Small', options: ['Small', 'Big', 'Tall', 'Short'] },
+                { text: 'ಪ್ರೀತಿ', correct: 'Love', options: ['Love', 'Hate', 'Fear', 'Joy'] },
+                { text: 'ಶಾಲೆ', correct: 'School', options: ['School', 'House', 'Hospital', 'Park'] },
+                { text: 'ಊಟ', correct: 'Food / Meal', options: ['Food / Meal', 'Drink', 'Sleep', 'Walk'] },
+                { text: 'ಕಣ್ಣು', correct: 'Eye', options: ['Eye', 'Ear', 'Nose', 'Mouth'] },
+                { text: 'ಬಾಯಿ', correct: 'Mouth', options: ['Mouth', 'Nose', 'Ear', 'Eye'] },
+                { text: 'ಕೈ', correct: 'Hand', options: ['Hand', 'Leg', 'Foot', 'Arm'] },
+                { text: 'ಕಿವಿ', correct: 'Ear', options: ['Ear', 'Eye', 'Nose', 'Mouth'] },
+                { text: 'ಹೂವು', correct: 'Flower', options: ['Flower', 'Tree', 'Plant', 'Leaf'] },
+                { text: 'ಬೆಕ್ಕು', correct: 'Cat', options: ['Cat', 'Dog', 'Bird', 'Fish'] },
+                { text: 'ಮೀನು', correct: 'Fish', options: ['Fish', 'Bird', 'Insect', 'Snake'] },
+                { text: 'ಹಣ', correct: 'Money', options: ['Money', 'Gold', 'Silver', 'Jewelry'] },
+                { text: 'ಸೂರ್ಯ', correct: 'Sun', options: ['Sun', 'Moon', 'Star', 'Sky'] },
+                { text: 'ಚಂದ್ರ', correct: 'Moon', options: ['Moon', 'Sun', 'Star', 'Cloud'] },
+                { text: 'ದಿನ', correct: 'Day', options: ['Day', 'Night', 'Week', 'Month'] },
+                { text: 'ರಾತ್ರಿ', correct: 'Night', options: ['Night', 'Day', 'Morning', 'Evening'] },
+                { text: 'ಬೆಳಿಗ್ಗೆ', correct: 'Morning', options: ['Morning', 'Evening', 'Night', 'Afternoon'] },
+                { text: 'ಸಂಜೆ', correct: 'Evening', options: ['Evening', 'Morning', 'Night', 'Afternoon'] },
+                { text: 'ಇಂದು', correct: 'Today', options: ['Today', 'Tomorrow', 'Yesterday', 'Now'] },
+                { text: 'ನಾಳೆ', correct: 'Tomorrow', options: ['Tomorrow', 'Today', 'Yesterday', 'Now'] },
+                { text: 'ನಿನ್ನೆ', correct: 'Yesterday', options: ['Yesterday', 'Today', 'Tomorrow', 'Now'] },
+                { text: 'ಈಗ', correct: 'Now', options: ['Now', 'Later', 'Before', 'After'] },
+                { text: 'ಅಲ್ಲಿ', correct: 'There', options: ['There', 'Here', 'Where', 'When'] },
+                { text: 'ಇಲ್ಲಿ', correct: 'Here', options: ['Here', 'There', 'Where', 'When'] },
+                { text: 'ಒಳಗೆ', correct: 'Inside', options: ['Inside', 'Outside', 'Up', 'Down'] },
+                { text: 'ಹೊರಗೆ', correct: 'Outside', options: ['Outside', 'Inside', 'Up', 'Down'] },
+                { text: 'ಮೇಲೆ', correct: 'Up / Above', options: ['Up / Above', 'Down', 'Inside', 'Outside'] },
+                { text: 'ಕೆಳಗೆ', correct: 'Down / Below', options: ['Down / Below', 'Up', 'Inside', 'Outside'] },
+                { text: 'ಹೊಸ', correct: 'New', options: ['New', 'Old', 'Big', 'Small'] },
+                { text: 'ಹಳೆಯ', correct: 'Old', options: ['Old', 'New', 'Good', 'Bad'] },
+                { text: 'ಬಾ', correct: 'Come', options: ['Come', 'Go', 'Eat', 'Drink'] },
+                { text: 'ಹೋಗು', correct: 'Go', options: ['Go', 'Come', 'Eat', 'Sleep'] },
+                { text: 'ಕುಳಿತುಕೊ', correct: 'Sit', options: ['Sit', 'Stand', 'Walk', 'Run'] },
+                { text: 'ನಿಲ್ಲು', correct: 'Stand', options: ['Stand', 'Sit', 'Walk', 'Run'] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let shuffledItems = [];
+
+            const textDisplay = document.getElementById('wordDisplay');
+            const answerButtonsContainer = document.getElementById('wordAnswerButtons');
+            const feedbackDisplay = document.getElementById('wordFeedback');
+            const scoreDisplay = document.getElementById('wordScoreDisplay');
+            const nextButton = document.getElementById('wordNextButton');
+            const restartButton = document.getElementById('wordRestartButton');
+            const toggleLookupButton = document.getElementById('toggleWordLookupButton');
+            const hideLookupButton = document.getElementById('hideWordLookupButton');
+            const lookupSheet = document.getElementById('wordLookupSheet');
+            const quizSection = document.getElementById('wordQuizSection');
+            const lookupTableBody = document.getElementById('wordLookupTableBody');
+            const pronounceButton = document.getElementById('wordPronounceButton');
+
+            function loadQuestion() {
+                feedbackDisplay.textContent = '';
+                feedbackDisplay.className = 'feedback';
+                nextButton.classList.add('hidden');
+                restartButton.classList.add('hidden');
+
+                if (currentQuestionIndex >= shuffledItems.length) {
+                    textDisplay.textContent = 'Quiz Over!';
+                    answerButtonsContainer.innerHTML = '';
+                    const percentage = Math.round((score / shuffledItems.length) * 100);
+                    feedbackDisplay.textContent = `You scored ${score} out of ${shuffledItems.length}! (${percentage}%)`;
+                    feedbackDisplay.classList.add('text-blue-600');
+                    
+                    if (percentage === 100 && shuffledItems.length >= 5) {
+                        learningData.achievements.perfectScore = true;
+                        learningData.checkAchievements();
+						}
+                    
+                    restartButton.classList.remove('hidden');
+                    return;
+                }
+
+                const currentItem = shuffledItems[currentQuestionIndex];
+                textDisplay.textContent = currentItem.text;
+                
+                updateProgressBar('word', currentQuestionIndex, shuffledItems.length);
+                showWordContext(currentItem.text);
+                
+                const itemId = 'word_' + currentItem.text;
+                const difficulty = learningData.getDifficulty(itemId);
+                displayDifficulty('wordDifficulty', difficulty);
+
+                let options = [...currentItem.options].filter(option => option !== undefined);
+                while (options.length < 4) {
+                    options.push(`distractor${options.length}`);
+                }
+                shuffleArray(options);
+
+                answerButtonsContainer.innerHTML = '';
+                options.slice(0, 4).forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('answer-button');
+                    button.addEventListener('click', () => checkAnswer(option, currentItem.correct));
+                    answerButtonsContainer.appendChild(button);
+                });
+                enableButtons();
+            }
+
+            function checkAnswer(selectedOption, correctAnswer) {
+                disableButtons();
+                const itemId = 'word_' + textDisplay.textContent;
+                const correct = selectedOption === correctAnswer;
+                
+                learningData.recordAttempt(itemId, correct);
+                
+                if (correct) {
+                    feedbackDisplay.textContent = 'Correct!';
+                    feedbackDisplay.classList.add('correct');
+                    score++;
+                    textDisplay.classList.add('celebrating');
+                    setTimeout(() => textDisplay.classList.remove('celebrating'), 600);
+                } else {
+                    feedbackDisplay.textContent = `Incorrect! The correct answer was "${correctAnswer}".`;
+                    feedbackDisplay.classList.add('incorrect');
+                    Array.from(answerButtonsContainer.children).forEach(button => {
+                        if (button.textContent === correctAnswer) {
+                            button.classList.add('correct');
+                        } else if (button.textContent === selectedOption) {
+                            button.classList.add('incorrect');
+                        }
+                    });
+                }
+                scoreDisplay.textContent = score;
+                nextButton.classList.remove('hidden');
+            }
+
+            function disableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => { button.disabled = true; });
+                pronounceButton.disabled = true;
+            }
+
+            function enableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => {
+                    button.disabled = false;
+                    button.classList.remove('correct', 'incorrect');
+                });
+                pronounceButton.disabled = false;
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                loadQuestion();
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                scoreDisplay.textContent = score;
+                
+                const itemsWithDifficulty = data.map(item => {
+                    const itemId = 'word_' + item.text;
+                    const difficulty = learningData.getDifficulty(itemId);
+                    return { ...item, difficulty, id: itemId };
+                });
+                
+                itemsWithDifficulty.sort((a, b) => b.difficulty - a.difficulty);
+                
+                const hardItems = itemsWithDifficulty.filter(i => i.difficulty === 3);
+                const mediumItems = itemsWithDifficulty.filter(i => i.difficulty === 2);
+                const easyItems = itemsWithDifficulty.filter(i => i.difficulty === 1);
+                
+                shuffledItems = [
+                    ...shuffleArray(hardItems).slice(0, Math.min(10, hardItems.length)),
+                    ...shuffleArray(mediumItems).slice(0, Math.min(8, mediumItems.length)),
+                    ...shuffleArray(easyItems).slice(0, Math.min(7, easyItems.length))
+                ];
+                
+                if (shuffledItems.length < 15) {
+                    shuffledItems = shuffleArray([...data]);
+                }
+                
+                loadQuestion();
+                quizSection.classList.remove('hidden');
+                lookupSheet.classList.add('hidden');
+                toggleLookupButton.textContent = 'Show Words Lookup';
+            }
+
+            function populateLookupTable() {
+                lookupTableBody.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    const kannadaCell = document.createElement('td');
+                    const englishCell = document.createElement('td');
+                    const listenCell = document.createElement('td');
+                    kannadaCell.textContent = item.text;
+                    englishCell.textContent = item.correct;
+                    const listenButton = document.createElement('button');
+                    listenButton.textContent = '🔊';
+                    listenButton.classList.add('lookup-pronounce-button');
+                    listenButton.title = `Listen to ${item.text}`;
+                    listenButton.addEventListener('click', () => speakKannada(item.text));
+                    listenCell.appendChild(listenButton);
+                    row.appendChild(kannadaCell);
+                    row.appendChild(englishCell);
+                    row.appendChild(listenCell);
+                    lookupTableBody.appendChild(row);
+                });
+            }
+
+            function toggleLookupSheet() {
+                lookupSheet.classList.toggle('hidden');
+                quizSection.classList.toggle('hidden');
+                toggleLookupButton.textContent = lookupSheet.classList.contains('hidden') ? 'Show Words Lookup' : 'Hide Lookup Sheet';
+                if (!lookupSheet.classList.contains('hidden')) {
+                    populateLookupTable();
+                }
+            }
+
+            nextButton.addEventListener('click', nextQuestion);
+            restartButton.addEventListener('click', restartQuiz);
+            toggleLookupButton.addEventListener('click', toggleLookupSheet);
+            hideLookupButton.addEventListener('click', toggleLookupSheet);
+            pronounceButton.addEventListener('click', () => speakKannada(textDisplay.textContent));
+
+            return { restartQuiz };
+        })();
+
+        const sentenceQuiz = (function() {
+            const data = [
+                { text: 'ನಾನು ಕನ್ನಡ ಕಲಿಯುತ್ತಿದ್ದೇನೆ.', correct: 'I am learning Kannada.', options: ['I am learning Kannada.', 'I speak Kannada.', 'Do you speak Kannada?', 'Kannada is easy.'] },
+                { text: 'ನಿಮ್ಮ ಹೆಸರು ಏನು?', correct: 'What is your name?', options: ['What is your name?', 'How are you?', 'Where are you from?', 'How old are you?'] },
+                { text: 'ನನ್ನ ಹೆಸರು...', correct: 'My name is...', options: ['My name is...', 'I am fine.', 'Nice to meet you.', 'I am from...'] },
+                { text: 'ನೀವು ಹೇಗಿದ್ದೀರಿ?', correct: 'How are you?', options: ['How are you?', 'What are you doing?', 'Where are you going?', 'Are you well?'] },
+                { text: 'ನಾನು ಚೆನ್ನಾಗಿದ್ದೇನೆ.', correct: 'I am fine.', options: ['I am fine.', 'I am not well.', 'I am happy.', 'I am sad.'] },
+                { text: 'ಇದು ಏನು?', correct: 'What is this?', options: ['What is this?', 'Who is this?', 'Where is this?', 'How is this?'] },
+                { text: 'ಅದು ಏನು?', correct: 'What is that?', options: ['What is that?', 'Who is that?', 'Where is that?', 'How is that?'] },
+                { text: 'ಇದು ನನ್ನ ಮನೆ.', correct: 'This is my house.', options: ['This is my house.', 'That is your car.', 'I live here.', 'I am going home.'] },
+                { text: 'ನಿಮಗೆ ಧನ್ಯವಾದ.', correct: 'Thank you.', options: ['Thank you.', 'You are welcome.', 'Please help me.', 'I appreciate it.'] },
+                { text: 'ನಾನು ಬರುತ್ತಿದ್ದೇನೆ.', correct: 'I am coming.', options: ['I am coming.', 'I am going.', 'I am eating.', 'I am sleeping.'] },
+                { text: 'ನಾನು ಹೋಗುತ್ತಿದ್ದೇನೆ.', correct: 'I am going.', options: ['I am going.', 'I am coming.', 'I am eating.', 'I am sleeping.'] },
+                { text: 'ನೀವು ಎಲ್ಲಿಂದ ಬಂದಿದ್ದೀರಿ?', correct: 'Where are you from?', options: ['Where are you from?', 'Where are you going?', 'What is your name?', 'How old are you?'] },
+                { text: 'ನಾನು ಬೆಂಗಳೂರಿನಿಂದ ಬಂದಿದ್ದೇನೆ.', correct: 'I am from Bangalore.', options: ['I am from Bangalore.', 'I live in Bangalore.', 'I am going to Bangalore.', 'Bangalore is my city.'] },
+                { text: 'ನನಗೆ ಹಸಿವಾಗಿದೆ.', correct: 'I am hungry.', options: ['I am hungry.', 'I am thirsty.', 'I am tired.', 'I am happy.'] },
+                { text: 'ನನಗೆ ಬಾಯಾರಿಕೆಯಾಗಿದೆ.', correct: 'I am thirsty.', options: ['I am thirsty.', 'I am hungry.', 'I am tired.', 'I am sad.'] },
+                { text: 'ನಾನು ಸಂತೋಷವಾಗಿದ್ದೇನೆ.', correct: 'I am happy.', options: ['I am happy.', 'I am sad.', 'I am angry.', 'I am tired.'] },
+                { text: 'ಇಂದು ಯಾವ ದಿನ?', correct: 'What day is today?', options: ['What day is today?', 'What time is it?', 'What month is it?', 'What year is it?'] },
+                { text: 'ನಾಳೆ ಭೇಟಿಯಾಗೋಣ.', correct: 'See you tomorrow.', options: ['See you tomorrow.', 'See you later.', 'Goodbye.', 'Have a nice day.'] },
+                { text: 'ನಿಮಗೆ ಅರ್ಥವಾಯಿತೇ?', correct: 'Do you understand?', options: ['Do you understand?', 'Do you speak?', 'Do you know?', 'Do you like it?'] },
+                { text: 'ಹೌದು, ನನಗೆ ಅರ್ಥವಾಗಿದೆ.', correct: 'Yes, I understand.', options: ['Yes, I understand.', 'No, I don\'t understand.', 'Yes, I know.', 'No, I don\'t know.'] },
+                { text: 'ನಾನು ಕನ್ನಡ ಮಾತನಾಡುತ್ತೇನೆ.', correct: 'I speak Kannada.', options: ['I speak Kannada.', 'I learn Kannada.', 'I write Kannada.', 'I read Kannada.'] },
+                { text: 'ನಿಮಗೆ ಕನ್ನಡ ಗೊತ್ತಾ?', correct: 'Do you know Kannada?', options: ['Do you know Kannada?', 'Do you speak Kannada?', 'Can you teach Kannada?', 'Do you like Kannada?'] },
+                { text: 'ಇದು ಎಷ್ಟು?', correct: 'How much is this?', options: ['How much is this?', 'What is this?', 'Where is this?', 'When is this?'] },
+                { text: 'ನನಗೆ ಸಹಾಯ ಬೇಕು.', correct: 'I need help.', options: ['I need help.', 'I want food.', 'I am lost.', 'I am tired.'] },
+                { text: 'ನಾನು ಇಲ್ಲಿ ಹೊಸಬ.', correct: 'I am new here.', options: ['I am new here.', 'I live here.', 'I work here.', 'I study here.'] },
+                { text: 'ಇದು ತುಂಬಾ ಸುಂದರವಾಗಿದೆ.', correct: 'This is very beautiful.', options: ['This is very beautiful.', 'This is very big.', 'This is very small.', 'This is very old.'] },
+                { text: 'ನಾನು ತಿನ್ನಲು ಬಯಸುತ್ತೇನೆ.', correct: 'I want to eat.', options: ['I want to eat.', 'I want to drink.', 'I want to sleep.', 'I want to go.'] },
+                { text: 'ಅಂಗಡಿಗೆ ಹೇಗೆ ಹೋಗುವುದು?', correct: 'How to go to the shop?', options: ['How to go to the shop?', 'Where is the shop?', 'When does the shop open?', 'What is in the shop?'] },
+                { text: 'ನಾನು ಬೆಳಿಗ್ಗೆ ಎದ್ದೆ.', correct: 'I woke up in the morning.', options: ['I woke up in the morning.', 'I sleep in the morning.', 'I eat in the morning.', 'I go in the morning.'] },
+                { text: 'ಇಂದು ಹವಾಮಾನ ಹೇಗಿದೆ?', correct: 'How is the weather today?', options: ['How is the weather today?', 'What day is today?', 'What time is it?', 'Where are you today?'] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let shuffledItems = [];
+
+            const textDisplay = document.getElementById('sentenceDisplay');
+            const answerButtonsContainer = document.getElementById('sentenceAnswerButtons');
+            const feedbackDisplay = document.getElementById('sentenceFeedback');
+            const scoreDisplay = document.getElementById('sentenceScoreDisplay');
+            const nextButton = document.getElementById('sentenceNextButton');
+            const restartButton = document.getElementById('sentenceRestartButton');
+            const toggleLookupButton = document.getElementById('toggleSentenceLookupButton');
+            const hideLookupButton = document.getElementById('hideSentenceLookupButton');
+            const lookupSheet = document.getElementById('sentenceLookupSheet');
+            const quizSection = document.getElementById('sentenceQuizSection');
+            const lookupTableBody = document.getElementById('sentenceLookupTableBody');
+            const pronounceButton = document.getElementById('sentencePronounceButton');
+
+            function loadQuestion() {
+                feedbackDisplay.textContent = '';
+                feedbackDisplay.className = 'feedback';
+                nextButton.classList.add('hidden');
+                restartButton.classList.add('hidden');
+
+                if (currentQuestionIndex >= shuffledItems.length) {
+                    textDisplay.textContent = 'Quiz Over!';
+                    answerButtonsContainer.innerHTML = '';
+                    const percentage = Math.round((score / shuffledItems.length) * 100);
+                    feedbackDisplay.textContent = `You scored ${score} out of ${shuffledItems.length}! (${percentage}%)`;
+                    feedbackDisplay.classList.add('text-blue-600');
+                    
+                    if (percentage === 100 && shuffledItems.length >= 5) {
+                        learningData.achievements.perfectScore = true;
+                        learningData.checkAchievements();
+                    }
+                    
+                    restartButton.classList.remove('hidden');
+                    return;
+                }
+
+                const currentItem = shuffledItems[currentQuestionIndex];
+                textDisplay.textContent = currentItem.text;
+                
+                updateProgressBar('sentence', currentQuestionIndex, shuffledItems.length);
+
+                let options = [...currentItem.options].filter(option => option !== undefined);
+                while (options.length < 4) {
+                    options.push(`distractor${options.length}`);
+                }
+                shuffleArray(options);
+
+                answerButtonsContainer.innerHTML = '';
+                options.slice(0, 4).forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('answer-button');
+                    button.addEventListener('click', () => checkAnswer(option, currentItem.correct));
+                    answerButtonsContainer.appendChild(button);
+                });
+                enableButtons();
+            }
+
+            function checkAnswer(selectedOption, correctAnswer) {
+                disableButtons();
+                const itemId = 'sentence_' + textDisplay.textContent;
+                const correct = selectedOption === correctAnswer;
+                
+                learningData.recordAttempt(itemId, correct);
+                
+                if (correct) {
+                    feedbackDisplay.textContent = 'Correct!';
+                    feedbackDisplay.classList.add('correct');
+                    score++;
+                    textDisplay.classList.add('celebrating');
+                    setTimeout(() => textDisplay.classList.remove('celebrating'), 600);
+                } else {
+                    feedbackDisplay.textContent = `Incorrect! The correct answer was "${correctAnswer}".`;
+                    feedbackDisplay.classList.add('incorrect');
+                    Array.from(answerButtonsContainer.children).forEach(button => {
+                        if (button.textContent === correctAnswer) {
+                            button.classList.add('correct');
+                        } else if (button.textContent === selectedOption) {
+                            button.classList.add('incorrect');
+                        }
+                    });
+                }
+                scoreDisplay.textContent = score;
+                nextButton.classList.remove('hidden');
+            }
+
+            function disableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => { button.disabled = true; });
+                pronounceButton.disabled = true;
+            }
+
+            function enableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => {
+                    button.disabled = false;
+                    button.classList.remove('correct', 'incorrect');
+                });
+                pronounceButton.disabled = false;
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                loadQuestion();
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                scoreDisplay.textContent = score;
+                
+                const itemsWithDifficulty = data.map(item => {
+                    const itemId = 'sentence_' + item.text;
+                    const difficulty = learningData.getDifficulty(itemId);
+                    return { ...item, difficulty, id: itemId };
+                });
+                
+                itemsWithDifficulty.sort((a, b) => b.difficulty - a.difficulty);
+                
+                const hardItems = itemsWithDifficulty.filter(i => i.difficulty === 3);
+                const mediumItems = itemsWithDifficulty.filter(i => i.difficulty === 2);
+                const easyItems = itemsWithDifficulty.filter(i => i.difficulty === 1);
+                
+                shuffledItems = [
+                    ...shuffleArray(hardItems).slice(0, Math.min(8, hardItems.length)),
+                    ...shuffleArray(mediumItems).slice(0, Math.min(7, mediumItems.length)),
+                    ...shuffleArray(easyItems).slice(0, Math.min(5, easyItems.length))
+                ];
+                
+                if (shuffledItems.length < 15) {
+                    shuffledItems = shuffleArray([...data]);
+                }
+                
+                loadQuestion();
+                quizSection.classList.remove('hidden');
+                lookupSheet.classList.add('hidden');
+                toggleLookupButton.textContent = 'Show Sentences Lookup';
+            }
+
+            function populateLookupTable() {
+                lookupTableBody.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    const kannadaCell = document.createElement('td');
+                    const englishCell = document.createElement('td');
+                    const listenCell = document.createElement('td');
+                    kannadaCell.textContent = item.text;
+                    englishCell.textContent = item.correct;
+                    const listenButton = document.createElement('button');
+                    listenButton.textContent = '🔊';
+                    listenButton.classList.add('lookup-pronounce-button');
+                    listenButton.title = `Listen to ${item.text}`;
+                    listenButton.addEventListener('click', () => speakKannada(item.text));
+                    listenCell.appendChild(listenButton);
+                    row.appendChild(kannadaCell);
+                    row.appendChild(englishCell);
+                    row.appendChild(listenCell);
+                    lookupTableBody.appendChild(row);
+                });
+            }
+
+            function toggleLookupSheet() {
+                lookupSheet.classList.toggle('hidden');
+                quizSection.classList.toggle('hidden');
+                toggleLookupButton.textContent = lookupSheet.classList.contains('hidden') ? 'Show Sentences Lookup' : 'Hide Lookup Sheet';
+                if (!lookupSheet.classList.contains('hidden')) {
+                    populateLookupTable();
+                }
+            }
+
+            nextButton.addEventListener('click', nextQuestion);
+            restartButton.addEventListener('click', restartQuiz);
+            toggleLookupButton.addEventListener('click', toggleLookupSheet);
+            hideLookupButton.addEventListener('click', toggleLookupSheet);
+            pronounceButton.addEventListener('click', () => speakKannada(textDisplay.textContent));
+
+            return { restartQuiz };
+        })();
+
+        const grammarGuide = (function() {
+            const grammarContentDiv = document.getElementById('grammarContent');
+            const grammarPrevButton = document.getElementById('grammarPrevButton');
+            const grammarNextButton = document.getElementById('grammarNextButton');
+
+            let currentGrammarSectionIndex = 0;
+
+            const sectionsContent = [
+                `<h2>ನಮಸ್ಕಾರ! (Namaskāra!)</h2>
+                <p>Welcome to your interactive guide to Kannada grammar! We'll explore the basics step-by-step.</p>
+                <p>Click the 🔊 Listen button to hear pronunciations!</p>`,
+
+                `<h2>1. Nouns <span class="kannada-text">(ನಾಮಪದಗಳು - Nāmapadagaḷu)</span></h2>
+                <p>Nouns name people, places, animals, or things.</p>
+                <h3>Common Kannada nouns:</h3>
+                <ul>
+                    <li><span class="kannada-text">ಮನೆ</span> - House <button class="pronounce-button" data-text="ಮನೆ">🔊</button></li>
+                    <li><span class="kannada-text">ಮರ</span> - Tree <button class="pronounce-button" data-text="ಮರ">🔊</button></li>
+                    <li><span class="kannada-text">ನಾಯಿ</span> - Dog <button class="pronounce-button" data-text="ನಾಯಿ">🔊</button></li>
+                </ul>`,
+
+                `<h2>2. Pronouns <span class="kannada-text">(ಸರ್ವನಾಮಗಳು - Sarvanāmagaḷu)</span></h2>
+                <h3>Personal Pronouns:</h3>
+                <ul>
+                    <li><span class="kannada-text">ನಾನು</span> - I <button class="pronounce-button" data-text="ನಾನು">🔊</button></li>
+                    <li><span class="kannada-text">ನೀನು</span> - You (informal) <button class="pronounce-button" data-text="ನೀನು">🔊</button></li>
+                    <li><span class="kannada-text">ನೀವು</span> - You (formal) <button class="pronounce-button" data-text="ನೀವು">🔊</button></li>
+                    <li><span class="kannada-text">ಅವನು</span> - He <button class="pronounce-button" data-text="ಅವನು">🔊</button></li>
+                    <li><span class="kannada-text">ಅವಳು</span> - She <button class="pronounce-button" data-text="ಅವಳು">🔊</button></li>
+                </ul>`,
+
+                `<h2>3. Verbs <span class="kannada-text">(ಕ್ರಿಯಾಪದಗಳು - Kriyāpadagaḷu)</span></h2>
+                <p>Verbs describe actions. Let's learn present tense with <span class="kannada-text">ಹೋಗು</span> (to go):</p>
+                <ul>
+                    <li>ನಾನು ಹೋಗುತ್ತೇನೆ - I go <button class="pronounce-button" data-text="ನಾನು ಹೋಗುತ್ತೇನೆ">🔊</button></li>
+                    <li>ನೀನು ಹೋಗುತ್ತೀಯ - You go <button class="pronounce-button" data-text="ನೀನು ಹೋಗುತ್ತೀಯ">🔊</button></li>
+                    <li>ಅವನು ಹೋಗುತ್ತಾನೆ - He goes <button class="pronounce-button" data-text="ಅವನು ಹೋಗುತ್ತಾನೆ">🔊</button></li>
+                </ul>`,
+
+                `<h2>4. Sentence Structure</h2>
+                <p>Kannada follows Subject-Object-Verb (SOV) order, like Tamil.</p>
+                <div class="grammar-example">
+                    <p><span class="kannada-text">ನಾನು ಹಾಲು ಕುಡಿಯುತ್ತೇನೆ</span> <button class="pronounce-button" data-text="ನಾನು ಹಾಲು ಕುಡಿಯುತ್ತೇನೆ">🔊</button></p>
+                    <p>I milk drink. (I drink milk.)</p>
+                </div>`,
+
+                `<h2>Congratulations!</h2>
+                <p>You've completed the Kannada grammar introduction. Keep practicing!</p>
+                <button class="pronounce-button" data-text="ಧನ್ಯವಾದ">🔊 Listen</button>`
+            ];
+
+            function loadGrammarSection(index) {
+                grammarContentDiv.innerHTML = sectionsContent[index];
+                grammarContentDiv.querySelectorAll('.pronounce-button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const textToSpeak = button.dataset.text || button.closest('li, .grammar-example').querySelector('.kannada-text').textContent;
+                        speakKannada(textToSpeak);
+                    });
+                });
+                updateGrammarNavigationButtons();
+            }
+
+            function updateGrammarNavigationButtons() {
+                grammarPrevButton.disabled = (currentGrammarSectionIndex === 0);
+                grammarNextButton.disabled = (currentGrammarSectionIndex === sectionsContent.length - 1);
+                if (currentGrammarSectionIndex === sectionsContent.length - 1) {
+                    grammarNextButton.textContent = "End Guide";
+                } else {
+                    grammarNextButton.textContent = "Next";
+                }
+            }
+
+            grammarNextButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex < sectionsContent.length - 1) {
+                    currentGrammarSectionIndex++;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                }
+            });
+
+            grammarPrevButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex > 0) {
+                    currentGrammarSectionIndex--;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                }
+            });
+
+            function init() {
+                currentGrammarSectionIndex = 0;
+                loadGrammarSection(currentGrammarSectionIndex);
+            }
+
+            return { init };
+        })();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            learningData.load();
+            learningData.updateDashboard();
+            updateAchievementsDisplay();
+            
+            showModule('startScreen');
+        });
+    </script>
+</body>
+</html>
