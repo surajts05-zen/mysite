@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Tamil Learning Tool</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* General styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+        
+        /* Progress Bar Styles */
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 1rem;
+            height: 24px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #6366f1);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.5rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        /* Achievement Styles */
+        .achievements-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        .achievement-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .achievement-badge.unlocked {
+            background: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .achievement-badge:hover {
+            transform: scale(1.05);
+        }
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+        .achievement-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        /* Celebration Animation */
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .celebrating {
+            animation: celebrate 0.6s ease;
+        }
+        
+        /* Context Image Styles */
+        .word-context {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .context-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 0.75rem;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .mnemonic-hint {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+        
+        /* Difficulty Indicator */
+        .difficulty-stars {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+        .difficulty-star {
+            color: #fbbf24;
+            font-size: 1.2rem;
+        }
+        .difficulty-star.empty {
+            color: #d1d5db;
+        }
+        
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            color: white;
+        }
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        .main-container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+            text-align: left;
+        }
+        h3 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #5a67d8;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #4a5568;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        ol {
+            list-style: decimal;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        li {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        li .tamil-text, li .transliteration, li .translation {
+            margin-right: 0.5rem;
+        }
+        .item-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        .pronounce-button {
+            background-color: #6366f1;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+        .pronounce-button:hover {
+            background-color: #4f46e5;
+        }
+        .answer-button {
+            background-color: #cbd5e0;
+            color: #2d3748;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+        .answer-button:hover {
+            background-color: #a0aec0;
+            transform: translateY(-2px);
+        }
+        .answer-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #e2e8f0;
+        }
+        .correct {
+            background-color: #48bb78 !important;
+            color: white !important;
+        }
+        .incorrect {
+            background-color: #f56565 !important;
+            color: white !important;
+        }
+        .feedback {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .score-display {
+            font-size: 1.25rem;
+            font-weight: medium;
+            color: #4a5568;
+            text-align: center;
+        }
+        .nav-button {
+            background-color: #3182ce;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            text-align: center;
+        }
+        .nav-button:hover {
+            background-color: #2c5282;
+        }
+        .nav-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #a0aec0;
+        }
+        .hidden {
+            display: none;
+        }
+        .lookup-sheet-container {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .lookup-sheet-container h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .lookup-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        .lookup-table th, .lookup-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .lookup-table th {
+            background-color: #edf2f7;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .lookup-table tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        .lookup-table td:first-child {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        .lookup-table td:nth-child(2) {
+            padding-left: 1rem;
+        }
+        .lookup-pronounce-button {
+            background-color: #6366f1;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.3rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            margin-left: 0.5rem;
+        }
+        .lookup-pronounce-button:hover {
+            background-color: #4f46e5;
+        }
+        .grammar-section-content h3 {
+             text-align: left;
+        }
+        .grammar-section-content p {
+             text-align: left;
+        }
+        .grammar-section-content ul, .grammar-section-content ol {
+             text-align: left;
+        }
+        .grammar-section-content li {
+             justify-content: flex-start;
+        }
+        .grammar-example {
+            background-color: #f7fafc;
+            border-left: 4px solid #63b3ed;
+            padding: 1rem 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+            color: #2d3748;
+        }
+        .tamil-text {
+            font-weight: 600;
+            color: #3182ce;
+        }
+        .transliteration {
+            font-style: italic;
+            color: #4c51bf;
+        }
+        .translation {
+            color: #2d3748;
+        }
+        .lookup-button {
+            background-color: #805ad5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            margin-bottom: 1rem;
+        }
+        .lookup-button:hover {
+            background-color: #6b46c1;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 id="mainTitle">Comprehensive Tamil Learning Tool</h1>
+
+        <!-- Main Navigation for Modules -->
+        <div class="flex justify-center gap-2 mb-4">
+            <button class="nav-button" id="navAlphabets">Alphabets</button>
+            <button class="nav-button" id="navWords">Words</button>
+            <button class="nav-button" id="navSentences">Sentences</button>
+            <button class="nav-button" id="navGrammar">Grammar</button>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="module-section active">
+            <h2>Welcome to the Tamil Learning Tool!</h2>
+            
+            <!-- Stats Dashboard -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalWordsLearned">0</div>
+                    <div class="stat-label">Words Learned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Day Streak 🔥</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCorrect">0</div>
+                    <div class="stat-label">Total Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="overallAccuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+            
+            <!-- Achievements Panel -->
+            <div class="achievements-panel">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">🏆 Achievements</h3>
+                <div class="achievement-grid" id="achievementGrid">
+                    <!-- Achievements will be populated here -->
+                </div>
+            </div>
+            
+            <p>This interactive tool will help you learn Tamil alphabets, common words, basic sentences, and fundamental grammar concepts.</p>
+            <p>Navigate using the buttons above to choose your learning module. Click "Alphabets" to start learning the Tamil script!</p>
+        </div>
+
+        <!-- Module: Tamil Alphabets Quiz -->
+        <div id="tamilAlphabetsModule" class="module-section hidden">
+            <h2 class="text-center">Tamil Alphabet Quiz</h2>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="alphabetProgressBar" style="width: 0%">
+                    <span id="alphabetProgressText">0/0</span>
+                </div>
+            </div>
+            
+            <button class="lookup-button" id="toggleAlphabetLookupButton">Show Alphabet Lookup</button>
+
+            <!-- Quiz Section -->
+            <div id="alphabetQuizSection">
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="alphabetChar"></div>
+                    <button class="pronounce-button" id="alphabetPronounceButton">Listen</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="alphabetAnswerButtons">
+                    <!-- Answer buttons will be dynamically added here -->
+                </div>
+                <div class="feedback" id="alphabetFeedback"></div>
+                <p class="score-display">Score: <span id="alphabetScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="alphabetNextButton">Next Alphabet</button>
+                <button class="nav-button hidden" id="alphabetRestartButton">Restart Quiz</button>
+            </div>
+
+            <!-- Lookup Sheet Section (hidden by default) -->
+            <div class="lookup-sheet-container hidden" id="alphabetLookupSheet">
+                <h3 class="text-center">Tamil Alphabet Lookup</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Tamil</th>
+                            <th>English Pronunciation</th>
+                            <th>Listen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alphabetLookupTableBody">
+                        <!-- Lookup data will be dynamically added here -->
+                    </tbody>
+                </table>
+                <button class="lookup-button" id="hideAlphabetLookupButton">Hide Lookup Sheet</button>
+            </div>
+        </div>
+
+        <!-- Module: Tamil Words Quiz -->
+        <div id="tamilWordsModule" class="module-section hidden">
+            <h2 class="text-center">Tamil Words Quiz</h2>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="wordProgressBar" style="width: 0%">
+                    <span id="wordProgressText">0/0</span>
+                </div>
+            </div>
+            
+            <button class="lookup-button" id="toggleWordLookupButton">Show Words Lookup</button>
+
+            <!-- Quiz Section -->
+            <div id="wordQuizSection">
+                <!-- Difficulty Indicator -->
+                <div class="difficulty-stars" id="wordDifficulty"></div>
+                
+                <!-- Context Image & Mnemonic -->
+                <div class="word-context" id="wordContext">
+                    <img class="context-image" id="wordImage" style="display: none;" alt="Word illustration">
+                    <div class="mnemonic-hint" id="wordMnemonic" style="display: none;"></div>
+                </div>
+                
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="wordDisplay"></div>
+                    <button class="pronounce-button" id="wordPronounceButton">Listen</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4" id="wordAnswerButtons">
+                    <!-- Answer buttons will be dynamically added here -->
+                </div>
+                <div class="feedback" id="wordFeedback"></div>
+                <p class="score-display">Score: <span id="wordScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="wordNextButton">Next Word</button>
+                <button class="nav-button hidden" id="wordRestartButton">Restart Quiz</button>
+            </div>
+
+            <!-- Lookup Sheet Section (hidden by default) -->
+            <div class="lookup-sheet-container hidden" id="wordLookupSheet">
+                <h3 class="text-center">Tamil Words Lookup</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Tamil Word</th>
+                            <th>English Meaning</th>
+                            <th>Listen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wordLookupTableBody">
+                        <!-- Lookup data will be dynamically added here -->
+                    </tbody>
+                </table>
+                <button class="lookup-button" id="hideWordLookupButton">Hide Lookup Sheet</button>
+            </div>
+        </div>
+
+        <!-- Module: Tamil Sentences Quiz -->
+        <div id="tamilSentencesModule" class="module-section hidden">
+            <h2 class="text-center">Tamil Sentences Quiz</h2>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="sentenceProgressBar" style="width: 0%">
+                    <span id="sentenceProgressText">0/0</span>
+                </div>
+            </div>
+            
+            <button class="lookup-button" id="toggleSentenceLookupButton">Show Sentences Lookup</button>
+
+            <!-- Quiz Section -->
+            <div id="sentenceQuizSection">
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="sentenceDisplay"></div>
+                    <button class="pronounce-button" id="sentencePronounceButton">Listen</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4" id="sentenceAnswerButtons">
+                    <!-- Answer buttons will be dynamically added here -->
+                </div>
+                <div class="feedback" id="sentenceFeedback"></div>
+                <p class="score-display">Score: <span id="sentenceScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="sentenceNextButton">Next Sentence</button>
+                <button class="nav-button hidden" id="sentenceRestartButton">Restart Quiz</button>
+            </div>
+
+            <!-- Lookup Sheet Section (hidden by default) -->
+            <div class="lookup-sheet-container hidden" id="sentenceLookupSheet">
+                <h3 class="text-center">Tamil Sentences Lookup</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Tamil Sentence</th>
+                            <th>English Meaning</th>
+                            <th>Listen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sentenceLookupTableBody">
+                        <!-- Lookup data will be dynamically added here -->
+                    </tbody>
+                </table>
+                <button class="lookup-button" id="hideSentenceLookupButton">Hide Lookup Sheet</button>
+            </div>
+        </div>
+
+        <!-- Module: Tamil Grammar Guide -->
+        <div id="tamilGrammarModule" class="module-section hidden">
+            <h2 class="text-center">Tamil Grammar Guide: A Conversational Approach</h2>
+            <div id="grammarContent" class="grammar-section-content">
+                <!-- Grammar sections will be loaded here dynamically -->
+            </div>
+            <div class="navigation-buttons">
+                <button id="grammarPrevButton" class="nav-button" disabled>Previous</button>
+                <button id="grammarNextButton" class="nav-button">Next</button>
+            </div>
+        </div>
+
+    </div>
+	<script>
+        // --- Global Learning Data Management ---
+        const learningData = {
+            stats: {
+                totalWordsLearned: 0,
+                currentStreak: 0,
+                lastStudyDate: null,
+                totalCorrect: 0,
+                totalAttempts: 0
+            },
+            wordMastery: {}, // Track difficulty for each item
+            achievements: {
+                firstStep: false,
+                tenCorrect: false,
+                perfectScore: false,
+                weekStreak: false,
+                hundredWords: false,
+                speedster: false,
+                persistent: false,
+                polyglot: false
+            },
+            
+            // Load from memory (would use localStorage in production)
+            load() {
+                const stored = window.tamilLearningData;
+                if (stored) {
+                    Object.assign(this.stats, stored.stats || {});
+                    Object.assign(this.wordMastery, stored.wordMastery || {});
+                    Object.assign(this.achievements, stored.achievements || {});
+                }
+                this.updateStreak();
+            },
+            
+            // Save to memory
+            save() {
+                window.tamilLearningData = {
+                    stats: {...this.stats},
+                    wordMastery: {...this.wordMastery},
+                    achievements: {...this.achievements}
+                };
+            },
+            
+            // Update streak based on last study date
+            updateStreak() {
+                const today = new Date().toDateString();
+                if (!this.stats.lastStudyDate) {
+                    this.stats.currentStreak = 0;
+                } else {
+                    const lastDate = new Date(this.stats.lastStudyDate);
+                    const todayDate = new Date(today);
+                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 0) {
+                        // Same day, keep streak
+                    } else if (diffDays === 1) {
+                        // Next day, increment streak
+                        this.stats.currentStreak++;
+                    } else {
+                        // Missed days, reset streak
+                        this.stats.currentStreak = 1;
+                    }
+                }
+                this.stats.lastStudyDate = today;
+                this.checkAchievements();
+                this.save();
+            },
+            
+            // Record answer attempt
+            recordAttempt(itemId, correct) {
+                this.stats.totalAttempts++;
+                if (correct) {
+                    this.stats.totalCorrect++;
+                    if (!this.wordMastery[itemId]) {
+                        this.stats.totalWordsLearned++;
+                    }
+                    this.wordMastery[itemId] = (this.wordMastery[itemId] || 0) + 1;
+                } else {
+                    this.wordMastery[itemId] = Math.max(0, (this.wordMastery[itemId] || 0) - 1);
+                }
+                this.checkAchievements();
+                this.save();
+                this.updateDashboard();
+            },
+            
+            // Get item difficulty (for spaced repetition)
+            getDifficulty(itemId) {
+                const mastery = this.wordMastery[itemId] || 0;
+                if (mastery >= 5) return 1; // Easy
+                if (mastery >= 2) return 2; // Medium
+                return 3; // Hard
+            },
+            
+            // Check and unlock achievements
+            checkAchievements() {
+                const prev = {...this.achievements};
+                
+                if (this.stats.totalCorrect >= 1) this.achievements.firstStep = true;
+                if (this.stats.totalCorrect >= 10) this.achievements.tenCorrect = true;
+                if (this.stats.totalWordsLearned >= 100) this.achievements.hundredWords = true;
+                if (this.stats.currentStreak >= 7) this.achievements.weekStreak = true;
+                
+                // Check for new achievements
+                Object.keys(this.achievements).forEach(key => {
+                    if (!prev[key] && this.achievements[key]) {
+                        showAchievementUnlock(key);
+                    }
+                });
+                
+                this.save();
+                updateAchievementsDisplay();
+            },
+            
+            // Update dashboard stats
+            updateDashboard() {
+                document.getElementById('totalWordsLearned').textContent = this.stats.totalWordsLearned;
+                document.getElementById('currentStreak').textContent = this.stats.currentStreak;
+                document.getElementById('totalCorrect').textContent = this.stats.totalCorrect;
+                const accuracy = this.stats.totalAttempts > 0 
+                    ? Math.round((this.stats.totalCorrect / this.stats.totalAttempts) * 100)
+                    : 0;
+                document.getElementById('overallAccuracy').textContent = accuracy + '%';
+            }
+        };
+        
+        // Achievement definitions
+        const achievementDefs = {
+            firstStep: { icon: '🎯', name: 'First Step', desc: 'Get your first correct answer' },
+            tenCorrect: { icon: '⭐', name: 'Star Learner', desc: 'Get 10 correct answers' },
+            perfectScore: { icon: '💯', name: 'Perfect!', desc: 'Complete a quiz with 100%' },
+            weekStreak: { icon: '🔥', name: 'Week Warrior', desc: 'Study for 7 days in a row' },
+            hundredWords: { icon: '📚', name: 'Vocabulary Master', desc: 'Learn 100 words' },
+            speedster: { icon: '⚡', name: 'Speedster', desc: 'Answer 10 in a row quickly' },
+            persistent: { icon: '💪', name: 'Persistent', desc: 'Complete 50 quizzes' },
+            polyglot: { icon: '🌟', name: 'Polyglot', desc: 'Master all modules' }
+        };
+        
+        // Show achievement unlock notification
+        function showAchievementUnlock(achievementKey) {
+            const achievement = achievementDefs[achievementKey];
+            if (!achievement) return;
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 2rem;
+                border-radius: 1rem;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                animation: celebrate 0.6s ease;
+            `;
+            notification.innerHTML = `
+                <div style="font-size: 4rem; margin-bottom: 1rem;">${achievement.icon}</div>
+                <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Achievement Unlocked!</div>
+                <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">${achievement.name}</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">${achievement.desc}</div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transition = 'opacity 0.5s';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+        
+        // Update achievements display
+        function updateAchievementsDisplay() {
+            const grid = document.getElementById('achievementGrid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            Object.keys(achievementDefs).forEach(key => {
+                const achievement = achievementDefs[key];
+                const unlocked = learningData.achievements[key];
+                
+                const badge = document.createElement('div');
+                badge.className = `achievement-badge ${unlocked ? 'unlocked' : ''}`;
+                badge.title = achievement.desc;
+                badge.innerHTML = `
+                    <div class="achievement-icon" style="filter: ${unlocked ? 'none' : 'grayscale(100%) opacity(0.3)'}">
+                        ${achievement.icon}
+                    </div>
+                    <div class="achievement-name" style="opacity: ${unlocked ? '1' : '0.5'}">
+                        ${achievement.name}
+                    </div>
+                `;
+                grid.appendChild(badge);
+            });
+        }
+        
+        // Update progress bar
+        function updateProgressBar(modulePrefix, current, total) {
+            const progressBar = document.getElementById(`${modulePrefix}ProgressBar`);
+            const progressText = document.getElementById(`${modulePrefix}ProgressText`);
+            if (progressBar && progressText) {
+                const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+                progressBar.style.width = percentage + '%';
+                progressText.textContent = `${current}/${total}`;
+            }
+        }
+        
+        // Display difficulty stars
+        function displayDifficulty(containerId, difficulty) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            container.innerHTML = '';
+            for (let i = 1; i <= 3; i++) {
+                const star = document.createElement('span');
+                star.className = `difficulty-star ${i <= difficulty ? '' : 'empty'}`;
+                star.textContent = '★';
+                container.appendChild(star);
+            }
+        }
+        
+        // Enhanced word data with context
+        const wordContextData = {
+            'வணக்கம்': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f64f.png', mnemonic: 'Imagine greeting with folded hands - வணக்கம்!' },
+            'நன்றி': { mnemonic: 'Think "nun-REE" - thanking a nun for being nice' },
+            'நீர்': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4a7.png', mnemonic: 'நீர் sounds like "near" - water is always near' },
+            'நாய்': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f415.png', mnemonic: 'நாய் - sounds like "nigh" (nearby dog)' },
+            'மரம்': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f333.png', mnemonic: 'மரம் - "ma-ram" like "ma-ram-butan" (tree fruit)' },
+            'வீடு': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3e0.png', mnemonic: 'வீடு - "vee-du" like "we do" live in a house' },
+            'புத்தகம்': { image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4d6.png', mnemonic: 'புத்தகம் - sounds like "book-a-gum" to remember' }
+        };
+        
+        // Show word context
+        function showWordContext(word) {
+            const context = wordContextData[word];
+            const imageEl = document.getElementById('wordImage');
+            const mnemonicEl = document.getElementById('wordMnemonic');
+            
+            if (context) {
+                if (context.image && imageEl) {
+                    imageEl.src = context.image;
+                    imageEl.style.display = 'block';
+                } else if (imageEl) {
+                    imageEl.style.display = 'none';
+                }
+                
+                if (context.mnemonic && mnemonicEl) {
+                    mnemonicEl.textContent = '💡 ' + context.mnemonic;
+                    mnemonicEl.style.display = 'block';
+                } else if (mnemonicEl) {
+                    mnemonicEl.style.display = 'none';
+                }
+            } else {
+                if (imageEl) imageEl.style.display = 'none';
+                if (mnemonicEl) mnemonicEl.style.display = 'none';
+            }
+        }
+        
+        // --- Global Utility Functions ---
+        function speakTamil(text) {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Web Speech API not supported in this browser.');
+                return;
+            }
+
+            const synth = window.speechSynthesis;
+
+            function getTamilVoice() {
+                const voices = synth.getVoices();
+                return voices.find(v => v.lang.toLowerCase().includes('ta')) || null;
+            }
+
+            function doSpeak() {
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'ta-IN';
+                const tamilVoice = getTamilVoice();
+                if (tamilVoice) {
+                    utter.voice = tamilVoice;
+                } else {
+                    console.warn('Tamil voice not found. Using default.');
+                }
+                synth.cancel();
+                setTimeout(() => synth.speak(utter), 150);
+            }
+
+            // If voices aren't loaded yet, wait for them
+            if (synth.getVoices().length === 0) {
+                synth.onvoiceschanged = doSpeak;
+            } else {
+                doSpeak();
+            }
+        }
+
+        // Listener to ensure voices are loaded before attempting to use them
+        window.speechSynthesis.onvoiceschanged = () => {
+            console.log("SpeechSynthesis voices changed/loaded.");
+        };
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+		// --- Main Module Navigation ---
+        const moduleSections = document.querySelectorAll('.module-section');
+        const navButtons = {
+            alphabets: document.getElementById('navAlphabets'),
+            words: document.getElementById('navWords'),
+            sentences: document.getElementById('navSentences'),
+            grammar: document.getElementById('navGrammar')
+        };
+        let activeModuleId = 'startScreen'; // Initial active module
+
+        function showModule(moduleId) {
+            moduleSections.forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('active');
+            });
+            document.getElementById(moduleId).classList.remove('hidden');
+            document.getElementById(moduleId).classList.add('active');
+            activeModuleId = moduleId; // Update active module
+
+            // Re-initialize specific quiz/grammar module when activated
+            if (moduleId === 'tamilAlphabetsModule') {
+                alphabetQuiz.restartQuiz(); // Reset and start alphabet quiz
+            } else if (moduleId === 'tamilWordsModule') {
+                wordQuiz.restartQuiz(); // Reset and start word quiz
+            } else if (moduleId === 'tamilSentencesModule') {
+                sentenceQuiz.restartQuiz(); // Reset and start sentence quiz
+            } else if (moduleId === 'tamilGrammarModule') {
+                grammarGuide.init(); // Initialize grammar guide
+            }
+        }
+
+        navButtons.alphabets.addEventListener('click', () => showModule('tamilAlphabetsModule'));
+        navButtons.words.addEventListener('click', () => showModule('tamilWordsModule'));
+        navButtons.sentences.addEventListener('click', () => showModule('tamilSentencesModule'));
+        navButtons.grammar.addEventListener('click', () => showModule('tamilGrammarModule'));
+
+        // --- Module 1: Tamil Alphabets Quiz Logic ---
+        const alphabetQuiz = (function() {
+            const data = [
+                // Uyir Ezhuthu (Vowels)
+                { char: 'அ', correct: 'a', options: ['a', 'aa', 'i', 'u'] },
+                { char: 'ஆ', correct: 'aa', options: ['aa', 'a', 'e', 'o'] },
+                { char: 'இ', correct: 'i', options: ['i', 'ee', 'u', 'e'] },
+                { char: 'ஈ', correct: 'ee', options: ['ee', 'i', 'e', 'ai'] },
+                { char: 'உ', correct: 'u', options: ['u', 'oo', 'e', 'o'] },
+                { char: 'ஊ', correct: 'oo', options: ['oo', 'u', 'ei', 'ai'] },
+                { char: 'எ', correct: 'e (short)', options: ['e (short)', 'ee', 'ai', 'o'] },
+                { char: 'ஏ', correct: 'e (long)', options: ['e (long)', 'e (short)', 'ai', 'o'] },
+                { char: 'ஐ', correct: 'ai', options: ['ai', 'ei', 'oi', 'ae'] },
+                { char: 'ஒ', correct: 'o (short)', options: ['o (short)', 'oo', 'u', 'a'] },
+                { char: 'ஓ', correct: 'o (long)', options: ['o (long)', 'o (short)', 'au', 'u'] },
+                { char: 'ஔ', correct: 'au', options: ['au', 'ao', 'ou', 'eo'] },
+                { char: 'ஃ', correct: 'akh (Aayutha Ezhuthu)', options: ['akh (Aayutha Ezhuthu)', 'm (anusvara)', 'h (visarga)', 'silent letter'] },
+
+                // Mei Ezhuthu (Consonants)
+                { char: 'க்', correct: 'k (half)', options: ['k (half)', 'g', 'ch', 's'] },
+                { char: 'ங்', correct: 'ng (half)', options: ['ng (half)', 'n', 'm', 'v'] },
+                { char: 'ச்', correct: 'ch (half)', options: ['ch (half)', 's', 'j', 't'] },
+                { char: 'ஞ்', correct: 'nj (half)', options: ['nj (half)', 'n', 'm', 'y'] },
+                { char: 'ட்', correct: 't (hard, half)', options: ['t (hard, half)', 'd', 'r', 'l'] },
+                { char: 'ண்', correct: 'n (hard, half)', options: ['n (hard, half)', 'm', 'l', 'r'] },
+                { char: 'த்', correct: 'th (soft, half)', options: ['th (soft, half)', 't (hard)', 'dh', 'n'] },
+                { char: 'ந்', correct: 'n (soft, half)', options: ['n (soft, half)', 'm', 'l', 'r'] },
+                { char: 'ப்', correct: 'p (half)', options: ['p (half)', 'b', 'm', 'v'] },
+                { char: 'ம்', correct: 'm (half)', options: ['m (half)', 'n', 'l', 'y'] },
+                { char: 'ய்', correct: 'y (half)', options: ['y (half)', 'r', 'l', 'v'] },
+                { char: 'ர்', correct: 'r (hard, half)', options: ['r (hard, half)', 'l', 'zh', 'v'] },
+                { char: 'ல்', correct: 'l (half)', options: ['l (half)', 'r', 'zh', 'n'] },
+                { char: 'வ்', correct: 'v (half)', options: ['v (half)', 'y', 'l', 'r'] },
+                { char: 'ழ்', correct: 'zh (retroflex L)', options: ['zh (retroflex L)', 'l', 'r', 'v'] },
+                { char: 'ள்', correct: 'l (hard, retroflex)', options: ['l (hard, retroflex)', 'l', 'r', 'zh'] },
+                { char: 'ற்', correct: 'rr (hard r, like tt in butter)', options: ['rr (hard r, like tt in butter)', 'r (hard)', 't (hard)', 'n'] },
+                { char: 'ன்', correct: 'n (soft, dental)', options: ['n (soft, dental)', 'm', 'l', 'r'] },
+
+                // Uyir Mei Ezhuthu (Con-Vowel Combinations - selection)
+                { char: 'க', correct: 'ka', options: ['ka', 'ki', 'ku', 'ke'] },
+                { char: 'கா', correct: 'kaa', options: ['kaa', 'ka', 'ki', 'ko'] },
+                { char: 'கி', correct: 'ki', options: ['ki', 'ka', 'kee', 'ku'] },
+                { char: 'ச', correct: 'sa/cha', options: ['sa/cha', 'si/chi', 'su/chu', 'se/che'] },
+                { char: 'டா', correct: 'taa (hard)', options: ['taa (hard)', 'da', 'na', 'ra'] },
+                { char: 'த', correct: 'tha', options: ['tha', 'thaa', 'thi', 'thu'] },
+                { char: 'பா', correct: 'paa', options: ['paa', 'pi', 'pu', 'pe'] },
+                { char: 'மா', correct: 'maa', options: ['maa', 'mi', 'mu', 'me'] },
+                { char: 'யா', correct: 'yaa', options: ['yaa', 'yi', 'yu', 'ye'] },
+                { char: 'வா', correct: 'vaa', options: ['vaa', 'vi', 'vu', 've'] },
+                { char: 'லா', correct: 'laa', options: ['laa', 'li', 'lu', 'le'] },
+                { char: 'ழா', correct: 'zhaa', options: ['zhaa', 'zhi', 'zhu', 'zhe'] },
+                { char: 'றா', correct: 'raa (hard)', options: ['raa (hard)', 'ra', 'ri', 'ru'] },
+
+                // Vada Mozhi Letters
+                { char: 'ஶ்', correct: 'sha', options: ['sha', 'sa', 'ja', 'ha'] },
+                { char: 'ஜ', correct: 'ja', options: ['ja', 'cha', 'sa', 'ga'] },
+                { char: 'க்ஷ', correct: 'ksha', options: ['ksha', 'kha', 'sha', 'cha'] },
+                { char: 'ஸ', correct: 'sa', options: ['sa', 'sha', 'tha', 'da'] },
+                { char: 'ஹ', correct: 'ha', options: ['ha', 'ga', 'ka', 'va'] },
+                { char: 'ஸ்ரீ', correct: 'shri', options: ['shri', 'sri', 'ri', 'si'] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let shuffledItems = [];
+
+            const charDisplay = document.getElementById('alphabetChar');
+            const answerButtonsContainer = document.getElementById('alphabetAnswerButtons');
+            const feedbackDisplay = document.getElementById('alphabetFeedback');
+            const scoreDisplay = document.getElementById('alphabetScoreDisplay');
+            const nextButton = document.getElementById('alphabetNextButton');
+            const restartButton = document.getElementById('alphabetRestartButton');
+            const toggleLookupButton = document.getElementById('toggleAlphabetLookupButton');
+            const hideLookupButton = document.getElementById('hideAlphabetLookupButton');
+            const lookupSheet = document.getElementById('alphabetLookupSheet');
+            const quizSection = document.getElementById('alphabetQuizSection');
+            const lookupTableBody = document.getElementById('alphabetLookupTableBody');
+            const pronounceButton = document.getElementById('alphabetPronounceButton');
+
+            function loadQuestion() {
+                feedbackDisplay.textContent = '';
+                feedbackDisplay.className = 'feedback';
+                nextButton.classList.add('hidden');
+                restartButton.classList.add('hidden');
+
+                if (currentQuestionIndex >= shuffledItems.length) {
+                    charDisplay.textContent = 'Quiz Over!';
+                    answerButtonsContainer.innerHTML = '';
+                    const percentage = Math.round((score / shuffledItems.length) * 100);
+                    feedbackDisplay.textContent = `You scored ${score} out of ${shuffledItems.length}! (${percentage}%)`;
+                    feedbackDisplay.classList.add('text-blue-600');
+                    
+                    // Check for perfect score achievement
+                    if (percentage === 100 && shuffledItems.length >= 5) {
+                        learningData.achievements.perfectScore = true;
+                        learningData.checkAchievements();
+                    }
+                    
+                    restartButton.classList.remove('hidden');
+                    return;
+                }
+
+                const currentItem = shuffledItems[currentQuestionIndex];
+                charDisplay.textContent = currentItem.char;
+                
+                // Update progress bar
+                updateProgressBar('alphabet', currentQuestionIndex, shuffledItems.length);
+
+                let options = [...currentItem.options].filter(option => option !== undefined);
+                while (options.length < 4) {
+                    options.push(`distractor${options.length}`);
+                }
+                shuffleArray(options);
+
+                answerButtonsContainer.innerHTML = '';
+                options.slice(0, 4).forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('answer-button');
+                    button.addEventListener('click', () => checkAnswer(option, currentItem.correct));
+                    answerButtonsContainer.appendChild(button);
+                });
+                enableButtons();
+            }
+
+            function checkAnswer(selectedOption, correctAnswer) {
+                disableButtons();
+                const itemId = 'alphabet_' + charDisplay.textContent;
+                const correct = selectedOption === correctAnswer;
+                
+                learningData.recordAttempt(itemId, correct);
+                
+                if (correct) {
+                    feedbackDisplay.textContent = 'Correct!';
+                    feedbackDisplay.classList.add('correct');
+                    score++;
+                    charDisplay.classList.add('celebrating');
+                    setTimeout(() => charDisplay.classList.remove('celebrating'), 600);
+                } else {
+                    feedbackDisplay.textContent = `Incorrect! The correct answer was "${correctAnswer}".`;
+                    feedbackDisplay.classList.add('incorrect');
+                    Array.from(answerButtonsContainer.children).forEach(button => {
+                        if (button.textContent === correctAnswer) {
+                            button.classList.add('correct');
+                        } else if (button.textContent === selectedOption) {
+                            button.classList.add('incorrect');
+                        }
+                    });
+                }
+                scoreDisplay.textContent = score;
+                nextButton.classList.remove('hidden');
+            }
+
+            function disableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => { button.disabled = true; });
+                pronounceButton.disabled = true;
+            }
+
+            function enableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => {
+                    button.disabled = false;
+                    button.classList.remove('correct', 'incorrect');
+                });
+                pronounceButton.disabled = false;
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                loadQuestion();
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                scoreDisplay.textContent = score;
+                shuffledItems = shuffleArray([...data]);
+                loadQuestion();
+                quizSection.classList.remove('hidden');
+                lookupSheet.classList.add('hidden');
+                toggleLookupButton.textContent = 'Show Alphabet Lookup';
+            }
+
+            function populateLookupTable() {
+                lookupTableBody.innerHTML = '';
+                let currentSection = '';
+
+                data.forEach(item => {
+                    if (item.char === 'ஶ்' && currentSection !== 'vadaMozhi') {
+                        const headingRow = document.createElement('tr');
+                        headingRow.innerHTML = `<td colspan="3" class="text-center font-bold text-lg py-2 bg-blue-100">Vada Mozhi Letters (வடமொழி எழுத்துக்கள்)</td>`;
+                        lookupTableBody.appendChild(headingRow);
+                        currentSection = 'vadaMozhi';
+                    } else if (item.char === 'அ' && currentSection !== 'uyirEzhuthu') {
+                        const headingRow = document.createElement('tr');
+                        headingRow.innerHTML = `<td colspan="3" class="text-center font-bold text-lg py-2 bg-blue-100">Uyir Ezhuthu (Vowels - உயிர் எழுத்து)</td>`;
+                        lookupTableBody.appendChild(headingRow);
+                        currentSection = 'uyirEzhuthu';
+                    } else if (item.char === 'க்' && currentSection !== 'meiEzhuthu') {
+                        const headingRow = document.createElement('tr');
+                        headingRow.innerHTML = `<td colspan="3" class="text-center font-bold text-lg py-2 bg-blue-100">Mei Ezhuthu (Consonants - மெய் எழுத்து)</td>`;
+                        lookupTableBody.appendChild(headingRow);
+                        currentSection = 'meiEzhuthu';
+                    } else if (item.char === 'க' && currentSection !== 'uyirMeiEzhuthu') {
+                        const headingRow = document.createElement('tr');
+                        headingRow.innerHTML = `<td colspan="3" class="text-center font-bold text-lg py-2 bg-blue-100">Uyir Mei Ezhuthu (Con-Vowel Combinations - உயிர்மெய் எழுத்து)</td>`;
+                        lookupTableBody.appendChild(headingRow);
+                        currentSection = 'uyirMeiEzhuthu';
+                    }
+
+                    const row = document.createElement('tr');
+                    const tamilCell = document.createElement('td');
+                    const englishCell = document.createElement('td');
+                    const listenCell = document.createElement('td');
+                    tamilCell.textContent = item.char;
+                    englishCell.textContent = item.correct;
+                    const listenButton = document.createElement('button');
+                    listenButton.textContent = '🔊';
+                    listenButton.classList.add('lookup-pronounce-button');
+                    listenButton.title = `Listen to ${item.char}`;
+                    listenButton.addEventListener('click', () => speakTamil(item.char));
+                    listenCell.appendChild(listenButton);
+                    row.appendChild(tamilCell);
+                    row.appendChild(englishCell);
+                    row.appendChild(listenCell);
+                    lookupTableBody.appendChild(row);
+                });
+            }
+
+            function toggleLookupSheet() {
+                lookupSheet.classList.toggle('hidden');
+                quizSection.classList.toggle('hidden');
+                toggleLookupButton.textContent = lookupSheet.classList.contains('hidden') ? 'Show Alphabet Lookup' : 'Hide Lookup Sheet';
+                if (!lookupSheet.classList.contains('hidden')) {
+                    populateLookupTable();
+                }
+            }
+
+            nextButton.addEventListener('click', nextQuestion);
+            restartButton.addEventListener('click', restartQuiz);
+            toggleLookupButton.addEventListener('click', toggleLookupSheet);
+            hideLookupButton.addEventListener('click', toggleLookupSheet);
+            pronounceButton.addEventListener('click', () => speakTamil(charDisplay.textContent));
+
+            return { restartQuiz };
+        })();
+		
+		// --- Module 2: Tamil Words Quiz Logic ---
+        const wordQuiz = (function() {
+            const data = [
+                { text: 'வணக்கம்', correct: 'Hello / Greetings', options: ['Hello / Greetings', 'Thank you', 'Goodbye', 'How are you?'] },
+                { text: 'நன்றி', correct: 'Thank you', options: ['Thank you', 'Hello', 'Please', 'Sorry'] },
+                { text: 'ஆம்', correct: 'Yes', options: ['Yes', 'No', 'Maybe', 'Please'] },
+                { text: 'இல்லை', correct: 'No', options: ['No', 'Yes', 'Hello', 'Thank you'] },
+                { text: 'நீர்', correct: 'Water', options: ['Water', 'Milk', 'Food', 'Bread'] },
+                { text: 'நான்', correct: 'I / Me', options: ['I / Me', 'You', 'He', 'She'] },
+                { text: 'நீ', correct: 'You (informal singular)', options: ['You (informal singular)', 'I', 'He', 'They'] },
+                { text: 'அவன்', correct: 'He', options: ['He', 'She', 'It', 'They'] },
+                { text: 'அவள்', correct: 'She', options: ['She', 'He', 'It', 'We'] },
+                { text: 'அது', correct: 'It', options: ['It', 'This', 'That', 'These'] },
+                { text: 'நாம்', correct: 'We (inclusive)', options: ['We (inclusive)', 'We (exclusive)', 'You', 'They'] },
+                { text: 'நாய்', correct: 'Dog', options: ['Dog', 'Cat', 'Bird', 'Fish'] },
+                { text: 'மரம்', correct: 'Tree', options: ['Tree', 'Flower', 'Bush', 'Grass'] },
+                { text: 'வீடு', correct: 'House', options: ['House', 'School', 'Shop', 'Office'] },
+                { text: 'புத்தகம்', correct: 'Book', options: ['Book', 'Pen', 'Paper', 'Table'] },
+                { text: 'பெரிய', correct: 'Big', options: ['Big', 'Small', 'New', 'Old'] },
+                { text: 'சிறிய', correct: 'Small', options: ['Small', 'Big', 'Tall', 'Short'] },
+                { text: 'காதல்', correct: 'Love', options: ['Love', 'Hate', 'Fear', 'Joy'] },
+                { text: 'பள்ளி', correct: 'School', options: ['School', 'House', 'Hospital', 'Park'] },
+                { text: 'உணவு', correct: 'Food', options: ['Food', 'Drink', 'Sleep', 'Walk'] },
+                { text: 'கண்', correct: 'Eye', options: ['Eye', 'Ear', 'Nose', 'Mouth'] },
+                { text: 'வாய்', correct: 'Mouth', options: ['Mouth', 'Nose', 'Ear', 'Eye'] },
+                { text: 'கை', correct: 'Hand', options: ['Hand', 'Leg', 'Foot', 'Arm'] },
+                { text: 'காது', correct: 'Ear', options: ['Ear', 'Eye', 'Nose', 'Mouth'] },
+                { text: 'மரம்', correct: 'Tree', options: ['Tree', 'Plant', 'Flower', 'Leaf'] },
+                { text: 'பூனை', correct: 'Cat', options: ['Cat', 'Dog', 'Bird', 'Fish'] },
+                { text: 'மீன்', correct: 'Fish', options: ['Fish', 'Bird', 'Insect', 'Snake'] },
+                { text: 'பணம்', correct: 'Money', options: ['Money', 'Gold', 'Silver', 'Jewelry'] },
+                { text: 'சூரியன்', correct: 'Sun', options: ['Sun', 'Moon', 'Star', 'Sky'] },
+                { text: 'சந்திரன்', correct: 'Moon', options: ['Moon', 'Sun', 'Star', 'Cloud'] },
+                { text: 'நாள்', correct: 'Day', options: ['Day', 'Night', 'Week', 'Month'] },
+                { text: 'இரவு', correct: 'Night', options: ['Night', 'Day', 'Morning', 'Evening'] },
+                { text: 'காலை', correct: 'Morning', options: ['Morning', 'Evening', 'Night', 'Afternoon'] },
+                { text: 'மாலை', correct: 'Evening', options: ['Evening', 'Morning', 'Night', 'Afternoon'] },
+                { text: 'இன்று', correct: 'Today', options: ['Today', 'Tomorrow', 'Yesterday', 'Now'] },
+                { text: 'நாளை', correct: 'Tomorrow', options: ['Tomorrow', 'Today', 'Yesterday', 'Now'] },
+                { text: 'நேற்று', correct: 'Yesterday', options: ['Yesterday', 'Today', 'Tomorrow', 'Now'] },
+                { text: 'இப்போது', correct: 'Now', options: ['Now', 'Later', 'Before', 'After'] },
+                { text: 'அங்கே', correct: 'There', options: ['There', 'Here', 'Where', 'When'] },
+                { text: 'இங்கே', correct: 'Here', options: ['Here', 'There', 'Where', 'When'] },
+                { text: 'உள்ளே', correct: 'Inside', options: ['Inside', 'Outside', 'Up', 'Down'] },
+                { text: 'வெளியே', correct: 'Outside', options: ['Outside', 'Inside', 'Up', 'Down'] },
+                { text: 'மேலே', correct: 'Up / Above', options: ['Up / Above', 'Down', 'Inside', 'Outside'] },
+                { text: 'கீழே', correct: 'Down / Below', options: ['Down / Below', 'Up', 'Inside', 'Outside'] },
+                { text: 'புதிய', correct: 'New', options: ['New', 'Old', 'Big', 'Small'] },
+                { text: 'பழைய', correct: 'Old', options: ['Old', 'New', 'Good', 'Bad'] },
+                { text: 'வா', correct: 'Come (informal)', options: ['Come (informal)', 'Go', 'Eat', 'Drink'] },
+                { text: 'போ', correct: 'Go (informal)', options: ['Go (informal)', 'Come', 'Eat', 'Sleep'] },
+                { text: 'உட்கார்', correct: 'Sit (informal)', options: ['Sit (informal)', 'Stand', 'Walk', 'Run'] },
+                { text: 'நில்', correct: 'Stand (informal)', options: ['Stand (informal)', 'Sit', 'Walk', 'Run'] }
+            ];
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let shuffledItems = [];
+
+            const textDisplay = document.getElementById('wordDisplay');
+            const answerButtonsContainer = document.getElementById('wordAnswerButtons');
+            const feedbackDisplay = document.getElementById('wordFeedback');
+            const scoreDisplay = document.getElementById('wordScoreDisplay');
+            const nextButton = document.getElementById('wordNextButton');
+            const restartButton = document.getElementById('wordRestartButton');
+            const toggleLookupButton = document.getElementById('toggleWordLookupButton');
+            const hideLookupButton = document.getElementById('hideWordLookupButton');
+            const lookupSheet = document.getElementById('wordLookupSheet');
+            const quizSection = document.getElementById('wordQuizSection');
+            const lookupTableBody = document.getElementById('wordLookupTableBody');
+            const pronounceButton = document.getElementById('wordPronounceButton');
+
+            function loadQuestion() {
+                feedbackDisplay.textContent = '';
+                feedbackDisplay.className = 'feedback';
+                nextButton.classList.add('hidden');
+                restartButton.classList.add('hidden');
+
+                if (currentQuestionIndex >= shuffledItems.length) {
+                    textDisplay.textContent = 'Quiz Over!';
+                    answerButtonsContainer.innerHTML = '';
+                    const percentage = Math.round((score / shuffledItems.length) * 100);
+                    feedbackDisplay.textContent = `You scored ${score} out of ${shuffledItems.length}! (${percentage}%)`;
+                    feedbackDisplay.classList.add('text-blue-600');
+                    
+                    // Check for perfect score achievement
+                    if (percentage === 100 && shuffledItems.length >= 5) {
+                        learningData.achievements.perfectScore = true;
+                        learningData.checkAchievements();
+                    }
+                    
+                    restartButton.classList.remove('hidden');
+                    return;
+                }
+
+                const currentItem = shuffledItems[currentQuestionIndex];
+                textDisplay.textContent = currentItem.text;
+                
+                // Update progress bar
+                updateProgressBar('word', currentQuestionIndex, shuffledItems.length);
+                
+                // Show word context (images/mnemonics)
+                showWordContext(currentItem.text);
+                
+                // Display difficulty
+                const itemId = 'word_' + currentItem.text;
+                const difficulty = learningData.getDifficulty(itemId);
+                displayDifficulty('wordDifficulty', difficulty);
+
+                let options = [...currentItem.options].filter(option => option !== undefined);
+                while (options.length < 4) {
+                    options.push(`distractor${options.length}`);
+                }
+                shuffleArray(options);
+
+                answerButtonsContainer.innerHTML = '';
+                options.slice(0, 4).forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('answer-button');
+                    button.addEventListener('click', () => checkAnswer(option, currentItem.correct));
+                    answerButtonsContainer.appendChild(button);
+                });
+                enableButtons();
+            }
+
+            function checkAnswer(selectedOption, correctAnswer) {
+                disableButtons();
+                const itemId = 'word_' + textDisplay.textContent;
+                const correct = selectedOption === correctAnswer;
+                
+                learningData.recordAttempt(itemId, correct);
+                
+                if (correct) {
+                    feedbackDisplay.textContent = 'Correct!';
+                    feedbackDisplay.classList.add('correct');
+                    score++;
+                    textDisplay.classList.add('celebrating');
+                    setTimeout(() => textDisplay.classList.remove('celebrating'), 600);
+                } else {
+                    feedbackDisplay.textContent = `Incorrect! The correct answer was "${correctAnswer}".`;
+                    feedbackDisplay.classList.add('incorrect');
+                    Array.from(answerButtonsContainer.children).forEach(button => {
+                        if (button.textContent === correctAnswer) {
+                            button.classList.add('correct');
+                        } else if (button.textContent === selectedOption) {
+                            button.classList.add('incorrect');
+                        }
+                    });
+                }
+                scoreDisplay.textContent = score;
+                nextButton.classList.remove('hidden');
+            }
+
+            function disableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => { button.disabled = true; });
+                pronounceButton.disabled = true;
+            }
+
+            function enableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => {
+                    button.disabled = false;
+                    button.classList.remove('correct', 'incorrect');
+                });
+                pronounceButton.disabled = false;
+            }
+
+            function nextQuestion() {
+                    currentQuestionIndex++;
+                    loadQuestion();
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                scoreDisplay.textContent = score;
+                
+                // Spaced repetition: prioritize difficult items
+                const itemsWithDifficulty = data.map(item => {
+                    const itemId = 'word_' + item.text;
+                    const difficulty = learningData.getDifficulty(itemId);
+                    return { ...item, difficulty, id: itemId };
+                });
+                
+                // Sort by difficulty (harder first) and shuffle within difficulty levels
+                itemsWithDifficulty.sort((a, b) => b.difficulty - a.difficulty);
+                
+                // Take mix of difficulties with emphasis on harder items
+                const hardItems = itemsWithDifficulty.filter(i => i.difficulty === 3);
+                const mediumItems = itemsWithDifficulty.filter(i => i.difficulty === 2);
+                const easyItems = itemsWithDifficulty.filter(i => i.difficulty === 1);
+                
+                shuffledItems = [
+                    ...shuffleArray(hardItems).slice(0, Math.min(10, hardItems.length)),
+                    ...shuffleArray(mediumItems).slice(0, Math.min(8, mediumItems.length)),
+                    ...shuffleArray(easyItems).slice(0, Math.min(7, easyItems.length))
+                ];
+                
+                // If we don't have enough items, just shuffle all
+                if (shuffledItems.length < 15) {
+                    shuffledItems = shuffleArray([...data]);
+                }
+                
+                loadQuestion();
+                quizSection.classList.remove('hidden');
+                lookupSheet.classList.add('hidden');
+                toggleLookupButton.textContent = 'Show Words Lookup';
+            }
+
+            function populateLookupTable() {
+                lookupTableBody.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    const tamilCell = document.createElement('td');
+                    const englishCell = document.createElement('td');
+                    const listenCell = document.createElement('td');
+                    tamilCell.textContent = item.text;
+                    englishCell.textContent = item.correct;
+                    const listenButton = document.createElement('button');
+                    listenButton.textContent = '🔊';
+                    listenButton.classList.add('lookup-pronounce-button');
+                    listenButton.title = `Listen to ${item.text}`;
+                    listenButton.addEventListener('click', () => speakTamil(item.text));
+                    listenCell.appendChild(listenButton);
+                    row.appendChild(tamilCell);
+                    row.appendChild(englishCell);
+                    row.appendChild(listenCell);
+                    lookupTableBody.appendChild(row);
+                });
+            }
+
+            function toggleLookupSheet() {
+                lookupSheet.classList.toggle('hidden');
+                quizSection.classList.toggle('hidden');
+                toggleLookupButton.textContent = lookupSheet.classList.contains('hidden') ? 'Show Words Lookup' : 'Hide Lookup Sheet';
+                if (!lookupSheet.classList.contains('hidden')) {
+                    populateLookupTable();
+                }
+            }
+
+            nextButton.addEventListener('click', nextQuestion);
+            restartButton.addEventListener('click', restartQuiz);
+            toggleLookupButton.addEventListener('click', toggleLookupSheet);
+            hideLookupButton.addEventListener('click', toggleLookupSheet);
+            pronounceButton.addEventListener('click', () => speakTamil(textDisplay.textContent));
+
+            return { restartQuiz };
+        })();
+		// --- Module 3: Tamil Sentences Quiz Logic ---
+        const sentenceQuiz = (function() {
+const data = [
+    // Initial 20 Sentences
+    { text: 'நான் தமிழ் கற்கிறேன்.', correct: 'I am learning Tamil.', options: ['I am learning Tamil.', 'I speak Tamil.', 'Do you speak Tamil?', 'Tamil is easy.'] },
+    { text: 'உங்கள் பெயர் என்ன?', correct: 'What is your name?', options: ['What is your name?', 'How are you?', 'Where are you from?', 'How old are you?'] },
+    { text: 'என் பெயர்...', correct: 'My name is...', options: ['My name is...', 'I am fine.', 'Nice to meet you.', 'I am from...'] },
+    { text: 'எப்படி இருக்கிறீர்கள்?', correct: 'How are you? (formal)', options: ['How are you? (formal)', 'What are you doing?', 'Where are you going?', 'Are you well?'] },
+    { text: 'நான் நன்றாக இருக்கிறேன்.', correct: 'I am fine.', options: ['I am fine.', 'I am not well.', 'I am happy.', 'I am sad.'] },
+    { text: 'இது என்ன?', correct: 'What is this?', options: ['What is this?', 'Who is this?', 'Where is this?', 'How is this?'] },
+    { text: 'அது என்ன?', correct: 'What is that?', options: ['What is that?', 'Who is that?', 'Where is that?', 'How is that?'] },
+    { text: 'இது என் வீடு.', correct: 'This is my house.', options: ['This is my house.', 'That is your car.', 'I live here.', 'I am going home.'] },
+    { text: 'உங்களுக்கு நன்றி.', correct: 'Thank you (to you).', options: ['Thank you (to you).', 'You are welcome.', 'Please help me.', 'I appreciate it.'] },
+    { text: 'நான் வருகிறேன்.', correct: 'I am coming.', options: ['I am coming.', 'I am going.', 'I am eating.', 'I am sleeping.'] },
+    { text: 'நான் போகிறேன்.', correct: 'I am going.', options: ['I am going.', 'I am coming.', 'I am eating.', 'I am sleeping.'] },
+    { text: 'நீங்கள் எங்கிருந்து வருகிறீர்கள்?', correct: 'Where are you from? (formal)', options: ['Where are you from? (formal)', 'Where are you going?', 'What is your name?', 'How old are you?'] },
+    { text: 'நான் சென்னையில் இருந்து வருகிறேன்.', correct: 'I am from Chennai.', options: ['I am from Chennai.', 'I live in Chennai.', 'I am going to Chennai.', 'Chennai is my city.'] },
+    { text: 'எனக்கு பசிக்கிறது.', correct: 'I am hungry.', options: ['I am hungry.', 'I am thirsty.', 'I am tired.', 'I am happy.'] },
+    { text: 'எனக்கு தாகமாக இருக்கிறது.', correct: 'I am thirsty.', options: ['I am thirsty.', 'I am hungry.', 'I am tired.', 'I am sad.'] },
+    { text: 'நான் மகிழ்ச்சியாக இருக்கிறேன்.', correct: 'I am happy.', options: ['I am happy.', 'I am sad.', 'I am angry.', 'I am tired.'] },
+    { text: 'இன்று என்ன நாள்?', correct: 'What day is today?', options: ['What day is today?', 'What time is it?', 'What month is it?', 'What year is it?'] },
+    { text: 'நாளை சந்திப்போம்.', correct: 'See you tomorrow.', options: ['See you tomorrow.', 'See you later.', 'Goodbye.', 'Have a nice day.'] },
+    { text: 'உங்களுக்கு புரிந்ததா?', correct: 'Do you understand? (formal)', options: ['Do you understand? (formal)', 'Do you speak?', 'Do you know?', 'Do you like it?'] },
+    { text: 'ஆம், எனக்கு புரிகிறது.', correct: 'Yes, I understand.', options: ['Yes, I understand.', 'No, I don\'t understand.', 'Yes, I know.', 'No, I don\'t know.'] },
+
+    // Additional Sentences (21-50)
+    { text: 'நான் தமிழ் பேசுகிறேன்.', correct: 'I speak Tamil.', options: ['I speak Tamil.', 'I learn Tamil.', 'I write Tamil.', 'I read Tamil.'] },
+    { text: 'உங்களுக்கு தமிழ் தெரியுமா?', correct: 'Do you know Tamil?', options: ['Do you know Tamil?', 'Do you speak Tamil?', 'Can you teach Tamil?', 'Do you like Tamil?'] },
+    { text: 'இது எவ்வளவு?', correct: 'How much is this?', options: ['How much is this?', 'What is this?', 'Where is this?', 'When is this?'] },
+    { text: 'எனக்கு உதவி தேவை.', correct: 'I need help.', options: ['I need help.', 'I want food.', 'I am lost.', 'I am tired.'] },
+    { text: 'நான் இங்கு புதியவன்.', correct: 'I am new here.', options: ['I am new here.', 'I live here.', 'I work here.', 'I study here.'] },
+    { text: 'இது மிகவும் அழகாக இருக்கிறது.', correct: 'This is very beautiful.', options: ['This is very beautiful.', 'This is very big.', 'This is very small.', 'This is very old.'] },
+    { text: 'நான் சாப்பிட விரும்புகிறேன்.', correct: 'I want to eat.', options: ['I want to eat.', 'I want to drink.', 'I want to sleep.', 'I want to go.'] },
+    { text: 'கடைக்கு எப்படி போவது?', correct: 'How to go to the shop?', options: ['How to go to the shop?', 'Where is the shop?', 'When does the shop open?', 'What is in the shop?'] },
+    { text: 'நான் காலையில் எழுந்தேன்.', correct: 'I woke up in the morning.', options: ['I woke up in the morning.', 'I sleep in the morning.', 'I eat in the morning.', 'I go in the morning.'] },
+    { text: 'இன்று வானிலை எப்படி இருக்கிறது?', correct: 'How is the weather today?', options: ['How is the weather today?', 'What day is today?', 'What time is it?', 'Where are you today?'] },
+    { text: 'எனக்கு இந்த புத்தகம் பிடிக்கும்.', correct: 'I like this book.', options: ['I like this book.', 'I read this book.', 'I bought this book.', 'I wrote this book.'] },
+    { text: 'நாங்கள் நண்பர்கள்.', correct: 'We are friends.', options: ['We are friends.', 'We are family.', 'We are students.', 'We are teachers.'] },
+    { text: 'அவர் எங்கு வேலை செய்கிறார்?', correct: 'Where does he work?', options: ['Where does he work?', 'Where does he live?', 'Where does he study?', 'Where does he go?'] },
+    { text: 'எனக்கு தலைவலி இருக்கிறது.', correct: 'I have a headache.', options: ['I have a headache.', 'I have a fever.', 'I have a cold.', 'I have a problem.'] },
+    { text: 'நான் மருத்துவமனைக்கு செல்ல வேண்டும்.', correct: 'I need to go to the hospital.', options: ['I need to go to the hospital.', 'I need to go to school.', 'I need to go home.', 'I need to go to work.'] },
+    { text: 'இது மிகவும் எளிது.', correct: 'This is very easy.', options: ['This is very easy.', 'This is very hard.', 'This is very good.', 'This is very bad.'] },
+    { text: 'நான் உன்னை நேசிக்கிறேன்.', correct: 'I love you.', options: ['I love you.', 'I like you.', 'I know you.', 'I see you.'] },
+    { text: 'நீங்கள் எங்கு இருக்கிறீர்கள்?', correct: 'Where are you?', options: ['Where are you?', 'Who are you?', 'How are you?', 'What are you doing?'] },
+    { text: 'எனக்கு தூக்கம் வருகிறது.', correct: 'I am feeling sleepy.', options: ['I am feeling sleepy.', 'I am feeling hungry.', 'I am feeling tired.', 'I am feeling happy.'] },
+    { text: 'இரவு உணவு தயாரா?', correct: 'Is dinner ready?', options: ['Is dinner ready?', 'Is breakfast ready?', 'Is lunch ready?', 'Is food good?'] },
+    { text: 'நான் பள்ளியில் படிக்கிறேன்.', correct: 'I study at school.', options: ['I study at school.', 'I work at school.', 'I teach at school.', 'I play at school.'] },
+    { text: 'அவள் மிகவும் அழகாக இருக்கிறாள்.', correct: 'She is very beautiful.', options: ['She is very beautiful.', 'She is very tall.', 'She is very smart.', 'She is very kind.'] },
+    { text: 'நான் தினமும் உடற்பயிற்சி செய்கிறேன்.', correct: 'I exercise every day.', options: ['I exercise every day.', 'I study every day.', 'I work every day.', 'I sleep every day.'] },
+    { text: 'எனக்கு இசை பிடிக்கும்.', correct: 'I like music.', options: ['I like music.', 'I like dance.', 'I like movies.', 'I like books.'] },
+    { text: 'நான் சைக்கிளில் செல்கிறேன்.', correct: 'I go by bicycle.', options: ['I go by bicycle.', 'I go by bus.', 'I go by car.', 'I go by train.'] },
+    { text: 'இந்த உணவு மிகவும் சுவையாக இருக்கிறது.', correct: 'This food is very tasty.', options: ['This food is very tasty.', 'This food is very hot.', 'This food is very cold.', 'This food is very expensive.'] },
+    { text: 'நான் ஆங்கிலம் கற்றுக்கொள்கிறேன்.', correct: 'I am learning English.', options: ['I am learning English.', 'I am teaching English.', 'I speak English.', 'I like English.'] },
+    { text: 'உங்கள் தொலைபேசி எண் என்ன?', correct: 'What is your phone number?', options: ['What is your phone number?', 'What is your address?', 'What is your email?', 'What is your name?'] },
+    { text: 'நான் வீட்டில் இருக்கிறேன்.', correct: 'I am at home.', options: ['I am at home.', 'I am at work.', 'I am at school.', 'I am at the shop.'] },
+    { text: 'நீங்கள் எப்போது வருவீர்கள்?', correct: 'When will you come?', options: ['When will you come?', 'Where will you go?', 'What will you do?', 'How will you come?'] },
+
+    // NEW 100 SENTENCES (51-150)
+    
+    // Family & Relationships (10 sentences)
+    { text: 'இது என் குடும்பம்.', correct: 'This is my family.', options: ['This is my family.', 'This is my house.', 'This is my friend.', 'This is my car.'] },
+    { text: 'என் அம்மா வீட்டில் இருக்கிறார்.', correct: 'My mother is at home.', options: ['My mother is at home.', 'My father is at home.', 'My brother is at home.', 'My sister is at home.'] },
+    { text: 'என் சகோதரன் பள்ளிக்கு செல்கிறான்.', correct: 'My brother goes to school.', options: ['My brother goes to school.', 'My sister goes to school.', 'My friend goes to school.', 'My cousin goes to school.'] },
+    { text: 'அவர் என் தந்தை.', correct: 'He is my father.', options: ['He is my father.', 'He is my teacher.', 'He is my friend.', 'He is my uncle.'] },
+    { text: 'என் சகோதரி மிகவும் புத்திசாலி.', correct: 'My sister is very smart.', options: ['My sister is very smart.', 'My sister is very kind.', 'My sister is very tall.', 'My sister is very young.'] },
+    { text: 'நாங்கள் ஒன்றாக வாழ்கிறோம்.', correct: 'We live together.', options: ['We live together.', 'We work together.', 'We study together.', 'We play together.'] },
+    { text: 'என் தாத்தா முதியவர்.', correct: 'My grandfather is old.', options: ['My grandfather is old.', 'My grandmother is old.', 'My father is old.', 'My uncle is old.'] },
+    { text: 'அவள் என் மனைவி.', correct: 'She is my wife.', options: ['She is my wife.', 'She is my sister.', 'She is my mother.', 'She is my friend.'] },
+    { text: 'எனக்கு இரண்டு குழந்தைகள் உள்ளனர்.', correct: 'I have two children.', options: ['I have two children.', 'I have two brothers.', 'I have two sisters.', 'I have two friends.'] },
+    { text: 'நாங்கள் மகிழ்ச்சியான குடும்பம்.', correct: 'We are a happy family.', options: ['We are a happy family.', 'We are a big family.', 'We are a small family.', 'We are good friends.'] },
+    
+    // Food & Dining (10 sentences)
+    { text: 'நான் காலை உணவு சாப்பிட்டேன்.', correct: 'I ate breakfast.', options: ['I ate breakfast.', 'I ate lunch.', 'I ate dinner.', 'I ate snacks.'] },
+    { text: 'இந்த கறி மிகவும் காரமாக இருக்கிறது.', correct: 'This curry is very spicy.', options: ['This curry is very spicy.', 'This curry is very tasty.', 'This curry is very hot.', 'This curry is very sweet.'] },
+    { text: 'எனக்கு சாதம் பிடிக்கும்.', correct: 'I like rice.', options: ['I like rice.', 'I like bread.', 'I like noodles.', 'I like roti.'] },
+    { text: 'நீங்கள் காபி குடிக்கிறீர்களா?', correct: 'Do you drink coffee?', options: ['Do you drink coffee?', 'Do you drink tea?', 'Do you drink milk?', 'Do you drink juice?'] },
+    { text: 'உணவு சூடாக இருக்கிறது.', correct: 'The food is hot.', options: ['The food is hot.', 'The food is cold.', 'The food is ready.', 'The food is good.'] },
+    { text: 'நான் காய்கறிகள் சாப்பிடுகிறேன்.', correct: 'I eat vegetables.', options: ['I eat vegetables.', 'I eat fruits.', 'I eat meat.', 'I eat fish.'] },
+    { text: 'இது எவ்வளவு விலை?', correct: 'How much does this cost?', options: ['How much does this cost?', 'What is this?', 'Where is this?', 'When is this?'] },
+    { text: 'நான் பசியுடன் இருக்கிறேன்.', correct: 'I am hungry.', options: ['I am hungry.', 'I am thirsty.', 'I am full.', 'I am tired.'] },
+    { text: 'உணவு மிகவும் நன்றாக இருக்கிறது.', correct: 'The food is very good.', options: ['The food is very good.', 'The food is very bad.', 'The food is very spicy.', 'The food is very sweet.'] },
+    { text: 'நான் இனிப்பு விரும்புகிறேன்.', correct: 'I like sweets.', options: ['I like sweets.', 'I like spicy food.', 'I like salty food.', 'I like sour food.'] },
+    
+    // Travel & Directions (10 sentences)
+    { text: 'ரயில் நிலையம் எங்கே?', correct: 'Where is the train station?', options: ['Where is the train station?', 'Where is the bus stop?', 'Where is the airport?', 'Where is the shop?'] },
+    { text: 'நான் பஸ்ஸில் பயணிக்கிறேன்.', correct: 'I travel by bus.', options: ['I travel by bus.', 'I travel by train.', 'I travel by car.', 'I travel by plane.'] },
+    { text: 'இது சரியான வழியா?', correct: 'Is this the right way?', options: ['Is this the right way?', 'Is this the wrong way?', 'Where is the way?', 'How is the way?'] },
+    { text: 'எனக்கு வழி தெரியவில்லை.', correct: 'I don\'t know the way.', options: ['I don\'t know the way.', 'I know the way.', 'I lost the way.', 'I found the way.'] },
+    { text: 'நான் டாக்ஸியில் செல்கிறேன்.', correct: 'I go by taxi.', options: ['I go by taxi.', 'I go by auto.', 'I go by bus.', 'I go by train.'] },
+    { text: 'எனக்கு ஒரு வரைபடம் தேவை.', correct: 'I need a map.', options: ['I need a map.', 'I need a ticket.', 'I need a car.', 'I need help.'] },
+    { text: 'விமான நிலையம் எவ்வளவு தூரம்?', correct: 'How far is the airport?', options: ['How far is the airport?', 'Where is the airport?', 'When is the flight?', 'How much is the ticket?'] },
+    { text: 'நேராக செல்லுங்கள்.', correct: 'Go straight.', options: ['Go straight.', 'Turn left.', 'Turn right.', 'Go back.'] },
+    { text: 'இடதுபுறம் திரும்புங்கள்.', correct: 'Turn left.', options: ['Turn left.', 'Turn right.', 'Go straight.', 'Stop here.'] },
+    { text: 'நான் நடந்து செல்கிறேன்.', correct: 'I am walking.', options: ['I am walking.', 'I am running.', 'I am driving.', 'I am cycling.'] },
+    
+    // Shopping (10 sentences)
+    { text: 'இது எவ்வளவு விலை?', correct: 'How much is this?', options: ['How much is this?', 'What is this?', 'Where is this?', 'When is this?'] },
+    { text: 'இது மிகவும் விலை அதிகம்.', correct: 'This is very expensive.', options: ['This is very expensive.', 'This is very cheap.', 'This is very good.', 'This is very bad.'] },
+    { text: 'எனக்கு இது வேண்டும்.', correct: 'I want this.', options: ['I want this.', 'I need this.', 'I like this.', 'I bought this.'] },
+    { text: 'நீங்கள் தள்ளுபடி தருவீர்களா?', correct: 'Will you give a discount?', options: ['Will you give a discount?', 'What is the price?', 'Can I pay later?', 'Where is the shop?'] },
+    { text: 'நான் பணம் செலுத்துகிறேன்.', correct: 'I am paying.', options: ['I am paying.', 'I am buying.', 'I am selling.', 'I am looking.'] },
+    { text: 'கடை எப்போது திறக்கிறது?', correct: 'When does the shop open?', options: ['When does the shop open?', 'When does the shop close?', 'Where is the shop?', 'What is in the shop?'] },
+    { text: 'இது எந்த நிறத்தில் கிடைக்கும்?', correct: 'In which color is this available?', options: ['In which color is this available?', 'What color is this?', 'Do you like this color?', 'How much is this?'] },
+    { text: 'எனக்கு பெரிய அளவு வேண்டும்.', correct: 'I want a bigger size.', options: ['I want a bigger size.', 'I want a smaller size.', 'This size is good.', 'Do you have this size?'] },
+    { text: 'இதை முயற்சி செய்யலாமா?', correct: 'Can I try this?', options: ['Can I try this?', 'Can I buy this?', 'Can I see this?', 'Can I return this?'] },
+    { text: 'எனக்கு பில் வேண்டும்.', correct: 'I need a bill.', options: ['I need a bill.', 'I need a bag.', 'I need change.', 'I need help.'] },
+    
+    // Time & Weather (10 sentences)
+    { text: 'இப்போது என்ன நேரம்?', correct: 'What time is it now?', options: ['What time is it now?', 'What day is it?', 'What month is it?', 'What year is it?'] },
+    { text: 'மழை பெய்கிறது.', correct: 'It is raining.', options: ['It is raining.', 'It is sunny.', 'It is windy.', 'It is cold.'] },
+    { text: 'இன்று மிகவும் வெயிலாக இருக்கிறது.', correct: 'It is very hot today.', options: ['It is very hot today.', 'It is very cold today.', 'It is raining today.', 'It is windy today.'] },
+    { text: 'இன்று குளிராக இருக்கிறது.', correct: 'It is cold today.', options: ['It is cold today.', 'It is hot today.', 'It is warm today.', 'It is pleasant today.'] },
+    { text: 'நாளை வானிலை எப்படி இருக்கும்?', correct: 'How will the weather be tomorrow?', options: ['How will the weather be tomorrow?', 'What will you do tomorrow?', 'Where will you go tomorrow?', 'When will you come tomorrow?'] },
+    { text: 'இரவு எட்டு மணி ஆகிறது.', correct: 'It is eight o\'clock at night.', options: ['It is eight o\'clock at night.', 'It is eight o\'clock in the morning.', 'It is nine o\'clock.', 'It is ten o\'clock.'] },
+    { text: 'கடிகாரம் எங்கே?', correct: 'Where is the clock?', options: ['Where is the clock?', 'What time is it?', 'Where is the watch?', 'When is it?'] },
+    { text: 'நான் தாமதமாகிவிட்டேன்.', correct: 'I am late.', options: ['I am late.', 'I am early.', 'I am on time.', 'I am waiting.'] },
+    { text: 'நான் சரியான நேரத்தில் வருவேன்.', correct: 'I will come on time.', options: ['I will come on time.', 'I will come late.', 'I will come early.', 'I will not come.'] },
+    { text: 'வானம் தெளிவாக இருக்கிறது.', correct: 'The sky is clear.', options: ['The sky is clear.', 'The sky is cloudy.', 'It is raining.', 'It is sunny.'] },
+    
+    // Numbers & Quantity (10)
+    { text: 'நான் ஒரு மாணவன்.', correct: 'I am a student.', options: ['I am a student.', 'I am a teacher.', 'I am a doctor.', 'I am a lawyer.'] },
+    { text: 'எனக்கு ஒரு ஆப்பிள் வேண்டும்.', correct: 'I want one apple.', options: ['I want one apple.', 'I want one banana.', 'I want one mango.', 'I want one orange.'] },
+    { text: 'அவரிடம் இரண்டு புத்தகங்கள் உள்ளன.', correct: 'He has two books.', options: ['He has two books.', 'He has three pens.', 'He has four cars.', 'He has five houses.'] },
+    { text: 'உங்களிடம் எத்தனை பணம் இருக்கிறது?', correct: 'How much money do you have?', options: ['How much money do you have?', 'How many books do you have?', 'How many friends do you have?', 'How many cars do you have?'] },
+    { text: 'இந்த அறையில் நான்கு பேர் இருக்கிறார்கள்.', correct: 'There are four people in this room.', options: ['There are four people in this room.', 'There are five chairs.', 'There are six tables.', 'There are seven lights.'] },
+    { text: 'இது ஐந்தாவது மாடி.', correct: 'This is the fifth floor.', options: ['This is the fifth floor.', 'This is the first floor.', 'This is the second floor.', 'This is the third floor.'] },
+    { text: 'எனக்கு சிறிது தண்ணீர் கொடுங்கள்.', correct: 'Give me some water.', options: ['Give me some water.', 'Give me some food.', 'Give me some money.', 'Give me some time.'] },
+    { text: 'அங்கே நிறைய மக்கள் உள்ளனர்.', correct: 'There are many people there.', options: ['There are many people there.', 'There are few people here.', 'There are no people.', 'There are some animals.'] },
+    { text: 'எனக்கு கொஞ்சம் வேலை இருக்கிறது.', correct: 'I have some work.', options: ['I have some work.', 'I have some time.', 'I have some money.', 'I have some friends.'] },
+    { text: 'எனக்கு பத்து ரூபாய் வேண்டும்.', correct: 'I need ten rupees.', options: ['I need ten rupees.', 'I need five dollars.', 'I need twenty pounds.', 'I need fifty cents.'] },
+
+    // Daily Actions/Verbs (15)
+    { text: 'நான் தினமும் செய்தித்தாள் படிக்கிறேன்.', correct: 'I read the newspaper daily.', options: ['I read the newspaper daily.', 'I write a letter daily.', 'I watch TV daily.', 'I listen to music daily.'] },
+    { text: 'அவள் கடிதம் எழுதுகிறாள்.', correct: 'She is writing a letter.', options: ['She is writing a letter.', 'She is reading a book.', 'She is drawing a picture.', 'She is singing a song.'] },
+    { text: 'நாங்கள் திரைப்படத்தைப் பார்த்தோம்.', correct: 'We watched the movie.', options: ['We watched the movie.', 'We played the game.', 'We ate dinner.', 'We went home.'] },
+    { text: 'நீங்கள் என்ன செய்கிறீர்கள்?', correct: 'What are you doing?', options: ['What are you doing?', 'Where are you going?', 'When will you come?', 'How are you?'] },
+    { text: 'அவர் பள்ளிக்குச் சென்றார்.', correct: 'He went to school.', options: ['He went to school.', 'He came from work.', 'He stayed at home.', 'He slept late.'] },
+    { text: 'நான் பாடம் கேட்கிறேன்.', correct: 'I am listening to the lesson.', options: ['I am listening to the lesson.', 'I am writing notes.', 'I am teaching.', 'I am speaking.'] },
+    { text: 'அவர்கள் விளையாடுகிறார்கள்.', correct: 'They are playing.', options: ['They are playing.', 'They are fighting.', 'They are dancing.', 'They are running.'] },
+    { text: 'நான் தண்ணீர் குடிக்கிறேன்.', correct: 'I am drinking water.', options: ['I am drinking water.', 'I am eating food.', 'I am sleeping.', 'I am watching.'] },
+    { text: 'அவள் சமையல் செய்கிறாள்.', correct: 'She is cooking.', options: ['She is cooking.', 'She is cleaning.', 'She is singing.', 'She is dancing.'] },
+    { text: 'நான் என் வேலை முடித்தேன்.', correct: 'I finished my work.', options: ['I finished my work.', 'I started my work.', 'I hate my work.', 'I love my work.'] },
+    { text: 'நாங்கள் காலையில் ஓடினோம்.', correct: 'We ran in the morning.', options: ['We ran in the morning.', 'We slept late.', 'We ate breakfast.', 'We walked to the park.'] },
+    { text: 'நீங்கள் இங்கே உட்காருங்கள்.', correct: 'Please sit here.', options: ['Please sit here.', 'Please stand there.', 'Please go out.', 'Please come in.'] },
+    { text: 'நான் நாளை வருவேன்.', correct: 'I will come tomorrow.', options: ['I will come tomorrow.', 'I will go today.', 'I will leave now.', 'I will stay here.'] },
+    { text: 'அவள் சிரித்தாள்.', correct: 'She smiled.', options: ['She smiled.', 'She cried.', 'She shouted.', 'She spoke.'] },
+    { text: 'அவர்கள் இப்போது தூங்குகிறார்கள்.', correct: 'They are sleeping now.', options: ['They are sleeping now.', 'They are eating now.', 'They are working now.', 'They are watching TV now.'] },
+
+    // Adjectives & Descriptions (15)
+    { text: 'இந்த கார் புதியது.', correct: 'This car is new.', options: ['This car is new.', 'This car is old.', 'This car is slow.', 'This car is fast.'] },
+    { text: 'அந்தப் பையன் உயரம்.', correct: 'That boy is tall.', options: ['That boy is tall.', 'That girl is short.', 'That man is fat.', 'That woman is thin.'] },
+    { text: 'அது ஒரு பழைய வீடு.', correct: 'That is an old house.', options: ['That is an old house.', 'That is a new car.', 'That is a big tree.', 'That is a small shop.'] },
+    { text: 'இந்த சாலை அகலமானது.', correct: 'This road is wide.', options: ['This road is wide.', 'This road is narrow.', 'This path is long.', 'This street is short.'] },
+    { text: 'என் பை கனமானது.', correct: 'My bag is heavy.', options: ['My bag is heavy.', 'My book is light.', 'My phone is small.', 'My coat is warm.'] },
+    { text: 'இது ஒரு நல்ல யோசனை.', correct: 'This is a good idea.', options: ['This is a good idea.', 'This is a bad plan.', 'This is a silly joke.', 'This is a great movie.'] },
+    { text: 'இந்த நிறம் எனக்குப் பிடிக்கும்.', correct: 'I like this color.', options: ['I like this color.', 'I hate this food.', 'I love this song.', 'I prefer that style.'] },
+    { text: 'அவர் மிகவும் கனிவானவர்.', correct: 'He is very kind.', options: ['He is very kind.', 'He is very strict.', 'He is very mean.', 'He is very rude.'] },
+    { text: 'இந்த கேள்வி கடினமானது.', correct: 'This question is difficult.', options: ['This question is difficult.', 'This answer is wrong.', 'This problem is easy.', 'This subject is boring.'] },
+    { text: 'பூக்கள் அழகாக இருக்கின்றன.', correct: 'The flowers are beautiful.', options: ['The flowers are beautiful.', 'The trees are green.', 'The grass is wet.', 'The sun is hot.'] },
+    { text: 'இது மிகவும் சுலபம்.', correct: 'This is very simple.', options: ['This is very simple.', 'This is very complex.', 'This is very fast.', 'This is very slow.'] },
+    { text: 'நான் ஆரோக்கியமாக இருக்கிறேன்.', correct: 'I am healthy.', options: ['I am healthy.', 'I am sick.', 'I am busy.', 'I am free.'] },
+    { text: 'அது ஒரு பெரிய விலங்கு.', correct: 'That is a big animal.', options: ['That is a big animal.', 'That is a small bird.', 'That is a wild cat.', 'That is a domestic dog.'] },
+    { text: 'இது ஒரு சிறிய புத்தகம்.', correct: 'This is a small book.', options: ['This is a small book.', 'This is a large file.', 'This is a thick notebook.', 'This is a thin paper.'] },
+    { text: 'அறையின் கதவு மூடப்பட்டுள்ளது.', correct: 'The door of the room is closed.', options: ['The door of the room is closed.', 'The window is open.', 'The light is on.', 'The fan is off.'] },
+
+    // Feelings & Health (10)
+    { text: 'எனக்கு சோர்வாக இருக்கிறது.', correct: 'I am tired.', options: ['I am tired.', 'I am excited.', 'I am bored.', 'I am energetic.'] },
+    { text: 'அவர் கோபமாக இருக்கிறார்.', correct: 'He is angry.', options: ['He is angry.', 'He is sad.', 'He is confused.', 'He is calm.'] },
+    { text: 'எனக்கு பயமாக இருக்கிறது.', correct: 'I am scared.', options: ['I am scared.', 'I am brave.', 'I am hungry.', 'I am happy.'] },
+    { text: 'நான் கவலைப்படுகிறேன்.', correct: 'I am worried.', options: ['I am worried.', 'I am relaxed.', 'I am sleeping.', 'I am eating.'] },
+    { text: 'நீங்கள் மகிழ்ச்சியாக இருக்கிறீர்களா?', correct: 'Are you happy?', options: ['Are you happy?', 'Are you working?', 'Are you studying?', 'Are you hungry?'] },
+    { text: 'எனக்கு காய்ச்சல் உள்ளது.', correct: 'I have a fever.', options: ['I have a fever.', 'I have a car.', 'I have a house.', 'I have a pet.'] },
+    { text: 'எனக்கு உடல்நிலை சரியில்லை.', correct: 'I am not feeling well.', options: ['I am not feeling well.', 'I am feeling great.', 'I am going out.', 'I am staying home.'] },
+    { text: 'எனக்கு வயிறு வலிக்கிறது.', correct: 'I have a stomach ache.', options: ['I have a stomach ache.', 'I have a toothache.', 'I have a headache.', 'I have a cold.'] },
+    { text: 'எனக்கு நன்றாக உணர்கிறது.', correct: 'I am feeling better.', options: ['I am feeling better.', 'I am feeling worse.', 'I am feeling sleepy.', 'I am feeling tired.'] },
+    { text: 'நாம் நிதானமாக இருக்க வேண்டும்.', correct: 'We need to be calm.', options: ['We need to be calm.', 'We need to be fast.', 'We need to be loud.', 'We need to be silent.'] },
+
+    // Place & Location (10)
+    { text: 'நீங்கள் எங்கு வசிக்கிறீர்கள்?', correct: 'Where do you live?', options: ['Where do you live?', 'Where do you work?', 'Where do you shop?', 'Where do you go?'] },
+    { text: 'வங்கி அருகில் உள்ளதா?', correct: 'Is the bank nearby?', options: ['Is the bank nearby?', 'Is the shop open?', 'Is the train late?', 'Is the bus cheap?'] },
+    { text: 'என் புத்தகம் மேஜையில் உள்ளது.', correct: 'My book is on the table.', options: ['My book is on the table.', 'My keys are in the bag.', 'My phone is charging.', 'My friend is waiting.'] },
+    { text: 'அவர் உள்ளே இருக்கிறார்.', correct: 'He is inside.', options: ['He is inside.', 'She is outside.', 'It is on top.', 'They are below.'] },
+    { text: 'அது வெளியே இருக்கிறது.', correct: 'It is outside.', options: ['It is outside.', 'It is inside.', 'It is here.', 'It is there.'] },
+    { text: 'நான் கடைக்கு அருகில் இருக்கிறேன்.', correct: 'I am near the shop.', options: ['I am near the shop.', 'I am far from home.', 'I am at the office.', 'I am in the car.'] },
+    { text: 'அவர் அறையில் இல்லை.', correct: 'He is not in the room.', options: ['He is not in the room.', 'He is in the garden.', 'He is sleeping.', 'He is working.'] },
+    { text: 'உங்கள் அலுவலகம் எங்கே?', correct: 'Where is your office?', options: ['Where is your office?', 'What is your job?', 'When do you start?', 'How do you go?'] },
+    { text: 'பூங்கா இங்கே பக்கத்தில் உள்ளது.', correct: 'The park is close by.', options: ['The park is close by.', 'The market is far away.', 'The school is huge.', 'The hospital is new.'] },
+    { text: 'அவர்கள் அங்கே போகிறார்கள்.', correct: 'They are going there.', options: ['They are going there.', 'They are coming here.', 'They are staying home.', 'They are eating out.'] },
+
+    // Question words/Information (10)
+    { text: 'ஏன் அழுகிறாய்?', correct: 'Why are you crying?', options: ['Why are you crying?', 'What are you doing?', 'When will you stop?', 'How did you fall?'] },
+    { text: 'நீங்கள் எப்போது வந்தீர்கள்?', correct: 'When did you come?', options: ['When did you come?', 'Where did you go?', 'How did you feel?', 'What did you eat?'] },
+    { text: 'இதை எப்படி செய்வது?', correct: 'How to do this?', options: ['How to do this?', 'When to start this?', 'What is this?', 'Why is this needed?'] },
+    { text: 'யாரை பார்க்க வந்தீர்கள்?', correct: 'Whom did you come to see?', options: ['Whom did you come to see?', 'What did you buy?', 'Where did you wait?', 'When will you leave?'] },
+    { text: 'எந்த புத்தகம் உங்களுக்கு வேண்டும்?', correct: 'Which book do you want?', options: ['Which book do you want?', 'What movie did you see?', 'How many apples do you have?', 'When is the test?'] },
+    { text: 'என்ன நடந்தது?', correct: 'What happened?', options: ['What happened?', 'Who won?', 'Where is she?', 'When is it?'] },
+    { text: 'யார் அங்கே?', correct: 'Who is there?', options: ['Who is there?', 'What is that?', 'When did they leave?', 'How far is it?'] },
+    { text: 'எவ்வளவு நேரம் ஆகும்?', correct: 'How much time will it take?', options: ['How much time will it take?', 'How much does it cost?', 'How many people came?', 'How far is the place?'] },
+    { text: 'இதை எதற்காக வாங்கினீர்கள்?', correct: 'Why did you buy this?', options: ['Why did you buy this?', 'Where did you find this?', 'How much did you pay?', 'When will you use this?'] },
+    { text: 'நீங்கள் என்ன நினைக்கிறீர்கள்?', correct: 'What do you think?', options: ['What do you think?', 'What do you know?', 'What do you want?', 'What do you hear?'] },
+
+    // Requests & Permissions (10)
+    { text: 'தயவுசெய்து மெதுவாகப் பேசுங்கள்.', correct: 'Please speak slowly.', options: ['Please speak slowly.', 'Please speak loudly.', 'Please be quiet.', 'Please hurry up.'] },
+    { text: 'எனக்கு ஒரு உதவி செய்ய முடியுமா?', correct: 'Can you do me a favor?', options: ['Can you do me a favor?', 'Can you wait for me?', 'Can you call me?', 'Can you drive me?'] },
+    { text: 'நான் உள்ளே வரலாமா?', correct: 'May I come inside?', options: ['May I come inside?', 'May I leave now?', 'May I sit here?', 'May I drink water?'] },
+    { text: 'நீங்கள் எனக்கு உதவ முடியுமா?', correct: 'Can you help me?', options: ['Can you help me?', 'Can you see me?', 'Can you hear me?', 'Can you teach me?'] },
+    { text: 'இங்கே பார்க்கவும்.', correct: 'Look here.', options: ['Look here.', 'Go there.', 'Come back.', 'Wait a minute.'] },
+    { text: 'எனக்கு ஒரு நிமிடம் கொடுங்கள்.', correct: 'Give me one minute.', options: ['Give me one minute.', 'Give me one hour.', 'Give me one chance.', 'Give me one dollar.'] },
+    { text: 'தயவுசெய்து கதவை மூடுங்கள்.', correct: 'Please close the door.', options: ['Please close the door.', 'Please open the window.', 'Please turn on the light.', 'Please turn off the fan.'] },
+    { text: 'நீங்கள் மறுபடியும் சொல்ல முடியுமா?', correct: 'Can you say it again?', options: ['Can you say it again?', 'Can you write it down?', 'Can you translate it?', 'Can you explain it?'] },
+    { text: 'நான் இப்போது போகலாமா?', correct: 'Can I go now?', options: ['Can I go now?', 'Can I stay here?', 'Can I eat now?', 'Can I sleep now?'] },
+    { text: 'அதை எனக்காக எடுத்துக்கொள்.', correct: 'Take that for me.', options: ['Take that for me.', 'Give this to him.', 'Bring the bag.', 'Leave the keys.'] },
+
+    // Common Phrases (10)
+    { text: 'மீண்டும் சந்திப்போம்.', correct: 'See you again.', options: ['See you again.', 'Goodbye forever.', 'Have a good day.', 'Welcome here.'] },
+    { text: 'வாழ்த்துக்கள்!', correct: 'Congratulations!', options: ['Congratulations!', 'Thank you!', 'Sorry!', 'Hello!'] },
+    { text: 'எனக்குத் தெரியாது.', correct: 'I don\'t know.', options: ['I don\'t know.', 'I know everything.', 'I am sure.', 'I am confused.'] },
+    { text: 'நான் நம்புகிறேன்.', correct: 'I believe.', options: ['I believe.', 'I doubt.', 'I agree.', 'I disagree.'] },
+    { text: 'கவனமாக இருங்கள்.', correct: 'Be careful.', options: ['Be careful.', 'Be fast.', 'Be late.', 'Be quiet.'] },
+    { text: 'கவலைப்படாதே.', correct: 'Don't worry.', options: ['Don\'t worry.', 'Be sad.', 'Be angry.', 'Be happy.'] },
+    { text: 'அது பரவாயில்லை.', correct: 'That\'s okay/It\'s fine.', options: ['That\'s okay/It\'s fine.', 'That\'s terrible.', 'That\'s amazing.', 'That\'s too much.'] },
+    { text: 'வணக்கம்', correct: 'Hello/Greetings (Formal)', options: ['Hello/Greetings (Formal)', 'Good morning', 'Good night', 'Goodbye'] },
+    { text: 'நீங்கள் செய்ததில் மகிழ்ச்சி.', correct: 'Happy you did it.', options: ['Happy you did it.', 'Sad you failed.', 'Angry you came.', 'Tired you went.'] },
+    { text: 'மன்னிக்கவும்.', correct: 'Excuse me/Sorry.', options: ['Excuse me/Sorry.', 'Thank you.', 'You\'re welcome.', 'I understand.'] },
+
+    // Time & Planning (10)
+    { text: 'நாங்கள் நாளை திட்டமிடுகிறோம்.', correct: 'We are planning tomorrow.', options: ['We are planning tomorrow.', 'We planned yesterday.', 'We finished the plan.', 'We cancelled the plan.'] },
+    { text: 'நான் சிறிது நேரம் கழித்து வருகிறேன்.', correct: 'I am coming after a little while.', options: ['I am coming after a little while.', 'I came a long time ago.', 'I am leaving quickly.', 'I am staying here forever.'] },
+    { text: 'இந்த வாரம் என் விடுமுறை.', correct: 'This week is my holiday.', options: ['This week is my holiday.', 'This month is busy.', 'This year is great.', 'This weekend is bad.'] },
+    { text: 'இது ஒரு முக்கியமான தருணம்.', correct: 'This is an important moment.', options: ['This is an important moment.', 'This is a small stone.', 'This is a silly fight.', 'This is a useless idea.'] },
+    { text: 'கடந்த வாரம் நான் பிஸியாக இருந்தேன்.', correct: 'I was busy last week.', options: ['I was busy last week.', 'I was free next week.', 'I am bored today.', 'I am sick tomorrow.'] },
+    { text: 'அடுத்த மாதம் வருகிறேன்.', correct: 'I will come next month.', options: ['I will come next month.', 'I went last year.', 'I am here now.', 'I am leaving soon.'] },
+    { text: 'நான் ஐந்து மணிக்கு புறப்படுவேன்.', correct: 'I will leave at five o\'clock.', options: ['I will leave at five o\'clock.', 'I will arrive at six o\'clock.', 'I will wait until seven.', 'I will sleep until eight.'] },
+    { text: 'அது எதிர்காலத்தில் நடக்கும்.', correct: 'That will happen in the future.', options: ['That will happen in the future.', 'That happened in the past.', 'That is happening now.', 'That will never happen.'] },
+    { text: 'எங்கள் சந்திப்பு காலை பத்து மணி.', correct: 'Our meeting is at ten AM.', options: ['Our meeting is at ten AM.', 'Their party is at noon.', 'Your class is in the evening.', 'My work starts at night.'] },
+    { text: 'நாம் இப்போதே தொடங்கலாமா?', correct: 'Shall we start right now?', options: ['Shall we start right now?', 'Shall we wait longer?', 'Shall we go home?', 'Shall we eat first?'] }
+];
+
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let shuffledItems = [];
+
+            const textDisplay = document.getElementById('sentenceDisplay');
+            const answerButtonsContainer = document.getElementById('sentenceAnswerButtons');
+            const feedbackDisplay = document.getElementById('sentenceFeedback');
+            const scoreDisplay = document.getElementById('sentenceScoreDisplay');
+            const nextButton = document.getElementById('sentenceNextButton');
+            const restartButton = document.getElementById('sentenceRestartButton');
+            const toggleLookupButton = document.getElementById('toggleSentenceLookupButton');
+            const hideLookupButton = document.getElementById('hideSentenceLookupButton');
+            const lookupSheet = document.getElementById('sentenceLookupSheet');
+            const quizSection = document.getElementById('sentenceQuizSection');
+            const lookupTableBody = document.getElementById('sentenceLookupTableBody');
+            const pronounceButton = document.getElementById('sentencePronounceButton');
+
+            function loadQuestion() {
+                feedbackDisplay.textContent = '';
+                feedbackDisplay.className = 'feedback';
+                nextButton.classList.add('hidden');
+                restartButton.classList.add('hidden');
+
+                if (currentQuestionIndex >= shuffledItems.length) {
+                    textDisplay.textContent = 'Quiz Over!';
+                    answerButtonsContainer.innerHTML = '';
+                    const percentage = Math.round((score / shuffledItems.length) * 100);
+                    feedbackDisplay.textContent = `You scored ${score} out of ${shuffledItems.length}! (${percentage}%)`;
+                    feedbackDisplay.classList.add('text-blue-600');
+                    
+                    // Check for perfect score achievement
+                    if (percentage === 100 && shuffledItems.length >= 5) {
+                        learningData.achievements.perfectScore = true;
+                        learningData.checkAchievements();
+                    }
+                    
+                    restartButton.classList.remove('hidden');
+                    return;
+                }
+
+                const currentItem = shuffledItems[currentQuestionIndex];
+                textDisplay.textContent = currentItem.text;
+                
+                // Update progress bar
+                updateProgressBar('sentence', currentQuestionIndex, shuffledItems.length);
+
+                let options = [...currentItem.options].filter(option => option !== undefined);
+                while (options.length < 4) {
+                    options.push(`distractor${options.length}`);
+                }
+                shuffleArray(options);
+
+                answerButtonsContainer.innerHTML = '';
+                options.slice(0, 4).forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('answer-button');
+                    button.addEventListener('click', () => checkAnswer(option, currentItem.correct));
+                    answerButtonsContainer.appendChild(button);
+                });
+                enableButtons();
+            }
+
+            function checkAnswer(selectedOption, correctAnswer) {
+                disableButtons();
+                const itemId = 'sentence_' + textDisplay.textContent;
+                const correct = selectedOption === correctAnswer;
+                
+                learningData.recordAttempt(itemId, correct);
+                
+                if (correct) {
+                    feedbackDisplay.textContent = 'Correct!';
+                    feedbackDisplay.classList.add('correct');
+                    score++;
+                    textDisplay.classList.add('celebrating');
+                    setTimeout(() => textDisplay.classList.remove('celebrating'), 600);
+                } else {
+                    feedbackDisplay.textContent = `Incorrect! The correct answer was "${correctAnswer}".`;
+                    feedbackDisplay.classList.add('incorrect');
+                    Array.from(answerButtonsContainer.children).forEach(button => {
+                        if (button.textContent === correctAnswer) {
+                            button.classList.add('correct');
+                        } else if (button.textContent === selectedOption) {
+                            button.classList.add('incorrect');
+                        }
+                    });
+                }
+                scoreDisplay.textContent = score;
+                nextButton.classList.remove('hidden');
+            }
+
+            function disableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => { button.disabled = true; });
+                pronounceButton.disabled = true;
+            }
+
+            function enableButtons() {
+                Array.from(answerButtonsContainer.children).forEach(button => {
+                    button.disabled = false;
+                    button.classList.remove('correct', 'incorrect');
+                });
+                pronounceButton.disabled = false;
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                loadQuestion();
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                scoreDisplay.textContent = score;
+                
+                // Spaced repetition: prioritize difficult items
+                const itemsWithDifficulty = data.map(item => {
+                    const itemId = 'sentence_' + item.text;
+                    const difficulty = learningData.getDifficulty(itemId);
+                    return { ...item, difficulty, id: itemId };
+                });
+                
+                itemsWithDifficulty.sort((a, b) => b.difficulty - a.difficulty);
+                
+                const hardItems = itemsWithDifficulty.filter(i => i.difficulty === 3);
+                const mediumItems = itemsWithDifficulty.filter(i => i.difficulty === 2);
+                const easyItems = itemsWithDifficulty.filter(i => i.difficulty === 1);
+                
+                shuffledItems = [
+                    ...shuffleArray(hardItems).slice(0, Math.min(8, hardItems.length)),
+                    ...shuffleArray(mediumItems).slice(0, Math.min(7, mediumItems.length)),
+                    ...shuffleArray(easyItems).slice(0, Math.min(5, easyItems.length))
+                ];
+                
+                if (shuffledItems.length < 15) {
+                    shuffledItems = shuffleArray([...data]);
+                }
+                
+                loadQuestion();
+                quizSection.classList.remove('hidden');
+                lookupSheet.classList.add('hidden');
+                toggleLookupButton.textContent = 'Show Sentences Lookup';
+            }
+
+            function populateLookupTable() {
+                lookupTableBody.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    const tamilCell = document.createElement('td');
+                    const englishCell = document.createElement('td');
+                    const listenCell = document.createElement('td');
+                    tamilCell.textContent = item.text;
+                    englishCell.textContent = item.correct;
+                    const listenButton = document.createElement('button');
+                    listenButton.textContent = '🔊';
+                    listenButton.classList.add('lookup-pronounce-button');
+                    listenButton.title = `Listen to ${item.text}`;
+                    listenButton.addEventListener('click', () => speakTamil(item.text));
+                    listenCell.appendChild(listenButton);
+                    row.appendChild(tamilCell);
+                    row.appendChild(englishCell);
+                    row.appendChild(listenCell);
+                    lookupTableBody.appendChild(row);
+                });
+            }
+
+            function toggleLookupSheet() {
+                lookupSheet.classList.toggle('hidden');
+                quizSection.classList.toggle('hidden');
+                toggleLookupButton.textContent = lookupSheet.classList.contains('hidden') ? 'Show Sentences Lookup' : 'Hide Lookup Sheet';
+                if (!lookupSheet.classList.contains('hidden')) {
+                    populateLookupTable();
+                }
+            }
+
+            nextButton.addEventListener('click', nextQuestion);
+            restartButton.addEventListener('click', restartQuiz);
+            toggleLookupButton.addEventListener('click', toggleLookupSheet);
+            hideLookupButton.addEventListener('click', toggleLookupSheet);
+            pronounceButton.addEventListener('click', () => speakTamil(textDisplay.textContent));
+
+            return { restartQuiz };
+        })();
+		// --- Module 4: Tamil Grammar Guide Logic ---
+        const grammarGuide = (function() {
+            const grammarContentDiv = document.getElementById('grammarContent');
+            const grammarPrevButton = document.getElementById('grammarPrevButton');
+            const grammarNextButton = document.getElementById('grammarNextButton');
+
+            let currentGrammarSectionIndex = 0;
+
+            const sectionsContent = [
+                // Section 0: Introduction
+                `<h2>Vanakkam! (வணக்கம்!)</h2>
+                <p>Welcome to your interactive guide to Tamil grammar! We'll explore the basics step-by-step, making it easier to understand how sentences are formed and what each word means.</p>
+                <p>To hear the pronunciation of Tamil words and phrases, just click the 🔊 Listen button next to them!</p>
+                <p>Let's begin with Nouns!</p>`,
+
+                // Section 1: Nouns
+                `<h2>1. Nouns <span class="tamil-text">(பெயர்ச்சொற்கள் - Peyarchchorkal)</span></h2>
+                <p>Nouns are words that name people, places, animals, or things. In Tamil, nouns don't have grammatical gender like in some other languages. They often change with suffixes for plural or cases.</p>
+                <h3>Here are some common Tamil nouns:</h3>
+                <ul>
+                    <li><span class="tamil-text">வீடு</span> (<span class="transliteration">vīṭu</span>) - House <button class="pronounce-button" data-text="வீடு">🔊 Listen</button></li>
+                    <li><span class="tamil-text">மரம்</span> (<span class="transliteration">maram</span>) - Tree <button class="pronounce-button" data-text="மரம்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">நாய்</span> (<span class="transliteration">nāy</span>) - Dog <button class="pronounce-button" data-text="நாய்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">பையன்</span> (<span class="transliteration">paiyaṉ</span>) - Boy <button class="pronounce-button" data-text="பையன்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">பெண்</span> (<span class="transliteration">peṇ</span>) - Girl <button class="pronounce-button" data-text="பெண்">🔊 Listen</button></li>
+                </ul>`,
+
+                // Section 2: Pronouns
+                `<h2>2. Pronouns <span class="tamil-text">(பிரதிப்பெயர்கள் - Piratippeyarkal)</span></h2>
+                <p>Pronouns replace nouns. Tamil has specific pronouns for different levels of formality and number. Let's look at personal pronouns:</p>
+                <h3>Personal Pronouns:</h3>
+                <ul>
+                    <li><span class="tamil-text">நான்</span> (<span class="transliteration">nāṉ</span>) - I / Me <button class="pronounce-button" data-text="நான்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">நீ</span> (<span class="transliteration">nī</span>) - You (singular, informal) <button class="pronounce-button" data-text="நீ">🔊 Listen</button></li>
+                    <li><span class="tamil-text">நீங்கள்</span> (<span class="transliteration">nīṅkaḷ</span>) - You (singular formal / plural) <button class="pronounce-button" data-text="நீங்கள்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">அவன்</span> (<span class="transliteration">avaṉ</span>) - He <button class="pronounce-button" data-text="அவன்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">அவள்</span> (<span class="transliteration">avaḷ</span>) - She <button class="pronounce-button" data-text="அவள்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">அது</span> (<span class="transliteration">atu</span>) - It (for distant things/animals) <button class="pronounce-button" data-text="அது">🔊 Listen</button></li>
+                    <li><span class="tamil-text">இது</span> (<span class="transliteration">itu</span>) - It (for nearby things/animals) <button class="pronounce-button" data-text="இது">🔊 Listen</button></li>
+                    <li><span class="tamil-text">நாம்</span> (<span class="transliteration">nām</span>) - We (inclusive: speaker + listener) <button class="pronounce-button" data-text="நாம்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">நாங்கள்</span> (<span class="transliteration">nāṅkaḷ</span>) - We (exclusive: speaker + others, not listener) <button class="pronounce-button" data-text="நாங்கள்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">அவர்கள்</span> (<span class="transliteration">avarkaḷ</span>) - They (for people, respectful singular) <button class="pronounce-button" data-text="அவர்கள்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">அவை</span> (<span class="transliteration">avai</span>) - They (for non-human / disrespectful plural) <button class="pronounce-button" data-text="அவை">🔊 Listen</button></li>
+                </ul>`,
+
+                // Section 3: Verbs (Introduction and Present Tense)
+                `<h2>3. Verbs <span class="tamil-text">(வினைச்சொற்கள் - Vinaichchorkal)</span></h2>
+                <p>Verbs describe actions. Tamil verbs conjugate based on tense (past, present, future) and the subject. The root form of the verb is important!</p>
+                <h3>Let's learn the Present Tense using <span class="tamil-text">போ</span> (<span class="transliteration">pō</span>) - "to go":</h3>
+                <ul>
+                    <li>நான் போகிறேன் (<span class="transliteration">nāṉ pōkiṟēṉ</span>) - I go / I am going <button class="pronounce-button" data-text="நான் போகிறேன்">🔊 Listen</button></li>
+                    <li>நீ போகிறாய் (<span class="transliteration">nī pōkiṟāy</span>) - You (inf.) go / are going <button class="pronounce-button" data-text="நீ போகிறாய்">🔊 Listen</button></li>
+                    <li>நீங்கள் போகிறீர்கள் (<span class="transliteration">nīṅkaḷ pōkiṟīrkaḷ</span>) - You (form./pl.) go / are going <button class="pronounce-button" data-text="நீங்கள் போகிறீர்கள்">🔊 Listen</button></li>
+                    <li>அவன் போகிறான் (<span class="transliteration">avaṉ pōkiṟāṉ</span>) - He goes / is going <button class="pronounce-button" data-text="அவன் போகிறான்">🔊 Listen</button></li>
+                    <li>அவள் போகிறாள் (<span class="transliteration">avaḷ pōkiṟāḷ</span>) - She goes / is going <button class="pronounce-button" data-text="அவள் போகிறாள்">🔊 Listen</button></li>
+                    <li>அது போகிறது (<span class="transliteration">atu pōkiṟatu</span>) - It goes / is going <button class="pronounce-button" data-text="அது போகிறது">🔊 Listen</button></li>
+                    <li>நாம் போகிறோம் (<span class="transliteration">nām pōkiṟōm</span>) - We (inc.) go / are going <button class="pronounce-button" data-text="நாம் போகிறோம்">🔊 Listen</button>
+                    <li>நாங்கள் போகிறோம் (<span class="transliteration">nāṅkaḷ pōkiṟōm</span>) - We (exc.) go / are going <button class="pronounce-button" data-text="நாங்கள் போகிறோம்">🔊 Listen</button></li>
+                    <li>அவர்கள் போகிறார்கள் (<span class="transliteration">avarkaḷ pōkiṟārkaḷ</span>) - They go / are going <button class="pronounce-button" data-text="அவர்கள் போகிறார்கள்">🔊 Listen</button></li>
+                    <li>அவை போகின்றன (<span class="transliteration">avai pōkiṉṟaṉa</span>) - They (non-human) go / are going <button class="pronounce-button" data-text="அவை போகின்றன">🔊 Listen</button></li>
+                </ul>`,
+
+                // Section 4: Verbs (Past Tense)
+                `<h2>3. Verbs: Past Tense</h2>
+                <h3>Now for the Past Tense of <span class="tamil-text">போ</span> (<span class="transliteration">pō</span>) - "to go":</h3>
+                <ul>
+                    <li>நான் போனேன் (<span class="transliteration">nāṉ pōṉēṉ</span>) - I went <button class="pronounce-button" data-text="நான் போனேன்">🔊 Listen</button></li>
+                    <li>நீ போனாய் (<span class="transliteration">nī pōṉāy</span>) - You (inf.) went <button class="pronounce-button" data-text="நீ போனாய்">🔊 Listen</button></li>
+                    <li>நீங்கள் போனீர்கள் (<span class="transliteration">nīṅkaḷ pōṉīrkaḷ</span>) - You (form./pl.) went <button class="pronounce-button" data-text="நீங்கள் போனீர்கள்">🔊 Listen</button></li>
+                    <li>அவன் போனான் (<span class="transliteration">avaṉ pōṉāṉ</span>) - He went <button class="pronounce-button" data-text="அவன் போனான்">🔊 Listen</button></li>
+                    <li>அவள் போனாள் (<span class="transliteration">avaḷ pōṉāḷ</span>) - She went <button class="pronounce-button" data-text="அவள் போனாள்">🔊 Listen</button></li>
+                    <li>அது போனது (<span class="transliteration">atu pōṉatu</span>) - It went <button class="pronounce-button" data-text="அது போனது">🔊 Listen</button></li>
+                    <li>நாம் போனோம் (<span class="transliteration">nām pōṉōm</span>) - We (inc.) went <button class="pronounce-button" data-text="நாம் போனோம்">🔊 Listen</button></li>
+                    <li>நாங்கள் போனோம் (<span class="transliteration">nāṅkaḷ pōṉōm</span>) - We (exc.) went <button class="pronounce-button" data-text="நாங்கள் போனோம்">🔊 Listen</button></li>
+                    <li>அவர்கள் போனார்கள் (<span class="transliteration">avarkaḷ pōṉārkaḷ</span>) - They went <button class="pronounce-button" data-text="அவர்கள் போனார்கள்">🔊 Listen</button></li>
+                    <li>அவை போயின (<span class="transliteration">avai pōyiṉa</span>) - They (non-human) went <button class="pronounce-button" data-text="அவை போயின">🔊 Listen</button></li>
+                </ul>`,
+
+                // Section 5: Verbs (Future Tense)
+                `<h2>3. Verbs: Future Tense</h2>
+                <h3>And finally, the Future Tense of <span class="tamil-text">போ</span> (<span class="transliteration">pō</span>) - "to go":</h3>
+                <ul>
+                    <li>நான் போவேன் (<span class="transliteration">nāṉ pōvēṉ</span>) - I will go <button class="pronounce-button" data-text="நான் போவேன்">🔊 Listen</button></li>
+                    <li>நீ போவாய் (<span class="transliteration">nī pōvāy</span>) - You (inf.) will go <button class="pronounce-button" data-text="நீ போவாய்">🔊 Listen</button></li>
+                    <li>நீங்கள் போவீர்கள் (<span class="transliteration">nīṅkaḷ pōvīrkaḷ</span>) - You (form./pl.) will go <button class="pronounce-button" data-text="நீங்கள் போவீர்கள்">🔊 Listen</button></li>
+                    <li>அவன் போவான் (<span class="transliteration">avaṉ pōvāṉ</span>) - He will go <button class="pronounce-button" data-text="அவன் போவான்">🔊 Listen</button></li>
+                    <li>அவள் போவாள் (<span class="transliteration">avaḷ pōvāḷ</span>) - She will go <button class="pronounce-button" data-text="அவள் போவாள்">🔊 Listen</button></li>
+                    <li>அது போகும் (<span class="transliteration">atu pōkum</span>) - It will go <button class="pronounce-button" data-text="அது போகும்">🔊 Listen</button></li>
+                    <li>நாம் போவோம் (<span class="transliteration">nām pōvōm</span>) - We (inc.) will go <button class="pronounce-button" data-text="நாம் போவோம்">🔊 Listen</button></li>
+                    <li>நாங்கள் போவோம் (<span class="transliteration">nāṅkaḷ pōvōm</span>) - We (exc.) will go <button class="pronounce-button" data-text="நாங்கள் போவோம்">🔊 Listen</button></li>
+                    <li>அவர்கள் போவார்கள் (<span class="transliteration">avarkaḷ pōvārkaḷ</span>) - They will go <button class="pronounce-button" data-text="அவர்கள் போவார்கள்">🔊 Listen</button></li>
+                    <li>அவை போகும் (<span class="transliteration">avai pōkum</span>) - They (non-human) will go <button class="pronounce-button" data-text="அவை போகும்">🔊 Listen</button></li>
+                </ul>`,
+
+                // Section 6: Adjectives
+                `<h2>4. Adjectives <span class="tamil-text">(பெயரடைகள் - Peyaraṭaikaḷ)</span></h2>
+                <p>Adjectives describe nouns. Good news! In Tamil, adjectives usually come before the noun and don't change their form based on the noun's attributes. Simple, right?</p>
+                <h3>Examples:</h3>
+                <ul>
+                    <li><span class="tamil-text">பெரிய வீடு</span> (<span class="transliteration">periya vīṭu</span>) - Big house <button class="pronounce-button" data-text="பெரிய வீடு">🔊 Listen</button></li>
+                    <li><span class="tamil-text">சிறிய பையன்</span> (<span class="transliteration">siṟiya paiyaṉ</span>) - Small boy <button class="pronounce-button" data-text="சிறிய பையன்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">அழகான பூ</span> (<span class="transliteration">aḻakāṉa pū</span>) - Beautiful flower <button class="pronounce-button" data-text="அழகான பூ">🔊 Listen</button></li>
+                </ul>`,
+
+                // Section 7: Sentence Structure
+                `<h2>5. Sentence Structure <span class="tamil-text">(வாக்கிய அமைப்பு - Vākkiya Amaippu)</span></h2>
+                <p>Tamil typically follows a Subject-Object-Verb (SOV) order. This means the verb usually comes at the very end of the sentence. It might feel a bit different if you're used to Subject-Verb-Object (SVO) languages like English!</p>
+                <h3>Example:</h3>
+                <div class="grammar-example">
+                    <p><span class="tamil-text">நான் பால் குடிக்கிறேன்.</span> <button class="pronounce-button" data-text="நான் பால் குடிக்கிறேன்">🔊 Listen</button></p>
+                    <p><span class="transliteration">Nāṉ pāl kuṭikkiṟēṉ.</span></p>
+                    <p><span class="translation">I milk drink. (I drink milk.)</span></p>
+                </div>
+                <p>Notice how "drink" comes last.</p>`,
+
+                // Section 8: Question Words
+                `<h2>6. Question Words <span class="tamil-text">(கேள்விச் சொற்கள் - Keḷvichchoṟkaḷ)</span></h2>
+                <p>Asking questions is key to conversation! Here are some common Tamil question words:</p>
+                <ul>
+                    <li><span class="tamil-text">யார்?</span> (<span class="transliteration">yār?</span>) - Who? <button class="pronounce-button" data-text="யார்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">என்ன?</span> (<span class="transliteration">eṉṉa?</span>) - What? <button class="pronounce-button" data-text="என்ன">🔊 Listen</button></li>
+                    <li><span class="tamil-text">எங்கே?</span> (<span class="transliteration">eṅkē?</span>) - Where? <button class="pronounce-button" data-text="எங்கே">🔊 Listen</button></li>
+                    <li><span class="tamil-text">எப்போது?</span> (<span class="transliteration">eppōtu?</span>) - When? <button class="pronounce-button" data-text="எப்போது">🔊 Listen</button></li>
+                    <li><span class="tamil-text">எப்படி?</span> (<span class="transliteration">eppaṭi?</span>) - How? <button class="pronounce-button" data-text="எப்படி">🔊 Listen</button></li>
+                    <li><span class="tamil-text">ஏன்?</span> (<span class="transliteration">ēṉ?</span>) - Why? <button class="pronounce-button" data-text="ஏன்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">எத்தனை?</span> (<span class="transliteration">ettaṉai?</span>) - How many? <button class="pronounce-button" data-text="எத்தனை">🔊 Listen</button></li>
+                    <li><span class="tamil-text">எவ்வளவு?</span> (<span class="transliteration">evvaḷavu?</span>) - How much? <button class="pronounce-button" data-text="எவ்வளவு">🔊 Listen</button></li>
+                </ul>
+                <h3>Example Question:</h3>
+                <div class="grammar-example">
+                    <p><span class="tamil-text">உங்கள் பெயர் என்ன?</span> <button class="pronounce-button" data-text="உங்கள் பெயர் என்ன">🔊 Listen</button></p>
+                    <p><span class="transliteration">Uṅkaḷ peyar eṉṉa?</span></p>
+                    <p><span class="translation">Your name what? (What is your name?)</span></p>
+                </div>`,
+
+                // Section 9: Basic Phrases
+                `<h2>7. Basic Phrases <span class="tamil-text">(அடிப்படைச் சொற்றொடர்கள் - Aṭippaṭaich Choṟṟoṭarkaḷ)</span></h2>
+                <p>Let's learn some essential phrases for everyday interactions:</p>
+                <ul>
+                    <li><span class="tamil-text">வணக்கம்</span> (<span class="transliteration">vaṇakkam</span>) - Hello / Namaste <button class="pronounce-button" data-text="வணக்கம்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">எப்படி இருக்கிறீர்கள்?</span> (<span class="transliteration">eppaṭi irukkiṟīrkaḷ?</span>) - How are you? (formal/plural) <button class="pronounce-button" data-text="எப்படி இருக்கிறீர்கள்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">நன்றாக இருக்கிறேன்.</span> (<span class="transliteration">naṉṟāka irukkiṟēṉ.</span>) - I am fine. <button class="pronounce-button" data-text="நன்றாக இருக்கிறேன்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">நன்றி.</span> (<span class="transliteration">naṉṟi.</span>) - Thank you. <button class="pronounce-button" data-text="நன்றி">🔊 Listen</button></li>
+                    <li><span class="tamil-text">என் பெயர் ...</span> (<span class="transliteration">eṉ peyar ...</span>) - My name is ... <button class="pronounce-button" data-text="என் பெயர்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">மன்னிக்கவும்.</span> (<span class="transliteration">maṉṉikkavum.</span>) - Excuse me / Sorry. <button class="pronounce-button" data-text="மன்னிக்கவும்">🔊 Listen</button></li>
+                    <li><span class="tamil-text">சுப இரவு.</span> (<span class="transliteration">suba iravu.</span>) - Good night. <button class="pronounce-button" data-text="சுப இரவு">🔊 Listen</button></li>
+                </ul>`,
+
+                // Section 10: Conclusion
+                `<h2>வாழ்த்துக்கள்! (Vāḻttukkaḷ!)</h2>
+                <p>You've completed this introductory guide to Tamil grammar and explored the various learning modules. By understanding these basics, you're well on your way to speaking and understanding more Tamil!</p>
+                <p>Keep practicing, and don't hesitate to revisit any section. மீண்டும் சந்திப்போம்! (<span class="transliteration">mīṇṭum cantippōm!</span> - See you again!)</p>
+                <button class="pronounce-button" data-text="வாழ்த்துக்கள்">🔊 Listen</button>`
+            ];
+
+            function loadGrammarSection(index) {
+                grammarContentDiv.innerHTML = sectionsContent[index];
+                // Attach event listeners to newly loaded pronounce buttons
+                grammarContentDiv.querySelectorAll('.pronounce-button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const textToSpeak = button.dataset.text || button.closest('li, .grammar-example').querySelector('.tamil-text, .transliteration').textContent;
+                        speakTamil(textToSpeak);
+                    });
+                });
+                updateGrammarNavigationButtons();
+            }
+
+            function updateGrammarNavigationButtons() {
+                grammarPrevButton.disabled = (currentGrammarSectionIndex === 0);
+                grammarNextButton.disabled = (currentGrammarSectionIndex === sectionsContent.length - 1);
+                if (currentGrammarSectionIndex === sectionsContent.length - 1) {
+                    grammarNextButton.textContent = "End Guide";
+                } else {
+                    grammarNextButton.textContent = "Next";
+                }
+            }
+
+            grammarNextButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex < sectionsContent.length - 1) {
+                    currentGrammarSectionIndex++;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                }
+            });
+
+            grammarPrevButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex > 0) {
+                    currentGrammarSectionIndex--;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                }
+            });
+
+            function init() {
+                currentGrammarSectionIndex = 0; // Reset to first section on init
+                loadGrammarSection(currentGrammarSectionIndex);
+            }
+
+            return { init };
+        })();
+
+        // Initialize the tool to the start screen
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load learning data
+            learningData.load();
+            learningData.updateDashboard();
+            updateAchievementsDisplay();
+            
+            showModule('startScreen');
+        });
+    </script>
+</body>
+</html>
+	
+	
