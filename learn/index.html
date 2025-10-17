@@ -99,22 +99,12 @@
         </p>
     </div>
 
-    <!-- The Custom Alert Box and related JS are removed as we are now doing a navigation -->
     <script>
-        /**
-         * Navigates the user to the specified lesson page.
-         * Note: Since we are in a single-file environment, this will simulate navigation.
-         * For a real website, this would load the content of the new page.
-         */
-        function goToPage(fileName) {
-            // For a single-page app, you might hide this container and show the next one.
-            // For a traditional website, you simply change the location:
-            // window.location.href = fileName;
-
-            // In this specific canvas environment, we will use a message 
-            // to show where the user would be navigating to.
-            alert(`Navigating to: ${fileName}\n\n(In a real web app, this action would load the specific lesson page.)`);
-        }
+// JavaScript function for REAL navigation
+function goToPage(fileName) {
+    // This line performs the actual redirection:
+    window.location.href = fileName; 
+}
     </script>
 </body>
 </html>
