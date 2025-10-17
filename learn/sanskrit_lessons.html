@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Sanskrit Learning Tool</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* General styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        /* Progress Bar Styles */
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 1rem;
+            height: 24px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #9333ea, #c084fc); /* Violet gradient */
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .progress-text {
+            color: white;
+            font-weight: bold;
+            padding-right: 0.75rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-size: 0.75rem;
+        }
+
+        /* Module Specific Styling */
+        .module {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            padding: 1.5rem;
+            max-width: 600px;
+            width: 100%;
+            display: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .module.active {
+            display: block;
+        }
+
+        /* Grid for characters */
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .char-card {
+            background-color: #f3f4f6;
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            text-align: center;
+            transition: transform 0.1s;
+            cursor: pointer; /* Enable clicking for TTS */
+        }
+        .char-card:hover {
+            background-color: #e5e7eb;
+            transform: scale(1.05);
+        }
+        .char-sanskrit {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #4c1d95; /* Deep Violet */
+        }
+        .char-transliteration {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: -0.25rem;
+        }
+        
+        /* Quiz Styles */
+        .quiz-option {
+            background-color: #f3f4f6;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: 500;
+            text-align: left;
+        }
+        .quiz-option:hover {
+            background-color: #e5e7eb;
+            transform: translateY(-2px);
+        }
+        .quiz-option.correct {
+            background-color: #d1fae5; /* Green 100 */
+            border: 2px solid #10b981; /* Green 500 */
+        }
+        .quiz-option.incorrect {
+            background-color: #fee2e2; /* Red 100 */
+            border: 2px solid #ef4444; /* Red 500 */
+        }
+
+        /* Grammar Guide Styles */
+        .grammar-content {
+            min-height: 200px;
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            font-size: 1rem;
+        }
+        .grammar-title {
+            color: #9333ea;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tts-button {
+            transition: background-color 0.1s;
+        }
+        .tts-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+		        .nav-button {
+            background-color: #3182ce;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            text-align: center;
+        }
+        .nav-button:hover {
+            background-color: #2c5282;
+        }
+        .nav-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #a0aec0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-8">
+
+    <!-- Main Container -->
+    <div id="app-container" class="max-w-xl w-full">
+
+        <!-- Header and Progress Bar (always visible) -->
+        <header class="text-center mb-6">
+            <h1 class="text-4xl font-extrabold text-gray-800">सँस्कृतम् (Saṃskṛtam)</h1>
+            <p class="text-xl text-violet-600 font-medium">Sanskrit Learning Platform</p>
+        </header>
+        
+        <div id="progress-area" class="progress-container">
+            <div id="progress-bar" class="progress-bar" style="width: 0%;">
+                <span id="progress-text" class="progress-text">0%</span>
+            </div>
+        </div>
+
+        <!-- Start Screen Module -->
+        <div id="startScreen" class="module active">
+            <h2 class="text-2xl font-bold mb-4 text-gray-700">Welcome to Saṃskṛtam!</h2>
+            <p class="mb-6 text-gray-600">Begin your journey into the 'perfected' language of the Vedas, yoga, and ancient philosophy.</p>
+            
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+				<a href="index.html" class="nav-button">Home</a>
+                <button onclick="showModule('alphabetModule');" class="nav-button" >Learn Devanagari Script (Varnas)</button>
+                <button onclick="showModule('vocabularyModule');" class="nav-button" >Essential Words & Phrases</button>
+                <button onclick="showModule('grammarModule'); grammarGuide.init();" class="nav-button" >Grammar Guide (Vyakaranam)</button>
+                <button onclick="showModule('quizModule'); quiz.start();" class="nav-button" >Test Your Knowledge! (Quiz)</button>
+                <button onclick="showModule('achievementsModule'); updateAchievementsDisplay();" class="nav-button" >Achievements (Siddhis)</button>
+            </div>
+            
+            <button onclick="learningData.resetProgress()" class="mt-8 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-150">
+                Reset All Progress (Warning!)
+            </button>
+        </div>
+
+        <!-- Alphabet Module -->
+        <div id="alphabetModule" class="module">
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">Devanagari Script (Varnas)</h2>
+            <p class="text-sm text-gray-500 mb-6">Click any letter to hear its pronunciation.</p>
+
+            <h3 class="text-xl font-semibold text-violet-600 mb-3">Swaras (Vowels)</h3>
+            <div id="vowel-grid" class="char-grid mb-6">
+                <!-- Vowels will be populated here by JS -->
+            </div>
+
+            <h3 class="text-xl font-semibold text-violet-600 mb-3">Vyanjanas (Consonants)</h3>
+            <div id="consonant-grid" class="char-grid">
+                <!-- Consonants will be populated here by JS -->
+            </div>
+
+            <button onclick="showModule('startScreen')" class="mt-8 w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-xl transition duration-150">
+                &larr; Back to Home
+            </button>
+        </div>
+
+        <!-- Vocabulary Module -->
+        <div id="vocabularyModule" class="module">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">Essential Vocabulary & Phrases</h2>
+
+            <button id="vocab-tts-button" onclick="speakSanskrit(getVocabularyText(), 'vocab-tts-button')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl shadow-md tts-button mb-6 transition duration-150 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                Hear All Vocabulary
+            </button>
+
+            <div id="word-list" class="space-y-3">
+                <!-- Words will be populated here by JS -->
+            </div>
+
+            <h3 class="text-xl font-semibold text-violet-600 mt-6 mb-3">Common Phrases</h3>
+            <div id="phrase-list" class="space-y-3">
+                <!-- Phrases will be populated here by JS -->
+            </div>
+
+            <button onclick="showModule('startScreen')" class="mt-8 w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-xl transition duration-150">
+                &larr; Back to Home
+            </button>
+        </div>
+
+        <!-- Grammar Guide Module -->
+        <div id="grammarModule" class="module">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">Sanskrit Grammar (Vyākaraṇam)</h2>
+            
+            <div id="grammar-content" class="grammar-content mb-4">
+                <p class="text-center text-gray-500 pt-16">Loading Grammar Section...</p>
+            </div>
+            
+            <button id="grammar-tts-button" onclick="speakSanskrit(document.getElementById('grammar-content').innerText, 'grammar-tts-button')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl shadow-md tts-button mb-4 transition duration-150 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                Hear Section Text (TTS)
+            </button>
+
+            <div class="flex justify-between space-x-2">
+                <button id="grammar-prev-button" class="w-1/3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-xl transition duration-150" disabled>
+                    Previous
+                </button>
+                <button id="grammar-next-button" class="w-2/3 bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded-xl transition duration-150">
+                    Next
+                </button>
+            </div>
+            
+            <button onclick="showModule('startScreen')" class="mt-4 w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-xl transition duration-150">
+                &larr; Back to Home
+            </button>
+        </div>
+
+        <!-- Quiz Module -->
+        <div id="quizModule" class="module">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">Knowledge Test (Quiz)</h2>
+            
+            <div id="quiz-question-area">
+                <p id="quiz-question" class="text-lg font-semibold mb-4 text-gray-700">Question goes here...</p>
+                <div id="quiz-options" class="space-y-3">
+                    <!-- Options populated by JS -->
+                </div>
+            </div>
+
+            <div id="quiz-feedback" class="mt-4 py-2 px-4 rounded-lg font-bold text-center hidden"></div>
+
+            <div id="quiz-navigation" class="mt-6 flex justify-between space-x-2">
+                <button id="quiz-next-button" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition duration-150" disabled>
+                    Next Question
+                </button>
+            </div>
+            
+            <button id="quiz-back-home" onclick="showModule('startScreen')" class="mt-4 w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-xl transition duration-150">
+                &larr; Back to Home
+            </button>
+        </div>
+
+        <!-- Achievements Module -->
+        <div id="achievementsModule" class="module">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">Siddhis (Achievements)</h2>
+            <div id="achievement-list" class="space-y-4">
+                <!-- Achievements populated by JS -->
+            </div>
+            <button onclick="showModule('startScreen')" class="mt-8 w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-xl transition duration-150">
+                &larr; Back to Home
+            </button>
+        </div>
+
+        <!-- Hidden Audio Player -->
+        <audio id="tts-audio-player" class="hidden"></audio>
+
+    </div>
+
+    <script>
+        // Global environment variables (simulated for Canvas)
+        const apiKey = ""; // Gemini API key placeholder
+
+        // --- TTS Helper Functions for Audio Playback ---
+        
+        // Converts base64 PCM data to a buffer
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        // Converts PCM data to a playable WAV Blob
+        function pcmToWav(pcm16, sampleRate) {
+            const numChannels = 1;
+            const bytesPerSample = 2; // 16-bit PCM
+            const blockAlign = numChannels * bytesPerSample;
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = pcm16.byteLength;
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+            let offset = 0;
+
+            // Write RIFF header
+            function writeString(s) {
+                for (let i = 0; i < s.length; i++) view.setUint8(offset + i, s.charCodeAt(i));
+                offset += s.length;
+            }
+            writeString('RIFF');
+            view.setUint32(offset, 36 + dataSize, true); offset += 4;
+            writeString('WAVE');
+
+            // Write FMT chunk
+            writeString('fmt ');
+            view.setUint32(offset, 16, true); offset += 4; // Sub-chunk 1 size (16 for PCM)
+            view.setUint16(offset, 1, true); offset += 2; // Audio format (1 for PCM)
+            view.setUint16(offset, numChannels, true); offset += 2;
+            view.setUint32(offset, sampleRate, true); offset += 4;
+            view.setUint32(offset, byteRate, true); offset += 4;
+            view.setUint16(offset, blockAlign, true); offset += 2;
+            view.setUint16(offset, bytesPerSample * 8, true); offset += 2; // Bits per sample
+
+            // Write DATA chunk
+            writeString('data');
+            view.setUint32(offset, dataSize, true); offset += 4;
+
+            // Write PCM data
+            const pcmView = new Int16Array(buffer, 44);
+            pcmView.set(pcm16);
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+        
+        // Main TTS function to call the Gemini API
+        async function speakSanskrit(text, buttonId = null) {
+            if (!text || text.trim() === '') {
+                console.warn('TTS request failed: Text is empty.');
+                return;
+            }
+
+            const audioPlayer = document.getElementById('tts-audio-player');
+            const button = buttonId ? document.getElementById(buttonId) : null;
+            
+            let originalText = '';
+            if (button) {
+                originalText = button.textContent;
+                button.disabled = true;
+                button.textContent = 'Generating Audio...';
+            }
+            
+            // Filter out LaTeX formatting and HTML entities/tags for cleaner TTS
+            const sanitizedText = text
+                .replace(/\$\$.*?\$\$/g, '') // Remove block LaTeX
+                .replace(/\$.*?\$/g, '')    // Remove inline LaTeX
+                .replace(/<[^>]*>/g, '')    // Remove HTML tags
+                .trim();
+            
+            if (sanitizedText === '') {
+                console.warn('TTS request failed: Text is empty after sanitization.');
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
+                return;
+            }
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{
+                    parts: [{ text: `Say in a clear and instructional voice, using Sanskrit pronunciation if available: ${sanitizedText}` }]
+                }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            // Using the "Orus" voice for a firm, clear tone suitable for instruction
+                            prebuiltVoiceConfig: { voiceName: "Orus" } 
+                        }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+
+            try {
+                // Exponential backoff retry loop
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status === 429) { // Too Many Requests
+                        const delay = Math.pow(2, attempt) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const part = result?.candidates?.[0]?.content?.parts?.[0];
+                    const audioData = part?.inlineData?.data;
+                    const mimeType = part?.inlineData?.mimeType;
+
+                    if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                        const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                        const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
+                        
+                        const pcmData = base64ToArrayBuffer(audioData);
+                        const pcm16 = new Int16Array(pcmData);
+                        const wavBlob = pcmToWav(pcm16, sampleRate);
+                        
+                        audioPlayer.src = URL.createObjectURL(wavBlob);
+                        audioPlayer.play();
+                    } else {
+                        console.error('TTS API response missing audio data:', result);
+                    }
+                    break; // Success or non-retryable error
+                }
+            } catch (error) {
+                console.error('Error during TTS API call:', error);
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
+            }
+        }
+        
+        // --- Core Application Logic ---
+
+        const learningData = (() => {
+            const STORAGE_KEY = 'sanskritLearningData';
+
+            let data = {
+                vowels: [
+                    { char: 'अ', translit: 'a', type: 'Short Vowel' },
+                    { char: 'आ', translit: 'ā', type: 'Long Vowel' },
+                    { char: 'इ', translit: 'i', type: 'Short Vowel' },
+                    { char: 'ई', translit: 'ī', type: 'Long Vowel' },
+                    { char: 'उ', translit: 'u', type: 'Short Vowel' },
+                    { char: 'ऊ', translit: 'ū', type: 'Long Vowel' },
+                    { char: 'ऋ', translit: 'ṛ', type: 'Vocalic R' },
+                    { char: 'ए', translit: 'e', type: 'Diphthong' },
+                    { char: 'ऐ', translit: 'ai', type: 'Diphthong' },
+                    { char: 'ओ', translit: 'o', type: 'Diphthong' },
+                    { char: 'औ', translit: 'au', type: 'Diphthong' },
+                    { char: 'अं', translit: 'aṃ', type: 'Anusvāra' },
+                    { char: 'अः', translit: 'aḥ', type: 'Visarga' },
+                ],
+                consonants: [
+                    // Gutturals (Kanthya)
+                    { char: 'क', translit: 'ka', type: 'Guttural' },
+                    { char: 'ख', translit: 'kha', type: 'Guttural' },
+                    { char: 'ग', translit: 'ga', type: 'Guttural' },
+                    { char: 'घ', translit: 'gha', type: 'Guttural' },
+                    { char: 'ङ', translit: 'ṅa', type: 'Guttural Nasal' },
+                    // Palatals (Tālavya)
+                    { char: 'च', translit: 'ca', type: 'Palatal' },
+                    { char: 'छ', translit: 'cha', type: 'Palatal' },
+                    { char: 'ज', translit: 'ja', type: 'Palatal' },
+                    { char: 'झ', translit: 'jha', type: 'Palatal' },
+                    { char: 'ञ', translit: 'ña', type: 'Palatal Nasal' },
+                    // Retroflex (Mūrdhanya) - Simplified
+                    { char: 'ट', translit: 'ṭa', type: 'Retroflex' },
+                    { char: 'ठ', translit: 'ṭha', type: 'Retroflex' },
+                    { char: 'ड', translit: 'ḍa', type: 'Retroflex' },
+                    { char: 'ढ', translit: 'ḍha', type: 'Retroflex' },
+                    { char: 'ण', translit: 'ṇa', type: 'Retroflex Nasal' },
+                    // Dentals (Dantya)
+                    { char: 'त', translit: 'ta', type: 'Dental' },
+                    { char: 'थ', translit: 'tha', type: 'Dental' },
+                    { char: 'द', translit: 'da', type: 'Dental' },
+                    { char: 'ध', translit: 'dha', type: 'Dental' },
+                    { char: 'न', translit: 'na', type: 'Dental Nasal' },
+                    // Labials (Oṣṭhya)
+                    { char: 'प', translit: 'pa', type: 'Labial' },
+                    { char: 'फ', translit: 'pha', type: 'Labial' },
+                    { char: 'ब', translit: 'ba', type: 'Labial' },
+                    { char: 'भ', translit: 'bha', type: 'Labial' },
+                    { char: 'म', translit: 'ma', type: 'Labial Nasal' },
+                    // Semivowels & Sibilants
+                    { char: 'य', translit: 'ya', type: 'Semivowel' },
+                    { char: 'र', translit: 'ra', type: 'Semivowel' },
+                    { char: 'ल', translit: 'la', type: 'Semivowel' },
+                    { char: 'व', translit: 'va', type: 'Semivowel' },
+                    { char: 'श', translit: 'śa', type: 'Sibilant' },
+                    { char: 'ष', translit: 'ṣa', type: 'Sibilant' },
+                    { char: 'स', translit: 'sa', type: 'Sibilant' },
+                    { char: 'ह', translit: 'ha', type: 'Aspirate' }
+                ],
+                words: [
+                    { sanskrit: 'नमस्ते', translit: 'namaste', english: 'Greetings / Hello' },
+                    { sanskrit: 'शुभमस्तु', translit: 'śubhamastu', english: 'Good luck / Let there be well-being' },
+                    { sanskrit: 'धन्यवादः', translit: 'dhanyavādaḥ', english: 'Thank you' },
+                    { sanskrit: 'कृपया', translit: 'kṛpayā', english: 'Please / Kindly' },
+                    { sanskrit: 'जलम्', translit: 'jalam', english: 'Water' },
+                    { sanskrit: 'अग्निः', translit: 'agniḥ', english: 'Fire' },
+                    { sanskrit: 'पुत्रः', translit: 'putraḥ', english: 'Son' },
+                    { sanskrit: 'पुत्री', translit: 'putrī', english: 'Daughter' },
+                    { sanskrit: 'शान्तिः', translit: 'śāntiḥ', english: 'Peace / Tranquility' },
+                    { sanskrit: 'ज्ञानम्', translit: 'jñānam', english: 'Knowledge / Wisdom' },
+                    { sanskrit: 'सत्यम्', translit: 'satyam', english: 'Truth' },
+                ],
+                phrases: [
+                    { sanskrit: 'कथम् अस्ति?', translit: 'katham asti?', english: 'How are you?' },
+                    { sanskrit: 'अहं गच्छामि', translit: 'ahaṃ gacchāmi', english: 'I go / I am going' },
+                    { sanskrit: 'पुनर्दर्शनाय', translit: 'punardarśanāya', english: 'To meet again / Goodbye' },
+                    { sanskrit: 'अहं संस्कृतं पठामि', translit: 'ahaṃ saṃskṛtaṃ paṭhāmi', english: 'I read/study Sanskrit' },
+                ],
+                quizQuestions: [
+                    { q: "What is the meaning of 'नमस्ते'?", options: ["My friend", "Hello/Greetings", "Good morning", "Goodbye"], answer: "Hello/Greetings", category: "Words" },
+                    { q: "Which letter is a Long Vowel (Long ā)?", options: ["अ", "इ", "आ", "उ"], answer: "आ", category: "Vowels" },
+                    { q: "The consonant 'क' (ka) belongs to which group?", options: ["Dental", "Labial", "Guttural", "Palatal"], answer: "Guttural", category: "Consonants" },
+                    { q: "What is the Sanskrit word for 'Peace'?", options: ["ज्ञानम्", "सत्यम्", "जलम्", "शान्तिः"], answer: "शान्तिः", category: "Words" },
+                    { q: "What is the Sanskrit term for the phonetic junction of sounds between words?", options: ["Vibhakti", "Kāraka", "Sandhi", "Dhatu"], answer: "Sandhi", category: "Grammar" },
+                    { q: "Which of these means 'Thank you'?", options: ["शुभमस्तु", "धन्यवादः", "कृपया", "कथम् अस्ति?"], answer: "धन्यवादः", category: "Words" },
+                ],
+                progress: {
+                    total: 0,
+                    correct: 0,
+                    quizAttempts: 0,
+                    grammarSectionsCompleted: 0,
+                },
+                achievements: [
+                    { id: 'vowel_master', title: 'Svara Siddhi', desc: 'Completed the Vowel section.', unlocked: false, requirement: 'vowels' },
+                    { id: 'consonant_master', title: 'Vyanjana Siddhi', desc: 'Completed the Consonant section.', unlocked: false, requirement: 'consonants' },
+                    { id: 'lexicon_apprentice', title: 'Śabda Jñāna', desc: 'Learned the essential vocabulary.', unlocked: false, requirement: 'words' },
+                    { id: 'first_quiz', title: 'Prathama Parikṣā', desc: 'Completed 1 quiz attempt.', unlocked: false, requirement: 'quizAttempts >= 1' },
+                    { id: 'grammar_basics', title: 'Vyākaraṇa Prārambha', desc: 'Completed 1 grammar section.', unlocked: false, requirement: 'grammarSectionsCompleted >= 1' },
+                    { id: 'quiz_expert', title: 'Śata Pratibhā', desc: 'Answered 5 questions correctly.', unlocked: false, requirement: 'correct >= 5' }
+                ],
+            };
+
+            function load() {
+                const storedData = localStorage.getItem(STORAGE_KEY);
+                if (storedData) {
+                    const parsedData = JSON.parse(storedData);
+                    // Merge stored data while preserving hardcoded lesson data (vowels, consonants, words, etc.)
+                    data.progress = parsedData.progress || data.progress;
+                    data.achievements = parsedData.achievements || data.achievements;
+                }
+                updateDashboard();
+                populateAlphabet();
+                populateVocabulary();
+            }
+
+            function save() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    progress: data.progress,
+                    achievements: data.achievements
+                }));
+            }
+
+            function updateDashboard() {
+                const totalPossible = data.quizQuestions.length;
+                const percent = totalPossible > 0 ? Math.round((data.progress.correct / totalPossible) * 100) : 0;
+                
+                document.getElementById('progress-bar').style.width = `${percent}%`;
+                document.getElementById('progress-text').textContent = `${percent}%`;
+            }
+
+            function checkAchievement(id) {
+                const achievement = data.achievements.find(a => a.id === id);
+                if (achievement && !achievement.unlocked) {
+                    try {
+                        let isUnlocked = false;
+                        if (achievement.requirement.startsWith('vowels')) {
+                            isUnlocked = true;
+                        } else if (achievement.requirement.startsWith('consonants')) {
+                            isUnlocked = true;
+                        } else if (achievement.requirement.startsWith('words')) {
+                            isUnlocked = true;
+                        } else if (achievement.requirement.includes('>=')) {
+                            // Evaluate mathematical expression for progress
+                            const [key, val] = achievement.requirement.split('>=').map(s => s.trim());
+                            isUnlocked = data.progress[key] >= parseInt(val);
+                        }
+                        
+                        if (isUnlocked) {
+                            achievement.unlocked = true;
+                            save();
+                            updateAchievementsDisplay();
+                            console.log(`Achievement Unlocked: ${achievement.title}`);
+                        }
+                    } catch (e) {
+                        console.error("Achievement check failed:", e);
+                    }
+                }
+            }
+            
+            function increment(key, amount = 1) {
+                if (data.progress.hasOwnProperty(key)) {
+                    data.progress[key] += amount;
+                    save();
+                    updateDashboard();
+                    
+                    // Check for achievements after progress update
+                    data.achievements.forEach(a => checkAchievement(a.id));
+                }
+            }
+
+            function resetProgress() {
+                if(confirm("Are you sure you want to reset ALL progress? This cannot be undone.")) {
+                    data.progress = {
+                        total: 0,
+                        correct: 0,
+                        quizAttempts: 0,
+                        grammarSectionsCompleted: 0,
+                    };
+                    data.achievements.forEach(a => a.unlocked = false);
+                    save();
+                    updateDashboard();
+                    updateAchievementsDisplay();
+                    console.log("Progress reset.");
+                    showModule('startScreen');
+                }
+            }
+
+            return {
+                load,
+                save,
+                updateDashboard,
+                get: (key) => data[key],
+                getWordCount: () => data.words.length,
+                getPhraseCount: () => data.phrases.length,
+                getQuizQuestionCount: () => data.quizQuestions.length,
+                getAchievements: () => data.achievements,
+                increment,
+                checkAchievement,
+                resetProgress,
+            };
+        })();
+
+        // --- UI and Navigation Functions ---
+
+        function showModule(moduleId) {
+            document.querySelectorAll('.module').forEach(mod => {
+                mod.classList.remove('active');
+            });
+            const moduleElement = document.getElementById(moduleId);
+            if (moduleElement) {
+                moduleElement.classList.add('active');
+            }
+            // Trigger achievement check for viewing modules
+            if (moduleId === 'alphabetModule') {
+                learningData.checkAchievement('vowel_master');
+                learningData.checkAchievement('consonant_master');
+            }
+            if (moduleId === 'vocabularyModule') {
+                learningData.checkAchievement('lexicon_apprentice');
+            }
+        }
+
+        function populateAlphabet() {
+            const vowelGrid = document.getElementById('vowel-grid');
+            const consonantGrid = document.getElementById('consonant-grid');
+
+            function createCharCard(item) {
+                // Add onclick handler to speak the Sanskrit character
+                return `
+                    <div class="char-card" title="${item.type}" onclick="speakSanskrit('${item.char}')">
+                        <div class="char-sanskrit">${item.char}</div>
+                        <div class="char-transliteration">${item.translit}</div>
+                    </div>
+                `;
+            }
+
+            vowelGrid.innerHTML = learningData.get('vowels').map(createCharCard).join('');
+            consonantGrid.innerHTML = learningData.get('consonants').map(createCharCard).join('');
+        }
+
+        function createVocabEntry(item) {
+            // Add a button inside the entry to speak the word/phrase
+            return `
+                <div class="p-3 bg-violet-50 rounded-lg shadow-sm flex justify-between items-center">
+                    <div>
+                        <p class="text-lg font-bold text-violet-700">${item.sanskrit} (${item.translit})</p>
+                        <p class="text-gray-600 italic text-sm">${item.english}</p>
+                    </div>
+                    <button onclick="speakSanskrit('${item.sanskrit}')" class="bg-blue-400 hover:bg-blue-500 text-white p-2 rounded-full tts-button transition duration-150" title="Hear Pronunciation">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+            `;
+        }
+
+        function populateVocabulary() {
+            const wordList = document.getElementById('word-list');
+            const phraseList = document.getElementById('phrase-list');
+
+            wordList.innerHTML = learningData.get('words').map(createVocabEntry).join('');
+            phraseList.innerHTML = learningData.get('phrases').map(createVocabEntry).join('');
+        }
+        
+        function getVocabularyText() {
+            const words = learningData.get('words').map(w => w.sanskrit).join('. ');
+            const phrases = learningData.get('phrases').map(p => p.sanskrit).join('. ');
+            return words + '. ' + phrases;
+        }
+
+        function updateAchievementsDisplay() {
+            const achievementList = document.getElementById('achievement-list');
+            const achievements = learningData.getAchievements();
+
+            achievementList.innerHTML = achievements.map(a => `
+                <div class="flex items-center p-4 rounded-xl shadow-md ${a.unlocked ? 'bg-green-100 border-l-4 border-green-500' : 'bg-gray-100 border-l-4 border-gray-300'}">
+                    <div class="flex-shrink-0 text-3xl mr-4">
+                        ${a.unlocked ? '🕉️' : '🔒'}
+                    </div>
+                    <div>
+                        <p class="text-xl font-bold ${a.unlocked ? 'text-green-800' : 'text-gray-600'}">${a.title}</p>
+                        <p class="text-sm ${a.unlocked ? 'text-green-700' : 'text-gray-500'}">${a.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- Quiz Module Logic ---
+        const quiz = (() => {
+            let questions = [];
+            let currentQuestionIndex = 0;
+            let currentQuestion = null;
+            let totalCorrect = 0;
+            let totalAnswered = 0;
+
+            const questionEl = document.getElementById('quiz-question');
+            const optionsEl = document.getElementById('quiz-options');
+            const nextButton = document.getElementById('quiz-next-button');
+            const feedbackEl = document.getElementById('quiz-feedback');
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function start() {
+                questions = [...learningData.get('quizQuestions')];
+                shuffleArray(questions);
+                currentQuestionIndex = 0;
+                totalCorrect = 0;
+                totalAnswered = 0;
+                learningData.increment('quizAttempts', 0); 
+                loadQuestion();
+                nextButton.textContent = "Next Question";
+                nextButton.disabled = true;
+                feedbackEl.classList.add('hidden');
+            }
+
+            function loadQuestion() {
+                if (currentQuestionIndex >= questions.length) {
+                    endQuiz();
+                    return;
+                }
+
+                currentQuestion = questions[currentQuestionIndex];
+                
+                questionEl.textContent = currentQuestion.q;
+                optionsEl.innerHTML = '';
+                feedbackEl.classList.add('hidden');
+                nextButton.disabled = true;
+
+                const shuffledOptions = [...currentQuestion.options];
+                shuffleArray(shuffledOptions);
+
+                shuffledOptions.forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'quiz-option';
+                    optionDiv.textContent = option;
+                    optionDiv.onclick = () => selectOption(optionDiv, option);
+                    optionsEl.appendChild(optionDiv);
+                });
+
+                nextButton.onclick = nextQuestion;
+                nextButton.textContent = currentQuestionIndex === questions.length - 1 ? "Finish Quiz" : "Next Question";
+            }
+
+            function selectOption(selectedOptionEl, selectedAnswer) {
+                // Disable all options after selection
+                optionsEl.querySelectorAll('.quiz-option').forEach(opt => opt.onclick = null);
+
+                const isCorrect = selectedAnswer === currentQuestion.answer;
+                
+                if (isCorrect) {
+                    selectedOptionEl.classList.add('correct');
+                    feedbackEl.textContent = "Correct! साधु (Sādhu - Good)!";
+                    totalCorrect++;
+                } else {
+                    selectedOptionEl.classList.add('incorrect');
+                    feedbackEl.textContent = `Incorrect. The correct answer was: ${currentQuestion.answer}`;
+                }
+                
+                // Highlight the correct answer if it wasn't selected
+                if (!isCorrect) {
+                    optionsEl.querySelectorAll('.quiz-option').forEach(opt => {
+                        if (opt.textContent === currentQuestion.answer) {
+                            opt.classList.add('correct');
+                        }
+                    });
+                }
+                
+                feedbackEl.classList.remove('hidden', 'bg-red-200', 'bg-green-200');
+                feedbackEl.classList.add(isCorrect ? 'bg-green-200' : 'bg-red-200', isCorrect ? 'text-green-800' : 'text-red-800');
+                nextButton.disabled = false;
+            }
+
+            function nextQuestion() {
+                totalAnswered++;
+                currentQuestionIndex++;
+                loadQuestion();
+            }
+
+            function endQuiz() {
+                learningData.increment('correct', totalCorrect);
+                learningData.increment('total', questions.length);
+                learningData.increment('quizAttempts');
+
+                questionEl.textContent = `Quiz Finished!`;
+                optionsEl.innerHTML = `
+                    <div class="text-xl text-center py-6 bg-violet-100 rounded-xl">
+                        You scored ${totalCorrect} out of ${questions.length} correct answers!
+                        <p class="mt-2 text-sm text-gray-600">Your total correct answers (across all attempts) are now tracked on the dashboard.</p>
+                    </div>
+                `;
+                feedbackEl.classList.add('hidden');
+                nextButton.style.display = 'none';
+                
+                // Reset button visibility for next quiz start
+                setTimeout(() => {
+                    nextButton.style.display = 'block';
+                    nextButton.textContent = "Start New Quiz";
+                    nextButton.disabled = false;
+                    nextButton.onclick = () => quiz.start(); 
+                    showModule('quizModule'); // Show quiz module with the reset button visible
+                }, 500);
+            }
+
+            return { start };
+        })();
+
+        // --- Grammar Module Logic ---
+
+        const grammarGuide = (() => {
+            const grammarContentEl = document.getElementById('grammar-content');
+            const grammarNextButton = document.getElementById('grammar-next-button');
+            const grammarPrevButton = document.getElementById('grammar-prev-button');
+            let currentGrammarSectionIndex = 0;
+
+            const sectionsContent = [
+                { 
+                    title: "Section 1: The Devanagari Script", 
+                    content: `
+                        <p>Sanskrit is traditionally written in the **Devanagari** script (देवनागरी), which means 'City of the Gods'. It is an abugida, where each consonant has an inherent vowel sound ('a'), which can be modified by vowel signs (mātrā). There are approximately 49 basic letters (Varnas).</p>
+                        <p class="mt-3 font-bold text-violet-700">Key Components:</p>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>**Svaras (Vowels):** Independent sounds like अ (a), आ (ā), इ (i).</li>
+                            <li>**Vyanjanas (Consonants):** Stopped sounds like क (ka), म (ma), र (ra).</li>
+                            <li>**Shirorekhā:** The horizontal line that connects the letters, like a clothesline.</li>
+                        </ul>
+                    `
+                },
+                { 
+                    title: "Section 2: Sandhi (Junction Rules)", 
+                    content: `
+                        <p>**Sandhi (सन्धि)** means 'joining' or 'euphonic combination'. It is the mandatory rule of combining the final sound of one word with the initial sound of the next word when they occur together in a sentence.</p>
+                        <p class="mt-3">It is crucial for reading classical Sanskrit.</p>
+                        <p class="mt-3 font-bold text-violet-700">Basic Example (Vowel Sandhi):</p>
+                        <p class="bg-gray-100 p-2 rounded-lg mt-2 text-center">
+                            $${'\\text{हिम} \\text{ (hima)} + \\text{आलय} \\text{ (ālaya)} \\rightarrow \\text{हिमालय} \\text{ (Himālaya)}'}$$<br>
+                            $${'(\\text{a} + \\bar{\\text{a}} \\rightarrow \\bar{\\text{a}})'}$$
+                        </p>
+                        <p class="mt-3 text-sm text-gray-600 italic">This combination creates a single, longer vowel sound.</p>
+                    `
+                },
+                { 
+                    title: "Section 3: The Kāraka System (Sentence Structure)", 
+                    content: `
+                        <p>Instead of focusing on subjective case labels (like Subject, Object), Sanskrit uses the **Kāraka** system, which focuses on the relationship between the noun and the verb (the action).</p>
+                        <p class="mt-3">There are six Kāraka relationships, fundamental for understanding the role of words in a sentence:</p>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>**Kartā (Agent):** The performer of the action (related to Nominative - Case 1).</li>
+                            <li>**Karma (Object):** The object most desired by the agent (related to Accusative - Case 2).</li>
+                            <li>**Karaṇam (Instrument):** The means of the action (related to Instrumental - Case 3).</li>
+                            <li>**Sampradānam (Recipient):** The receiver (related to Dative - Case 4).</li>
+                            <li>**Apādānam (Source):** The point of separation (related to Ablative - Case 5).</li>
+                            <li>**Adhikaraṇam (Location):** The place or time of the action (related to Locative - Case 7).</li>
+                        </ul>
+                    `
+                },
+                { 
+                    title: "Section 4: Noun Declension (Vibhakti)", 
+                    content: `
+                        <p>Sanskrit nouns are inflected, meaning they change form (declined) based on three factors: **Gender** (masculine, feminine, neuter), **Number** (singular, dual, plural), and **Case (Vibhakti)** (8 cases, like Nominative, Accusative, etc.).</p>
+                        <p class="mt-3 font-bold text-violet-700">Example: The Masculine 'a'-stem noun Rāma (राम):</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white border border-gray-200 mt-2">
+                                <thead>
+                                    <tr class="bg-violet-100 text-violet-700">
+                                        <th class="py-1 px-2 border-b">Case</th>
+                                        <th class="py-1 px-2 border-b">Singular</th>
+                                        <th class="py-1 px-2 border-b">Dual</th>
+                                        <th class="py-1 px-2 border-b">Plural</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="py-1 px-2 border-b">Nom. (1)</td><td class="py-1 px-2 border-b">रामः (Rāmaḥ)</td><td class="py-1 px-2 border-b">रामौ (Rāmau)</td><td class="py-1 px-2 border-b">रामाः (Rāmāḥ)</td></tr>
+                                    <tr><td class="py-1 px-2 border-b bg-gray-50">Acc. (2)</td><td class="py-1 px-2 border-b bg-gray-50">रामम् (Rāmam)</td><td class="py-1 px-2 border-b bg-gray-50">रामौ (Rāmau)</td><td class="py-1 px-2 border-b bg-gray-50">रामान् (Rāmān)</td></tr>
+                                    <!-- ... many more cases ... -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="mt-3 text-sm text-gray-600 italic">There are 24 different forms for this single noun stem!</p>
+                    `
+                },
+                { 
+                    title: "Section 5: Verb Conjugation (Dhātu)", 
+                    content: `
+                        <p>The **Dhātu (धातु)**, or verbal root, is the core of all verb forms. Verbs are conjugated based on Tense/Mood (Lakāra), Person (Purusha: 1st, 2nd, 3rd), and Number (singular, dual, plural).</p>
+                        <p class="mt-3 font-bold text-violet-700">Example: Root Pāṭh (पठ् - to read/study) in Present Tense (Lat Lakāra, Parasmaipada):</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white border border-gray-200 mt-2">
+                                <thead>
+                                    <tr class="bg-violet-100 text-violet-700">
+                                        <th class="py-1 px-2 border-b">Person</th>
+                                        <th class="py-1 px-2 border-b">Singular</th>
+                                        <th class="py-1 px-2 border-b">Dual</th>
+                                        <th class="py-1 px-2 border-b">Plural</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="py-1 px-2 border-b">3rd (He/She)</td><td class="py-1 px-2 border-b">पठति (paṭhati)</td><td class="py-1 px-2 border-b">पठतः (paṭhataḥ)</td><td class="py-1 px-2 border-b">पठन्ति (paṭhanti)</td></tr>
+                                    <tr><td class="py-1 px-2 border-b bg-gray-50">2nd (You)</td><td class="py-1 px-2 border-b bg-gray-50">पठसि (paṭhasi)</td><td class="py-1 px-2 border-b bg-gray-50">पठथः (paṭhathaḥ)</td><td class="py-1 px-2 border-b bg-gray-50">पठथ (paṭhatha)</td></tr>
+                                    <tr><td class="py-1 px-2 border-b">1st (I)</td><td class="py-1 px-2 border-b">पठामि (paṭhāmi)</td><td class="py-1 px-2 border-b">पठावः (paṭhāvaḥ)</td><td class="py-1 px-2 border-b">पठामः (paṭhāmaḥ)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `
+                }
+            ];
+
+            function loadGrammarSection(index) {
+                const section = sectionsContent[index];
+                
+                grammarContentEl.innerHTML = `
+                    <div class="grammar-title">${section.title}</div>
+                    <div class="text-gray-700">${section.content}</div>
+                `;
+
+                // Update navigation buttons
+                grammarPrevButton.disabled = index === 0;
+                
+                if (index === sectionsContent.length - 1) {
+                    grammarNextButton.textContent = "End Guide";
+                    learningData.increment('grammarSectionsCompleted');
+                } else {
+                    grammarNextButton.textContent = `Next (${index + 2}/${sectionsContent.length})`;
+                }
+            }
+
+            grammarNextButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex < sectionsContent.length - 1) {
+                    currentGrammarSectionIndex++;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                } else if (currentGrammarSectionIndex === sectionsContent.length - 1) {
+                    showModule('startScreen');
+                }
+            });
+
+            grammarPrevButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex > 0) {
+                    currentGrammarSectionIndex--;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                }
+            });
+
+            function init() {
+                currentGrammarSectionIndex = 0; 
+                loadGrammarSection(currentGrammarSectionIndex);
+            }
+
+            return { init };
+        })();
+        
+        // --- Expose functions globally for HTML event handlers ---
+        window.showModule = showModule;
+        window.speakSanskrit = speakSanskrit;
+        window.quiz = quiz;
+        window.grammarGuide = grammarGuide;
+        window.learningData = learningData;
+        window.updateAchievementsDisplay = updateAchievementsDisplay;
+        window.getVocabularyText = getVocabularyText; // Exposed for the vocab TTS button
+
+        // --- Initialize the tool ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load learning data
+            learningData.load();
+            learningData.updateDashboard();
+            updateAchievementsDisplay();
+            
+            showModule('startScreen');
+            
+            // Note: The original hidden reset button logic has been moved 
+            // to a prominent button on the start screen.
+        });
+    </script>
+</body>
+</html>
