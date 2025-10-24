@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Handwriting Graphology — Quick Analyzer</title>
+<style>
+  :root{ --bg:#0f1724; --card:#0b1220; --muted:#9aa8bf; --accent:#7dd3fc; --glass: rgba(255,255,255,0.03); }
+  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:linear-gradient(180deg,#071025 0%, #071a2a 100%);color:#e6eef8;min-height:100vh;padding:20px;}
+  .wrap{max-width:980px;margin:0 auto;}
+  header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+  h1{font-size:20px;margin:0}
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:18px}
+  .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
+  .sample-preview{height:360px;background:var(--glass);display:flex;align-items:center;justify-content:center;border-radius:8px;overflow:hidden}
+  .sample-preview img{max-width:100%;max-height:100%;object-fit:contain}
+  label{display:block;margin-top:10px;font-size:13px;color:var(--muted)}
+  select,input[type="file"],button{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+  .traits{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;max-height:340px;overflow:auto;padding-right:6px}
+  .trait{background:transparent;padding:8px;border-radius:8px;border:1px dashed rgba(255,255,255,0.03);font-size:13px;}
+  .result{white-space:pre-wrap;margin-top:12px;line-height:1.45}
+  .buttons{display:flex;gap:8px;margin-top:12px}
+  .muted{font-size:13px;color:var(--muted);margin-top:10px}
+  footer{margin-top:18px;font-size:13px;color:var(--muted)}
+  a.link{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Handwriting Graphology — Quick Analyzer</h1>
+      <div class="muted">Pure HTML + JS — host on GitHub Pages</div>
+    </header>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <label>1) Sample (optional) — upload image for reference</label>
+          <input id="file" type="file" accept="image/*">
+          <div class="sample-preview" id="preview">No sample loaded</div>
+
+          <label style="margin-top:12px">2) Select observed traits</label>
+          <div class="traits" id="traits">
+            <!-- zone -->
+            <div class="trait">
+              <strong>Zones</strong><br/>
+              <select id="zone">
+                <option value="balanced">Balanced</option>
+                <option value="upper">Dominant upper (tall UZ)</option>
+                <option value="middle">Dominant middle (MZ)</option>
+                <option value="lower">Dominant lower (LZ)</option>
+                <option value="erratic">Erratic / tangled</option>
+              </select>
+            </div>
+
+            <div class="trait">
+              <strong>Slant</strong><br/>
+              <select id="slant">
+                <option value="inclined">Normal / inclined</option>
+                <option value="vertical">Vertical (controlled)</option>
+                <option value="very-inclined">Very inclined (expressive)</option>
+                <option value="reclined">Reclined / leftward (reserved)</option>
+                <option value="unstable">Unstable slant</option>
+              </select>
+            </div>
+
+            <div class="trait">
+              <strong>Pressure</strong><br/>
+              <select id="pressure">
+                <option value="medium">Medium</option>
+                <option value="heavy">Heavy</option>
+                <option value="very-heavy">Extremely heavy</option>
+                <option value="light">Light</option>
+                <option value="uneven">Uneven / blotchy</option>
+              </select>
+            </div>
+
+            <div class="trait">
+              <strong>Size</strong><br/>
+              <select id="size">
+                <option value="normal">Normal (≈3 mm middle zone)</option>
+                <option value="large">Large</option>
+                <option value="small">Small</option>
+                <option value="variable">Variable / fluctuating</option>
+              </select>
+            </div>
+
+            <div class="trait">
+              <strong>Spacing</strong><br/>
+              <select id="spacing">
+                <option value="normal">Balanced</option>
+                <option value="tight">Tight letters / crowded</option>
+                <option value="wide">Wide spacing</option>
+                <option value="rigid">Rigid / irregular spacing</option>
+              </select>
+            </div>
+
+            <div class="trait">
+              <strong>Baseline</strong><br/>
+              <select id="baseline">
+                <option value="straight">Straight</option>
+                <option value="rising">Rising</option>
+                <option value="falling">Falling</option>
+                <option value="sinuous">Sinuous / wavy</option>
+                <option value="rigid">Rigid</option>
+              </select>
+            </div>
+
+            <div class="trait">
+              <strong>I-dot / t-bar</strong><br/>
+              <select id="id_tbar">
+                <option value="normal">Normal</option>
+                <option value="high">High (i-dot/t high)</option>
+                <option value="low">Low</option>
+                <option value="sloppy">Sloppy / missing</option>
+                <option value="hooked">Hooked / star-shaped</option>
+              </select>
+            </div>
+
+            <div class="trait">
+              <strong>Signature</strong><br/>
+              <select id="signature">
+                <option value="legible">Legible</option>
+                <option value="embellished">Over-embellished</option>
+                <option value="illegible">Illegible</option>
+                <option value="tangled">Tangled / cramped</option>
+              </select>
+            </div>
+
+            <div class="trait">
+              <strong>Speed / rhythm</strong><br/>
+              <select id="speed">
+                <option value="normal">Normal</option>
+                <option value="fast">Fast / flowing</option>
+                <option value="slow">Slow / deliberate</option>
+                <option value="jerky">Jerky / tremor</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="buttons">
+            <button id="analyze">Analyze</button>
+            <button id="reset">Reset</button>
+          </div>
+
+          <div class="muted">Advice and mapping use textbook rules: zones, slant, pressure, size/spacing, baseline, signatures & tips. (Book-based.)</div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <strong>Quick guidance</strong>
+          <div class="muted">Tip: don't read the content of the sample before forming visual impressions; note age/handedness/date when available. (Procedure from the text.)</div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card">
+          <strong>Analysis result</strong>
+          <div id="result" class="result">Press <strong>Analyze</strong> to generate a concise report.</div>
+
+          <div style="margin-top:12px">
+            <strong>Suggested short remedies</strong>
+            <ul id="remedies" class="muted" style="margin-top:6px;padding-left:18px"></ul>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <strong>Export / Save</strong>
+          <div class="muted" style="margin-top:8px">Copy-paste the report, or right-click → Print to save to PDF. For GitHub Pages host, put this file at the repo root.</div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      Source knowledge: “Handwriting Analysis — The Complete Basic Book” (zones, slant, pressure, size/spacing, tips & procedure). :contentReference[oaicite:7]{index=7} :contentReference[oaicite:8]{index=8} :contentReference[oaicite:9]{index=9} :contentReference[oaicite:10]{index=10}
+    </footer>
+  </div>
+
+<script>
+  // Preview file
+  const fileInput = document.getElementById('file');
+  const preview = document.getElementById('preview');
+  fileInput.addEventListener('change', e=>{
+    const f = e.target.files[0];
+    if(!f) { preview.innerHTML='No sample loaded'; return; }
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    preview.innerHTML=''; preview.appendChild(img);
+  });
+
+  // Analysis logic (rule-based, based on book rules)
+  function makeAnalysis(values){
+    const lines = [];
+    const recs = [];
+    // Zones
+    if(values.zone==='balanced'){
+      lines.push('Zones: Balanced — stable inner equilibrium; good rhythm and maturity.');
+    } else if(values.zone==='upper'){
+      lines.push('Zones: Dominant Upper Zone — strong intellectual/idealistic focus; may be dreamy or impractical. Consider grounding & practical-task practice.');
+      recs.push('Use small daily task lists & practical projects to balance imagination with action.');
+    } else if(values.zone==='middle'){
+      lines.push('Zones: Dominant Middle Zone — practical, ego-focused, goal-oriented; may be self-centered or driven.');
+      recs.push('Practice perspective-taking; schedule creative downtime.');
+    } else if(values.zone==='lower'){
+      lines.push('Zones: Dominant Lower Zone — strong instinctual/material drives; energetic but may be restless or impulsive.');
+      recs.push('Channel energy into disciplined physical activity and structured routines.');
+    } else {
+      lines.push('Zones: Erratic/Tangled — possible confusion or distraction in life-areas; difficulty managing tasks.');
+      recs.push('Simplify workload, track routines, and seek organizational coaching if needed.');
+    }
+
+    // Slant
+    if(values.slant==='vertical'){
+      lines.push('Slant: Vertical — emotionally controlled, independent, reliable in crisis.');
+      recs.push('Encourage open emotional sharing (journaling, trusted listener) to avoid excessive suppression.');
+    } else if(values.slant==='inclined'){
+      lines.push('Slant: Inclined/Normal — balanced emotional expression, sociable.');
+    } else if(values.slant==='very-inclined'){
+      lines.push('Slant: Very inclined — expressive, spontaneous, may be emotionally impulsive.');
+      recs.push('Practice pause-techniques (deep breaths) before reacting; mindfulness helps.');
+    } else if(values.slant==='reclined'){
+      lines.push('Slant: Reclined/Leftward — reserved, self-contained, possibly past-focused or withdrawn.');
+      recs.push('Gentle social exposure and reflective therapy can help increase openness.');
+    } else {
+      lines.push('Slant: Unstable — mood variability and inconsistent social expression.');
+      recs.push('Track mood patterns and consider stress management and counseling if instability is severe.');
+    }
+
+    // Pressure
+    if(values.pressure==='heavy' || values.pressure==='very-heavy'){
+      lines.push('Pressure: Heavy — strong energy, willpower, can be stubborn; very heavy pressure may show blocked expression or tenacity.');
+      recs.push('If pressure is extreme or accompanied by tremor, consider medical check (neurological) and stress reduction.');
+    } else if(values.pressure==='light'){
+      lines.push('Pressure: Light — sensitive, delicate, may lack willpower; creative potential.');
+      recs.push('Build small commitments and micro-goals to strengthen follow-through.');
+    } else if(values.pressure==='uneven'){
+      lines.push('Pressure: Uneven — fluctuating energy; possible emotional tension or health factors.');
+      recs.push('Stabilise routines: sleep, hydration, and simple physical exercise.');
+    } else {
+      lines.push('Pressure: Medium — healthy balance of vitality and control.');
+    }
+
+    // Size
+    if(values.size==='large'){
+      lines.push('Size: Large — seeks attention, extroverted, may be restless or boastful.');
+      recs.push('Practice focused attention tasks; cultivate patience.');
+    } else if(values.size==='small'){
+      lines.push('Size: Small — introspective, concentrated, possibly modest or shy; good for detailed work.');
+      recs.push('Encourage confident presentation (e.g., small public-speaking steps).');
+    } else if(values.size==='variable'){
+      lines.push('Size: Variable — emotional instability or mood swings.');
+      recs.push('Monitor and stabilise sleep, stress, and daily routines.');
+    } else {
+      lines.push('Size: Normal — practical and adaptable.');
+    }
+
+    // Spacing
+    if(values.spacing==='tight'){
+      lines.push('Spacing: Tight/crowded — cautious, possibly anxious or intense in relationships.');
+      recs.push('Practice relaxation before social interactions; expand personal space in tasks.');
+    } else if(values.spacing==='wide'){
+      lines.push('Spacing: Wide — outgoing, expansive but may avoid deep intimacy.');
+      recs.push('Practice deeper listening and small acts of vulnerability.');
+    } else if(values.spacing==='rigid'){
+      lines.push('Spacing: Rigid/irregular — inflexible patterns; possible rigidity in thinking.');
+      recs.push('Try creative improvisation exercises to loosen rigid habits.');
+    } else {
+      lines.push('Spacing: Balanced — flexible social approach.');
+    }
+
+    // Baseline
+    if(values.baseline==='straight'){
+      lines.push('Baseline: Straight — composure, order, steady temperament.');
+    } else if(values.baseline==='rising'){
+      lines.push('Baseline: Rising — optimistic/ambitious but may be restless.');
+      recs.push('Check for burnout risk; schedule rest.');
+    } else if(values.baseline==='falling'){
+      lines.push('Baseline: Falling — fatigue, discouragement or persistent unhappiness.');
+      recs.push('Assess workload, sleep, and mood; consider professional support if persistent.');
+    } else if(values.baseline==='sinuous'){
+      lines.push('Baseline: Sinuous/wavy — nervous energy; diplomatic but emotional.');
+      recs.push('Calming routines and clear priorities help.');
+    } else {
+      lines.push('Baseline: Rigid — overcontrol, inhibited spontaneity.');
+      recs.push('Deliberate spontaneity exercises (short creative breaks) to restore flexibility.');
+    }
+
+    // I-dot / t-bar
+    if(values.id_tbar==='sloppy' || values.id_tbar==='missing'){
+      lines.push('I-dot / t-bar: Sloppy or missing — possible carelessness, poor memory, or blind spots.');
+      recs.push('Use checklists and reminders to reduce lapses.');
+    } else if(values.id_tbar==='high'){
+      lines.push('I-dot / t-bar: High — enthusiastic, idealistic.');
+    } else if(values.id_tbar==='hooked'){
+      lines.push('I-dot / t-bar: Hooked/star-shaped — persistence and possibly obstinacy.');
+    } else {
+      lines.push('I-dot / t-bar: Normal.');
+    }
+
+    // Signature
+    if(values.signature==='legible'){
+      lines.push('Signature: Legible — consistent public and private self; straightforward.');
+    } else if(values.signature==='embellished'){
+      lines.push('Signature: Over-embellished — ostentation, desire to impress; may differ publicly vs privately.');
+      recs.push('Work on authenticity; balance show with substance.');
+    } else if(values.signature==='illegible'){
+      lines.push('Signature: Illegible — desire for privacy, or public persona that conceals true self.');
+    } else {
+      lines.push('Signature: Tangled — difficulty handling public image and private life.');
+      recs.push('Simplify public communications and improve organization.');
+    }
+
+    // Speed
+    if(values.speed==='fast'){
+      lines.push('Speed/rhythm: Fast — quick thinking, fluent; risk of impatience.');
+      recs.push('Practice slowing techniques: breath, micro-pauses.');
+    } else if(values.speed==='slow'){
+      lines.push('Speed/rhythm: Slow — careful, deliberate; may be overly self-conscious.');
+      recs.push('Time-box tasks to increase fluency.');
+    } else if(values.speed==='jerky'){
+      lines.push('Speed/rhythm: Jerky/tremor — possible anxiety or medical issue (tremor).');
+      recs.push('If tremor present, recommend medical check; reduce stimulants and stress.');
+    } else {
+      lines.push('Speed/rhythm: Normal.');
+    }
+
+    // Combine final suggestion
+    lines.push('');
+    lines.push('Synthesis (short):');
+    // pick 3 highest-priority lines (first few)
+    lines.push(lines.slice(0,6).join('\n'));
+    return {report: lines.join('\n'), recs};
+  }
+
+  document.getElementById('analyze').addEventListener('click', ()=>{
+    const vals = {
+      zone: document.getElementById('zone').value,
+      slant: document.getElementById('slant').value,
+      pressure: document.getElementById('pressure').value,
+      size: document.getElementById('size').value,
+      spacing: document.getElementById('spacing').value,
+      baseline: document.getElementById('baseline').value,
+      id_tbar: document.getElementById('id_tbar').value,
+      signature: document.getElementById('signature').value,
+      speed: document.getElementById('speed').value
+    };
+    const out = makeAnalysis(vals);
+    document.getElementById('result').textContent = out.report;
+    const ul = document.getElementById('remedies'); ul.innerHTML='';
+    // unique remedies
+    Array.from(new Set(out.recs)).forEach(r=>{
+      const li = document.createElement('li'); li.textContent = r; ul.appendChild(li);
+    });
+  });
+
+  document.getElementById('reset').addEventListener('click', ()=>{
+    document.getElementById('file').value=''; preview.innerHTML='No sample loaded';
+    ['zone','slant','pressure','size','spacing','baseline','id_tbar','signature','speed'].forEach(id=>{
+      document.getElementById(id).selectedIndex=0;
+    });
+    document.getElementById('result').textContent='Press Analyze to generate a concise report.';
+    document.getElementById('remedies').innerHTML='';
+  });
+
+</script>
+</body>
+</html>
