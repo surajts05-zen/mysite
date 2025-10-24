@@ -6,7 +6,7 @@
 <title>Handwriting Graphology — Quick Analyzer</title>
 <style>
   :root{ --bg:#0f1724; --card:#0b1220; --muted:#9aa8bf; --accent:#7dd3fc; --glass: rgba(255,255,255,0.03); }
-  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:linear-gradient(180deg,#071025 0%, #071a2a 100%);color:#e6eef8;min-height:100vh;padding:20px;}
+  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:linear-gradient(180deg,#071025 0%, #071a2a 100%);color:#0a0a0a;min-height:100vh;padding:20px;}
   .wrap{max-width:980px;margin:0 auto;}
   header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
   h1{font-size:20px;margin:0}
@@ -45,6 +45,7 @@
             <div class="trait">
               <strong>Zones</strong><br/>
               <select id="zone">
+			  <option value=""></option>
                 <option value="balanced">Balanced</option>
                 <option value="upper">Dominant upper (tall UZ)</option>
                 <option value="middle">Dominant middle (MZ)</option>
@@ -56,6 +57,7 @@
             <div class="trait">
               <strong>Slant</strong><br/>
               <select id="slant">
+			  <option value=""></option>
                 <option value="inclined">Normal / inclined</option>
                 <option value="vertical">Vertical (controlled)</option>
                 <option value="very-inclined">Very inclined (expressive)</option>
@@ -67,6 +69,7 @@
             <div class="trait">
               <strong>Pressure</strong><br/>
               <select id="pressure">
+			  <option value=""></option>
                 <option value="medium">Medium</option>
                 <option value="heavy">Heavy</option>
                 <option value="very-heavy">Extremely heavy</option>
@@ -78,6 +81,7 @@
             <div class="trait">
               <strong>Size</strong><br/>
               <select id="size">
+			  <option value=""></option>
                 <option value="normal">Normal (≈3 mm middle zone)</option>
                 <option value="large">Large</option>
                 <option value="small">Small</option>
@@ -88,6 +92,7 @@
             <div class="trait">
               <strong>Spacing</strong><br/>
               <select id="spacing">
+			  <option value=""></option>
                 <option value="normal">Balanced</option>
                 <option value="tight">Tight letters / crowded</option>
                 <option value="wide">Wide spacing</option>
@@ -98,6 +103,7 @@
             <div class="trait">
               <strong>Baseline</strong><br/>
               <select id="baseline">
+			  <option value=""></option>
                 <option value="straight">Straight</option>
                 <option value="rising">Rising</option>
                 <option value="falling">Falling</option>
@@ -109,6 +115,7 @@
             <div class="trait">
               <strong>I-dot / t-bar</strong><br/>
               <select id="id_tbar">
+			  <option value=""></option>
                 <option value="normal">Normal</option>
                 <option value="high">High (i-dot/t high)</option>
                 <option value="low">Low</option>
@@ -120,6 +127,7 @@
             <div class="trait">
               <strong>Signature</strong><br/>
               <select id="signature">
+			  <option value=""></option>
                 <option value="legible">Legible</option>
                 <option value="embellished">Over-embellished</option>
                 <option value="illegible">Illegible</option>
@@ -130,6 +138,7 @@
             <div class="trait">
               <strong>Speed / rhythm</strong><br/>
               <select id="speed">
+			  <option value=""></option>
                 <option value="normal">Normal</option>
                 <option value="fast">Fast / flowing</option>
                 <option value="slow">Slow / deliberate</option>
