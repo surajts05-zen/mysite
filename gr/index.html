@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Graphology Analyzer | Professional Edition</title>
+<!-- PWA & Theme Color for Dark Mode -->
+<meta name="theme-color" content="#121212"> 
+<!-- Load Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- jsPDF for generating downloadable reports (PDF) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* --- Custom Variables & Base Styles (Forced Dark Mode) --- */
+:root {
+  /* Primary Dark Theme Palette */
+  --bg: #121212; /* Darkest Background */
+  --card: #1f1f1f; /* Dark Card Surface */
+  --muted: #adb5bd; /* Lighter Muted Gray */
+  --accent: #6366f1; /* Indigo Accent */
+  --text: #e9ecef; /* Light Text */
+  --secondary-accent: #22d3ee; /* Cyan for highlights */
+}
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Custom Primary Button Styling */
+.btn-primary {
+    /* Blend of Indigo and Cyan for a vibrant dark-mode look */
+    background: linear-gradient(90deg, var(--accent), var(--secondary-accent));
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+.btn-primary:hover:not(:disabled) {
+    opacity: 0.9;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+    transform: translateY(-1px);
+}
+.btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+    box-shadow: none;
+}
+/* Custom Ghost Button Styling */
+.btn-ghost {
+    background: transparent;
+    border: 1px solid #374151; /* Darker border for contrast */
+    color: var(--text);
+    box-shadow: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.btn-ghost:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent);
+}
+
+/* Card Styling */
+.card {
+    background: var(--card);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5); /* Stronger shadow for depth */
+    border: 1px solid #374151; /* Dark border */
+}
+
+/* Input/Select Styling */
+input[type="text"], input[type="file"], select, textarea {
+    background: #374151; /* Dark input background */
+    border: 1px solid #4b5563;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--text);
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+select:focus, input[type="text"]:focus {
+    border-color: var(--secondary-accent);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.5);
+    background: #374151;
+}
+
+/* Canvas/Overlay */
+#canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    background-color: #fff; /* Canvas needs to be white for image analysis contrast */
+    border-radius: 8px;
+}
+#cropOverlay {
+    position: absolute;
+    border: 2px dashed var(--secondary-accent);
+    display: none;
+    pointer-events: none;
+}
+
+/* Result Section Styling */
+.result-section { 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 15px;
+    background: #2b2b2b; /* Slightly lighter dark background for contrast */
+    border: 1px solid #374151;
+    min-height: 80px;
+}
+.result-section p { margin-bottom: 10px; line-height: 1.6; }
+.result-section ul { list-style: disc; margin-left: 20px; padding-top: 5px; }
+
+/* Samples */
+.sample-thumb {
+    width: 80px;
+    height: 40px;
+    border: 2px solid #4b5563;
+    border-radius: 6px;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.15s, border-color 0.15s;
+}
+.sample-thumb:hover {
+    transform: scale(1.05);
+    border-color: var(--secondary-accent);
+}
+
+</style>
+</head>
+<body class="p-4 sm:p-8">
+<div class="max-w-7xl mx-auto">
+    <header class="mb-8">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-indigo-400">
+            Professional Graphology Analyzer
+        </h1>
+        <p class="text-base sm:text-lg text-muted mt-1">AI-Powered Handwriting Analysis and Personality Synthesis.</p>
+    </header>
+
+    <div class="lg:grid lg:grid-cols-3 gap-8">
+        
+        <!-- === LEFT COLUMN: CANVAS & CONTROLS (Col 1 & 2) === -->
+        <section class="lg:col-span-2 space-y-8 mb-8 lg:mb-0">
+            
+            <!-- 1. Canvas/View Card -->
+            <div class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 border-gray-700">Handwriting Sample Viewer</h2>
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                    <!-- File Upload & Crop -->
+                    <div class="flex gap-3 items-center flex-wrap">
+                        <label class="btn-ghost cursor-pointer text-sm">
+                            <input id="file" type="file" accept="image/*" class="hidden"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                            Upload Sample
+                        </label>
+                        <button id="cropBtn" class="btn-ghost text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H5z" /></svg>
+                            Apply Crop (Shift+Drag)
+                        </button>
+                    </div>
+
+                    <!-- View Controls -->
+                    <div class="flex gap-2 text-sm">
+                        <button id="resetView" class="btn-ghost">Reset View</button>
+                        <button id="zoomOut" class="btn-ghost text-xl leading-none px-3">− </button>
+                        <button id="zoomIn" class="btn-primary text-xl leading-none px-3"> + </button>
+                    </div>
+                </div>
+                
+                <div style="height:400px;position:relative;border-radius:10px;overflow:hidden;border:1px solid #374151; background-color: #374151;">
+                    <canvas id="canvas"></canvas>
+                    <div id="cropOverlay"></div>
+                    <div id="canvas-placeholder" class="absolute inset-0 flex flex-col justify-center items-center text-gray-500 pointer-events-none p-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-12 5h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        <p class="text-sm text-center">Upload an image or select a sample to begin analysis.</p>
+                    </div>
+                </div>
+
+                <div id="samples" class="flex gap-3 flex-wrap mt-4 items-center">
+                    <span class="font-medium text-sm text-muted">Quick Samples:</span>
+                </div>
+            </div>
+
+            <!-- 2. Control Card -->
+            <div class="card">
+                <div class="p-3 mb-4 rounded-lg font-semibold text-sm transition-colors duration-300
+                    bg-indigo-900/40 border border-indigo-700 text-indigo-400" 
+                    id="engineBanner">
+                    <span role="img" aria-label="Calculator">🧮</span> Pure JS Heuristics (Default for Auto Mode)
+                </div>
+                
+                <h3 class="font-bold text-xl mb-4">Analysis Settings</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <label class="text-sm font-medium block mb-1 text-muted">Analysis Mode</label>
+                        <select id="modeSelect">
+                            <option value="auto">Auto (Image Analysis)</option>
+                            <option value="manual">Manual (Feature Selection)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium block mb-1 text-muted">Context Focus</label>
+                        <select id="contextSelect">
+                            <option value="general">General Personality</option>
+                            <option value="job">Job Recruitment (HR)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium block mb-1 text-muted">AI Engine</label>
+                        <select id="engineSelect">
+                            <option value="js">Heuristics (Fast)</option>
+                            <option value="tf">TensorFlow.js (Stub)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium block mb-1 text-muted">Report Tone</label>
+                        <select id="hrTone">
+                            <option value="professional">Professional</option>
+                            <option value="psych">Psychological</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="manual-mode-guide" class="text-sm p-3 rounded-md mt-4 hidden 
+                    bg-amber-900/40 border border-amber-700 text-amber-400">
+                    <span class="font-semibold">Manual Mode Active:</span> Select traits below based on your observation of the handwriting sample.
+                </div>
+
+                <div id="traits" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Trait selectors will be injected here -->
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-4 mt-6">
+                    <button id="analyze" class="btn-primary flex-grow text-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        Run AI Analysis
+                    </button>
+                    <button id="resetAll" class="btn-ghost">Reset All</button>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="hidden text-center py-4 mt-4 bg-gray-700 rounded-lg">
+                    <svg class="animate-spin mx-auto h-6 w-6 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="mt-2 text-sm text-indigo-400 font-medium">AI Engine Analyzing... (Contacting Cloudflare Worker)</p>
+                </div>
+
+                <!-- Error Message -->
+                <div id="error-message" class="hidden bg-red-900/40 border border-red-700 text-red-400 p-4 rounded-lg mt-4" role="alert">
+                    <strong class="font-bold">Analysis Error!</strong>
+                    <span class="block sm:inline" id="error-text"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- === RIGHT COLUMN: REPORT & METADATA (Col 3) === -->
+        <aside class="lg:col-span-1">
+            <div class="card sticky top-8">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 border-gray-700">Analysis Report</h2>
+                
+                <h3 class="font-bold text-base mb-2 mt-4 text-muted">Subject Metadata (Optional)</h3>
+                <div class="space-y-2 mb-4">
+                    <input id="rep_name" placeholder="Name / Subject ID" type="text"/>
+                    <input id="rep_age" placeholder="Age" type="text"/>
+                    <input id="rep_sex" placeholder="Sex" type="text"/>
+                    <input id="rep_place" placeholder="Location" type="text"/>
+                </div>
+
+                <h3 class="font-bold text-base mb-2 mt-6">Raw Trait Data</h3>
+                <div id="analysisResult" class="result-section text-sm text-gray-300">
+                    <p>Raw trait data will appear here after analysis.</p>
+                </div>
+                
+                <h3 class="font-bold text-base mb-2 mt-6">AI Synthesis (Personality Report)</h3>
+                <div id="synthesis" class="result-section text-sm text-gray-300">
+                    <p>The AI-generated personality synthesis will be placed here.</p>
+                </div>
+
+                <h3 class="font-bold text-base mb-2 mt-6">Remedies / Recommendations</h3>
+                <div id="remedies-container" class="result-section text-sm text-gray-300">
+                    <ul id="remedies">
+                        <li>Actionable recommendations will be listed here.</li>
+                    </ul>
+                </div>
+
+                <div id="citations" class="text-xs text-gray-500 mt-4 border-t border-dotted border-gray-700 pt-3"></div>
+
+                <button id="downloadPdf" class="btn-primary w-full mt-6 text-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    Download Professional PDF
+                </button>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+<script type="module">
+// --- Global Setup ---
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+// *********************************************************************************
+// ** CRITICAL CHANGE: Set this to the URL of your deployed Cloudflare Worker! **
+// ** (e.g., 'https://my-graphology-worker.username.workers.dev')**
+// *********************************************************************************
+const CLOUDFLARE_WORKER_URL = 'https://graphology-geminiproxy.surajts05.workers.dev/';
+const API_ENDPOINT = CLOUDFLARE_WORKER_URL.endsWith('/') ? `${CLOUDFLARE_WORKER_URL}api/analyze` : `${CLOUDFLARE_WORKER_URL}/api/analyze`;
+
+
+// Define the accent color from the CSS variables for use in PDF
+let ACCENT_COLOR_HEX = '#6366f1'; 
+let SECONDARY_ACCENT = '#22d3ee';
+
+// Trait definitions used for Manual Mode and LLM prompting
+const TRAIT_DEFINITIONS = [
+    { id: 'slant', label: 'Slant (Emotions)', options: { 'rightward': 'Rightward (Outgoing)', 'vertical': 'Vertical (Controlled)', 'leftward': 'Leftward (Reserved)' } },
+    { id: 'pressure', label: 'Pressure (Intensity)', options: { 'heavy': 'Heavy (Intense)', 'medium': 'Balanced', 'light': 'Light (Sensitive)' } },
+    { id: 'size', label: 'Size (Focus)', options: { 'large': 'Large (Extroverted)', 'average': 'Average (Balanced)', 'small': 'Small (Detailed)' } },
+    { id: 'spacing', label: 'Spacing (Social)', options: { 'wide': 'Wide (Need Space)', 'narrow': 'Narrow (Need Proximity)' } },
+];
+
+// --- DOM Elements ---
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d',{willReadFrequently:true});
+let offscreen=document.createElement('canvas'),offCtx=offscreen.getContext('2d');
+let image=null,loadedImageData=null,cropBox=null,scale=1,originX=0,originY=0;
+let isPanning=false,panStart={x:0,y:0},startOrigin={x:0,y:0};
+const cropOverlay=document.getElementById('cropOverlay');
+const samplesDiv=document.getElementById('samples');
+const banner=document.getElementById('engineBanner');
+const engineSelect=document.getElementById('engineSelect');
+const modeSelect=document.getElementById('modeSelect');
+const traitsDiv = document.getElementById('traits');
+const analyzeBtn = document.getElementById('analyze');
+const loadingIndicator = document.getElementById('loading-indicator');
+const errorDiv = document.getElementById('error-message');
+const errorText = document.getElementById('error-text');
+const canvasPlaceholder = document.getElementById('canvas-placeholder');
+
+let currentEngine='js';
+let currentTraits = {}; // Holds the final traits for analysis
+
+// --- Canvas/Image Logic ---
+
+function resizeCanvas(){canvas.width=canvas.clientWidth;canvas.height=canvas.clientHeight;draw();}
+window.addEventListener('resize',resizeCanvas);resizeCanvas();
+
+const SAMPLE_URIS={
+  balanced:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIj48cmVjdCBmaWxsPSIjZmZmIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PHRleHQgeD0iMjAiIHk9IjgwIiBmb250LXNpemU9IjQ0IiBmb250LWZhbWlseT0iQnJ1c2ggU2NyaXB0IE1UIj5CYWxhbmNlZCBTYW1wbGU8L3RleHQ+PC9zdmc+=",
+  determined:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIj48cmVjdCBmaWxsPSIjZmZmIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PHRleHQgeD0iMjAiIHk9IjgwIiBmb250LXNpemU9IjQ0IiBmb250LWZhbWlseT0iQnJ1c2ggU2NyaXB0IE1UIj5EZXRlcm1pbmVkIFdvcmtldCBTYW1wbGU8L3RleHQ+PC9zdmc+=",
+  reserved:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIj48cmVjdCBmaWxsPSIjZmZmIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PHRleHQgeD0iMjAiIHk9IjgwIiBmb250LXNpemU9IjQ0IiBmb250LWZhbWlseT0iQnJ1c2ggU2NyaXB0IE1UIj5SZXNlcnZlZCBJbm5lcnMgU2FtcGxlPC90ZXh0Pjwvc3ZnPg=="
+};
+Object.keys(SAMPLE_URIS).forEach(k=>{
+  const s=document.createElement('div');
+  s.className='sample-thumb';
+  s.style.backgroundImage=`url('${SAMPLE_URIS[k]}')`;
+  s.onclick=()=>loadDataUriSample(SAMPLE_URIS[k]);
+  samplesDiv.appendChild(s);
+});
+function loadDataUriSample(uri){const img=new Image();img.onload=()=>setImage(img);img.src=uri;}
+document.getElementById('file').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const img=new Image();
+  img.onload=()=>setImage(img);
+  img.src=URL.createObjectURL(f);
+});
+function setImage(img){
+  image=img;
+  canvasPlaceholder.classList.add('hidden'); // Hide placeholder when image loads
+  const s=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight));
+  offscreen.width=Math.round(img.naturalWidth*s);offscreen.height=Math.round(img.naturalHeight*s);
+  offCtx.drawImage(img,0,0,offscreen.width,offscreen.height);
+  loadedImageData=offCtx.getImageData(0,0,offscreen.width,offscreen.height);
+  scale=Math.min(canvas.width/offscreen.width,canvas.height/offscreen.height);
+  originX=(canvas.width-offscreen.width*scale)/2;originY=(canvas.height-offscreen.height*scale)/2;
+  draw();
+}
+function draw(){
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height); // Keep canvas background white
+  if(!image) {
+    canvasPlaceholder.classList.remove('hidden'); // Show placeholder if no image
+    return;
+  }
+  ctx.setTransform(scale,0,0,scale,originX,originY);
+  ctx.drawImage(offscreen,0,0);
+  ctx.setTransform(1,0,0,1,0,0);
+  if(cropBox){cropOverlay.style.display='block';
+    cropOverlay.style.left=cropBox.x+'px';cropOverlay.style.top=cropBox.y+'px';
+    cropOverlay.style.width=cropBox.w+'px';cropBox.style.height=cropBox.h+'px';
+  }else cropOverlay.style.display='none';
+}
+canvas.addEventListener('pointerdown',e=>{
+  const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  if(e.shiftKey){cropBox={x,y,w:0,h:0};document.addEventListener('pointermove',cropMove);document.addEventListener('pointerup',cropUp);}
+  else{isPanning=true;panStart={x:e.clientX,y:e.clientY};startOrigin={x:originX,y:originY};}
+});
+function cropMove(e){
+  const r=canvas.getBoundingClientRect();
+  cropBox.w=e.clientX-r.left-cropBox.x;
+  cropBox.h=e.clientY-r.top-cropBox.y;
+  draw();
+}
+function cropUp(){document.removeEventListener('pointermove',cropMove);document.removeEventListener('pointerup',cropUp);}
+window.addEventListener('pointermove',e=>{if(isPanning){const dx=e.clientX-panStart.x,dy=e.clientY-panStart.y;originX=startOrigin.x+dx;originY=startOrigin.y+dy;draw();}});
+window.addEventListener('pointerup',()=>isPanning=false);
+document.getElementById('cropBtn').addEventListener('click',()=>{
+  if(!cropBox)return console.error("Draw a crop first (SHIFT+drag).");
+  const r=canvas.getBoundingClientRect();
+  // Transform crop box coordinates back to unscaled image coordinates
+  const sx=(cropBox.x-originX)/scale,sy=(cropBox.y-originY)/scale,sw=cropBox.w/scale,sh=cropBox.h/scale;
+
+  // Clamp values to ensure they are within the offscreen canvas bounds
+  const x_start = Math.max(0, sx);
+  const y_start = Math.max(0, sy);
+  const width = Math.min(sw, offscreen.width - x_start);
+  const height = Math.min(sh, offscreen.height - y_start);
+
+  const tmp=offCtx.getImageData(x_start,y_start,width,height);
+  offscreen.width=width;offscreen.height=height;offCtx.putImageData(tmp,0,0);
+  cropBox=null;draw();
+});
+document.getElementById('zoomIn').onclick=()=>{scale*=1.2;draw();}
+document.getElementById('zoomOut').onclick=()=>{scale/=1.2;draw();}
+function fit(){
+    if (!image) return;
+    scale=Math.min(canvas.width/offscreen.width,canvas.height/offscreen.height);
+    originX=(canvas.width-offscreen.width*scale)/2;
+    originY=(canvas.height-offscreen.height*scale)/2;
+    draw();
+}
+document.getElementById('resetView').onclick=()=>{fit();}
+document.getElementById('resetAll').onclick=()=>{
+    // Safely reset input fields that exist in the form
+    ['rep_name','rep_age','rep_sex','rep_place'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    
+  document.getElementById('analysisResult').innerHTML='<p class="text-sm text-gray-500">Raw trait data will appear here after analysis.</p>';
+  document.getElementById('synthesis').innerHTML='<p class="text-sm text-gray-500">The AI-generated personality synthesis will be placed here.</p>';
+  document.getElementById('remedies').innerHTML='<li>Actionable recommendations will be listed here.</li>';
+  document.getElementById('citations').innerHTML='';
+  errorDiv.classList.add('hidden');
+  currentTraits = {};
+  renderTraitSelectors(); // Reset selectors to default
+};
+
+// --- Heuristics (Used for Auto Mode Stub) ---
+function analyzeImageHeuristicsCropAware(){
+  if(!offscreen.width)return null;
+  const data=offCtx.getImageData(0,0,offscreen.width,offscreen.height);
+  return analyzeImageHeuristics(data);
+}
+function analyzeImageHeuristics(imgData){
+  const {width:w,height:h,data}=imgData;
+  // Simple brightness check for pressure (stub)
+  const gray=new Float32Array(w*h);
+  for(let i=0;i<w*h;i++){gray[i]=(0.299*data[i*4]+0.587*data[i*4+1]+0.114*data[i*4+2])/255;}
+  const mean=gray.reduce((a,b)=>a+b,0)/gray.length;const pressureScore=1-mean;
+  // Random stubs for other features
+  const slantDeg=(Math.random()*30)-15;
+  const sizeScore = Math.random();
+  const spacingScore = Math.random();
+  const sizeMap = sizeScore < 0.33 ? 'small' : (sizeScore < 0.66 ? 'average' : 'large');
+  const spacingMap = spacingScore < 0.5 ? 'narrow' : 'wide';
+  
+  return {pressureScore, slantDeg, sizeScore: sizeMap, spacingScore: spacingMap};
+}
+function heuristicsToTraits(h){
+  const t={};
+  t.pressure=h.pressureScore>0.6?'heavy':(h.pressureScore<0.4?'light':'medium');
+  t.slant=h.slantDeg>5?'rightward':(h.slantDeg<-5?'leftward':'vertical');
+  t.size=h.sizeScore;
+  t.spacing=h.spacingScore;
+  return t;
+}
+
+// --- Dynamic Trait Selector Generation ---
+function renderTraitSelectors() {
+    traitsDiv.innerHTML = '';
+    TRAIT_DEFINITIONS.forEach(trait => {
+        const default_value = currentTraits[trait.id] || Object.keys(trait.options)[0];
+        currentTraits[trait.id] = default_value;
+
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <div>
+                <label for="${trait.id}" class="text-sm font-medium block mb-1 text-muted">${trait.label}</label>
+                <select id="${trait.id}" class="w-full" onchange="window.updateTraitValue('${trait.id}', this.value)">
+                    ${Object.entries(trait.options).map(([value, text]) => 
+                        `<option value="${value}" ${value === default_value ? 'selected' : ''}>${text}</option>`
+                    ).join('')}
+                </select>
+            </div>
+        `;
+        traitsDiv.appendChild(div);
+    });
+    toggleManualMode();
+}
+window.updateTraitValue = (id, value) => {
+    currentTraits[id] = value;
+};
+function toggleManualMode() {
+    const isManual = modeSelect.value === 'manual';
+    traitsDiv.querySelectorAll('select').forEach(select => {
+        select.disabled = !isManual;
+    });
+    document.getElementById('manual-mode-guide').classList.toggle('hidden', !isManual);
+}
+modeSelect.onchange = toggleManualMode;
+
+
+// --- Engine toggle & analysis handler ---
+engineSelect.onchange=e=>{
+  currentEngine=e.target.value;
+  if(currentEngine==='tf'){
+    banner.className='p-3 mb-4 rounded-lg font-semibold text-sm transition-colors duration-300 bg-emerald-900/40 border border-emerald-700 text-emerald-400';
+    banner.innerHTML='<span role="img" aria-label="Settings">⚙</span> TensorFlow.js Mode Active (Stub)';
+  } else{
+    banner.className='p-3 mb-4 rounded-lg font-semibold text-sm transition-colors duration-300 bg-indigo-900/40 border border-indigo-700 text-indigo-400';
+    banner.innerHTML='<span role="img" aria-label="Calculator">🧮</span> Pure JS Heuristics (Default for Auto Mode)';
+  }
+};
+
+// --- Core LLM API Logic (Modified to call Cloudflare Worker URL) ---
+function constructPrompt(traits, context, tone) {
+    let traitList = Object.entries(traits).map(([key, value]) => 
+        `**${key.charAt(0).toUpperCase() + key.slice(1)}**: ${value}`
+    ).join('\n');
+    
+    let reportContext = context === 'job' ? 
+        "Focus the analysis on suitability for a professional environment, leadership potential, teamwork, and reaction to stress. The tone must be suitable for an HR manager, focusing on workplace relevance." :
+        "Focus the analysis on core psychological drivers, emotional stability, and general life approach. The tone should be consultative and insightful.";
+
+    let reportTone = tone === 'psych' ? 
+        "Use analytical, academic, and psychological terminology (e.g., refer to ego strength, emotional resilience, cognitive style, psychomotor rhythm)." :
+        "Use clear, professional, and actionable language (e.g., refer to determination, collaboration skills, focus, work-life balance).";
+
+    return `You are an expert graphologist and psychological profiler. Generate a professional and insightful personality analysis based on the following handwriting features:
+
+${traitList}
+
+**Analysis Context:** ${reportContext}
+**Analysis Tone:** ${reportTone}
+
+The report must follow this structure exactly:
+Paragraph 1 (Core Synthesis): Summarize the individual's core personality, emotional style, and overall energy level.
+Paragraph 2 (Strengths & Motivators): Detail the primary strengths, professional assets (if job context), and key internal motivators.
+Paragraph 3 (Challenges & Growth): Identify potential areas for growth and common pitfalls.
+Paragraph 4 (Remedies): Provide three specific, actionable remedies or recommendations for personal or professional development. Start this paragraph with the heading 'Remedies:' followed by a numbered list of three items.
+
+Do not include any greeting or introduction outside of the report. The entire response must be a single block of text.`;
+}
+
+async function callGeminiApi(userQuery) {
+    // API URL points to the secure Cloudflare Worker
+    const apiUrl = API_ENDPOINT; 
+    
+    // Package the user query for the backend
+    const payload = {
+        userQuery: userQuery
+    };
+
+    const MAX_RETRIES = 5;
+    let delay = 1000;
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                // Read the error message sent from our proxy worker
+                const errorBody = await response.json().catch(() => ({ message: 'Unknown Worker Error' }));
+                
+                if (response.status === 429 && i < MAX_RETRIES - 1) {
+                    // Exponential backoff for rate limiting
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                    continue;
+                }
+                // Throw an error with the worker's status and message
+                throw new Error(`Cloudflare Worker responded with status ${response.status}: ${errorBody.message || 'API call failed.'}`);
+            }
+
+            // The result should be the structured response from the Gemini API, passed through by the Worker.
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                const text = candidate.content.parts[0].text;
+                let sources = [];
+                const groundingMetadata = candidate.groundingMetadata;
+                if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                    sources = groundingMetadata.groundingAttributions
+                        .map(attribution => ({ uri: attribution.web?.uri, title: attribution.web?.title }))
+                        .filter(source => source.uri && source.title);
+                }
+                return { text, sources };
+
+            } else {
+                throw new Error("Received empty or malformed response from the Cloudflare Worker.");
+            }
+        } catch (error) {
+            if (i === MAX_RETRIES - 1) { throw error; }
+            // If it's a network error before hitting the server, retry
+            if (error.message.includes('Failed to fetch') && i < MAX_RETRIES - 1) {
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2;
+                continue;
+            } else {
+                throw error; // Re-throw fatal errors
+            }
+        }
+    }
+}
+
+// --- Analysis Orchestration ---
+analyzeBtn.onclick = async () => {
+    analyzeBtn.disabled = true;
+    loadingIndicator.classList.remove('hidden');
+    errorDiv.classList.add('hidden');
+    
+    const mode = modeSelect.value;
+    let traits = {};
+    
+    // 1. Determine Traits
+    if (mode === 'manual') {
+        traits = currentTraits; 
+    } else { // Auto Mode (Heuristics or TF Stub)
+        if (!image) {
+            errorText.textContent = "Please upload a handwriting sample or select Manual Mode.";
+            errorDiv.classList.remove('hidden');
+            analyzeBtn.disabled = false;
+            loadingIndicator.classList.add('hidden');
+            return;
+        }
+        
+        const h = analyzeImageHeuristicsCropAware();
+        traits = heuristicsToTraits(h);
+    }
+    
+    // Display raw analysis result
+    const traitDisplay = Object.entries(traits).map(([key, value]) => 
+        `<div class="inline-block mr-4 mb-1"><span class="font-semibold">${key.charAt(0).toUpperCase() + key.slice(1)}:</span> <span class="text-indigo-400 font-medium">${value}</span></div>`
+    ).join(' | ');
+    document.getElementById('analysisResult').innerHTML = `<div class="flex flex-wrap text-sm">${traitDisplay}</div>`;
+    
+    // 2. Prepare and call LLM
+    const context = document.getElementById('contextSelect').value;
+    const tone = document.getElementById('hrTone').value;
+    const userQuery = constructPrompt(traits, context, tone);
+
+    try {
+        const { text, sources } = await callGeminiApi(userQuery);
+        
+        // 3. Process and display report
+        renderReport(text, sources, traits);
+
+    } catch (error) {
+        errorText.textContent = `AI Analysis Failed: ${error.message}. Ensure your Cloudflare Worker is deployed and the URL is correct.`;
+        errorDiv.classList.remove('hidden');
+        document.getElementById('synthesis').innerHTML = '<p class="text-red-400">Analysis failed. See error above.</p>';
+        document.getElementById('remedies').innerHTML = '<li>Error in generation.</li>';
+    } finally {
+        loadingIndicator.classList.add('hidden');
+        analyzeBtn.disabled = false;
+    }
+};
+
+/**
+ * Renders the LLM output and citations into the synthesis/remedies divs.
+ */
+function renderReport(text, sources) {
+    // Look for the 'Remedies:' header to split the text
+    const remediesIndex = text.indexOf('Remedies:');
+    let synthesisContent = text;
+    let remediesContent = '';
+
+    if (remediesIndex > -1) {
+        synthesisContent = text.substring(0, remediesIndex).trim();
+        remediesContent = text.substring(remediesIndex + 'Remedies:'.length).trim();
+    }
+
+    // Process Synthesis (split into paragraphs)
+    // Each paragraph is wrapped in <p> which will be used by the PDF generator for numbering.
+    document.getElementById('synthesis').innerHTML = synthesisContent.split('\n').map(p => 
+        p.trim() ? `<p>${p.trim()}</p>` : ''
+    ).join('');
+
+    // Process Remedies (split by numbered list items)
+    const remedyList = remediesContent.match(/\d\.\s*([^\n]+)/g) || [];
+    // Keep remedies as <ul>/<li> for display on the webpage
+    const remedyHtml = remedyList.length > 0
+        ? remedyList.map(item => `<li>${item.replace(/^\d\.\s*/, '').trim()}</li>`).join('')
+        : `<li class="text-sm text-gray-500">No specific remedies were generated by the AI for this profile.</li>`;
+        
+    document.getElementById('remedies').innerHTML = remedyHtml;
+
+    // Process Citations
+    if (sources.length > 0) {
+        const sourceHtml = `
+            <p class="font-semibold mb-1">Sources Referenced for Analysis:</p>
+            ${sources.slice(0, 3).map((s, index) => `
+                <div class="truncate">
+                    <a href="${s.uri}" target="_blank" class="text-indigo-400 hover:text-indigo-300 underline">${s.title || 'Source Link'}</a>
+                </div>
+            `).join('')}
+        `;
+        document.getElementById('citations').innerHTML = sourceHtml;
+    } else {
+        document.getElementById('citations').innerHTML = '';
+    }
+}
+
+// --- PDF Generation Logic (Unchanged) ---
+
+document.getElementById('downloadPdf').onclick = () => {
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) return console.error("PDF library not loaded.");
+    
+    // Get root accent color
+    const rootStyle = getComputedStyle(document.documentElement);
+    ACCENT_COLOR_HEX = rootStyle.getPropertyValue('--accent').trim();
+    SECONDARY_ACCENT = rootStyle.getPropertyValue('--secondary-accent').trim();
+
+    const doc = new jsPDF('p', 'mm', 'a4');
+    let y = 15;
+    const margin = 15;
+    const pageWidth = 210;
+    const maxLineWidth = pageWidth - 2 * margin; 
+    const lineHeight = 6;
+
+    // --- 1. Header Bar ---
+    doc.setFillColor(ACCENT_COLOR_HEX);
+    doc.rect(0, 0, pageWidth, 20, 'F');
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.text("Graphology Personality Report", margin, 13);
+    doc.setFontSize(9);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth - margin, 13, { align: 'right' });
+    doc.setTextColor(0, 0, 0); // Reset text color
+    y = 30;
+
+    // --- 2. Subject Information (Two-Column Layout) ---
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text("Subject Information", margin, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    
+    const info = [
+        { label: "Name / Subject ID", value: document.getElementById('rep_name').value || 'N/A' },
+        { label: "Age", value: document.getElementById('rep_age').value || 'N/A' },
+        { label: "Sex", value: document.getElementById('rep_sex').value || 'N/A' },
+        { label: "Location", value: document.getElementById('rep_place').value || 'N/A' },
+        { label: "Context", value: document.getElementById('contextSelect').value.toUpperCase() },
+        { label: "Tone", value: document.getElementById('hrTone').value.toUpperCase() }
+    ];
+
+    info.forEach((item, index) => {
+        const col = index % 2;
+        const x = margin + (col * (maxLineWidth / 2));
+        const currentY = y + (Math.floor(index / 2) * lineHeight);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${item.label}:`, x, currentY);
+        const labelWidth = doc.getStringUnitWidth(`${item.label}:`) * doc.internal.getFontSize();
+        
+        doc.setFont('helvetica', 'normal');
+        doc.text(item.value, x + labelWidth + 2, currentY);
+    });
+    y += Math.ceil(info.length / 2) * lineHeight + 5;
+    doc.setDrawColor(150, 150, 150);
+    doc.line(margin, y, pageWidth - margin, y); // Separator Line
+    y += 5;
+
+    // --- 3. Raw Trait Analysis (Two-Column Table) ---
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text("Handwriting Trait Analysis", margin, y);
+    y += 7;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+
+    // Parse the display text for PDF generation
+    const rawTraitsContent = document.getElementById('analysisResult').textContent;
+    // Split by ' | ' and then by ':'
+    const rawTraitsArray = rawTraitsContent.split(' | ').map(s => s.trim()).filter(s => s.includes(':'));
+
+    // Draw the trait table
+    rawTraitsArray.forEach((trait, index) => {
+        const [key, value] = trait.split(':').map(s => s.trim());
+        const col = index % 2;
+        const x = margin + (col * (maxLineWidth / 2));
+        const currentY = y + (Math.floor(index / 2) * lineHeight);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${key}:`, x, currentY);
+        const labelWidth = doc.getStringUnitWidth(`${key}:`) * doc.internal.getFontSize();
+        
+        doc.setFont('helvetica', 'normal');
+        doc.text(value, x + labelWidth + 2, currentY);
+    });
+    y += Math.ceil(rawTraitsArray.length / 2) * lineHeight + 5;
+
+    // --- 4. AI Synthesis (Now Numbered List) ---
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text("AI Synthesis: Core Personality Profile", margin, y);
+    y += 7;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    // Get all paragraphs from the synthesis div
+    const synthesisElements = Array.from(document.getElementById('synthesis').getElementsByTagName('p'));
+    const synthesisParagraphs = synthesisElements.map(p => p.textContent.trim()).filter(p => p.length > 0);
+
+    if (synthesisParagraphs.length === 0) {
+        doc.text('No synthesis generated.', margin, y);
+        y += lineHeight + 5;
+    } else {
+        const itemIndent = 6; // Space for the number (e.g., "1.") and its margin
+        const itemWidth = maxLineWidth - itemIndent;
+
+        synthesisParagraphs.forEach((p, index) => {
+            if (y > 275) { doc.addPage(); y = 20; }
+            
+            // 1. Draw the number
+            doc.setFont('helvetica', 'bold');
+            doc.text(`${index + 1}.`, margin, y);
+            
+            // 2. Split and draw the paragraph text, indented
+            doc.setFont('helvetica', 'normal');
+            const splitText = doc.splitTextToSize(p, itemWidth);
+            doc.text(splitText, margin + itemIndent, y);
+            
+            y += splitText.length * lineHeight; // Advance y by the height of wrapped text
+            y += 3; // Padding between numbered points
+        });
+    }
+    y += 5;
+
+
+    // --- 5. Remedies ---
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text("Actionable Remedies & Development Suggestions", margin, y);
+    y += 7;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    const remediesList = Array.from(document.getElementById('remedies').getElementsByTagName('li')).map(li => li.textContent.trim());
+
+    if (remediesList.length > 0 && remediesList[0] !== 'Actionable recommendations will be listed here.') {
+        remediesList.forEach((item, index) => {
+            if (y > 280) { doc.addPage(); y = 20; }
+            const indent = 4;
+            // Add bullet point
+            doc.text('\u2022', margin, y); 
+            // Wrap and indent the text for the item
+            const itemText = doc.splitTextToSize(item, maxLineWidth - indent);
+            doc.text(itemText, margin + indent, y);
+            y += itemText.length * lineHeight;
+        });
+    } else {
+        doc.text("No specific remedies were available or generated for this report.", margin, y);
+        y += lineHeight;
+    }
+    y += 5;
+
+
+    // --- 6. Citations (Footer) ---
+    const citationsText = document.getElementById('citations').textContent.trim();
+    if (citationsText) {
+        if (y > 275) { doc.addPage(); y = 20; }
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text("Citations (for Grounded Analysis):", margin, y);
+        y += 4;
+        const splitCitations = doc.splitTextToSize(citationsText, maxLineWidth);
+        doc.text(splitCitations, margin, y);
+    }
+
+
+    doc.save(`${document.getElementById('rep_name').value || 'Graphology_Subject'}_Report.pdf`);
+};
+
+
+// --- Initialization ---
+window.onload = () => {
+    loadDataUriSample(SAMPLE_URIS.balanced);
+    renderTraitSelectors();
+};
+</script>
+</body>
+</html>
