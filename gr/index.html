@@ -132,7 +132,7 @@ select:focus, input[type="text"]:focus {
     cursor: pointer;
     background-size: cover;
     background-position: center;
-    transition: transform 0.15s, border-color 0.15s;
+    transition: transform 0.15s, border-color: 0.15s;
 }
 .sample-thumb:hover {
     transform: scale(1.05);
@@ -317,11 +317,10 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
 // *********************************************************************************
 // ** CRITICAL CHANGE: Set this to the URL of your deployed Cloudflare Worker! **
-// ** (e.g., 'https://my-graphology-worker.username.workers.dev')**
+// ** Using your confirmed URL: https://graphology-geminiproxy.surajts05.workers.dev **
 // *********************************************************************************
-const CLOUDFLARE_WORKER_URL = 'https://graphology-geminiproxy.surajts05.workers.dev/';
+const CLOUDFLARE_WORKER_URL = 'https://graphology-geminiproxy.surajts05.workers.dev'; 
 const API_ENDPOINT = CLOUDFLARE_WORKER_URL.endsWith('/') ? `${CLOUDFLARE_WORKER_URL}api/analyze` : `${CLOUDFLARE_WORKER_URL}/api/analyze`;
-
 
 // Define the accent color from the CSS variables for use in PDF
 let ACCENT_COLOR_HEX = '#6366f1'; 
@@ -402,9 +401,13 @@ function draw(){
   ctx.setTransform(scale,0,0,scale,originX,originY);
   ctx.drawImage(offscreen,0,0);
   ctx.setTransform(1,0,0,1,0,0);
-  if(cropBox){cropOverlay.style.display='block';
-    cropOverlay.style.left=cropBox.x+'px';cropOverlay.style.top=cropBox.y+'px';
-    cropOverlay.style.width=cropBox.w+'px';cropBox.style.height=cropBox.h+'px';
+  if(cropBox){
+    cropOverlay.style.display='block';
+    cropOverlay.style.left=cropBox.x+'px';
+    cropOverlay.style.top=cropBox.y+'px';
+    cropOverlay.style.width=cropBox.w+'px';
+    // --- FIX: The variable was incorrect here ---
+    cropOverlay.style.height=cropBox.h+'px';
   }else cropOverlay.style.display='none';
 }
 canvas.addEventListener('pointerdown',e=>{
@@ -574,6 +577,9 @@ async function callGeminiApi(userQuery) {
     // API URL points to the secure Cloudflare Worker
     const apiUrl = API_ENDPOINT; 
     
+    // ** CRITICAL DEBUG STEP: Log the actual URL being used **
+    console.log('Attempting to call API at:', apiUrl);
+
     // Package the user query for the backend
     const payload = {
         userQuery: userQuery
@@ -592,7 +598,7 @@ async function callGeminiApi(userQuery) {
 
             if (!response.ok) {
                 // Read the error message sent from our proxy worker
-                const errorBody = await response.json().catch(() => ({ message: 'Unknown Worker Error' }));
+                const errorBody = await response.json().catch(() => ({ message: 'Unknown Worker Error or non-JSON response' }));
                 
                 if (response.status === 429 && i < MAX_RETRIES - 1) {
                     // Exponential backoff for rate limiting
@@ -623,9 +629,13 @@ async function callGeminiApi(userQuery) {
                 throw new Error("Received empty or malformed response from the Cloudflare Worker.");
             }
         } catch (error) {
-            if (i === MAX_RETRIES - 1) { throw error; }
+            if (i === MAX_RETRIES - 1) { 
+                console.error('Final fetch attempt failed:', error.message);
+                throw error; 
+            }
             // If it's a network error before hitting the server, retry
             if (error.message.includes('Failed to fetch') && i < MAX_RETRIES - 1) {
+                console.warn(`Fetch attempt ${i + 1} failed (Network Error), retrying in ${delay}ms...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
                 delay *= 2;
                 continue;
@@ -679,7 +689,7 @@ analyzeBtn.onclick = async () => {
         renderReport(text, sources, traits);
 
     } catch (error) {
-        errorText.textContent = `AI Analysis Failed: ${error.message}. Ensure your Cloudflare Worker is deployed and the URL is correct.`;
+        errorText.textContent = `AI Analysis Failed: ${error.message}. Please check the Cloudflare Worker logs for the root cause.`;
         errorDiv.classList.remove('hidden');
         document.getElementById('synthesis').innerHTML = '<p class="text-red-400">Analysis failed. See error above.</p>';
         document.getElementById('remedies').innerHTML = '<li>Error in generation.</li>';
@@ -915,6 +925,9 @@ document.getElementById('downloadPdf').onclick = () => {
 
 // --- Initialization ---
 window.onload = () => {
+    // CRITICAL: Check the URL the script is using in the console
+    console.warn("Worker URL configured for fetch:", API_ENDPOINT);
+    
     loadDataUriSample(SAMPLE_URIS.balanced);
     renderTraitSelectors();
 };
