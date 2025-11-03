@@ -1,936 +1,475 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Graphology Analyzer | Professional Edition</title>
-<!-- PWA & Theme Color for Dark Mode -->
-<meta name="theme-color" content="#121212"> 
-<!-- Load Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
-<!-- jsPDF for generating downloadable reports (PDF) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-/* --- Custom Variables & Base Styles (Forced Dark Mode) --- */
-:root {
-  /* Primary Dark Theme Palette */
-  --bg: #121212; /* Darkest Background */
-  --card: #1f1f1f; /* Dark Card Surface */
-  --muted: #adb5bd; /* Lighter Muted Gray */
-  --accent: #6366f1; /* Indigo Accent */
-  --text: #e9ecef; /* Light Text */
-  --secondary-accent: #22d3ee; /* Cyan for highlights */
-}
-body {
-    font-family: 'Inter', system-ui, sans-serif;
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    transition: background-color 0.3s, color 0.3s;
-}
-
-/* Custom Primary Button Styling */
-.btn-primary {
-    /* Blend of Indigo and Cyan for a vibrant dark-mode look */
-    background: linear-gradient(90deg, var(--accent), var(--secondary-accent));
-    color: #fff;
-    border: 0;
-    border-radius: 8px;
-    padding: 12px 20px;
-    cursor: pointer;
-    font-weight: 700;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-}
-.btn-primary:hover:not(:disabled) {
-    opacity: 0.9;
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
-    transform: translateY(-1px);
-}
-.btn-primary:disabled {
-    cursor: not-allowed;
-    opacity: 0.4;
-    box-shadow: none;
-}
-/* Custom Ghost Button Styling */
-.btn-ghost {
-    background: transparent;
-    border: 1px solid #374151; /* Darker border for contrast */
-    color: var(--text);
-    box-shadow: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-.btn-ghost:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--accent);
-}
-
-/* Card Styling */
-.card {
-    background: var(--card);
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5); /* Stronger shadow for depth */
-    border: 1px solid #374151; /* Dark border */
-}
-
-/* Input/Select Styling */
-input[type="text"], input[type="file"], select, textarea {
-    background: #374151; /* Dark input background */
-    border: 1px solid #4b5563;
-    padding: 10px 12px;
-    border-radius: 8px;
-    color: var(--text);
-    width: 100%;
-    box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-select:focus, input[type="text"]:focus {
-    border-color: var(--secondary-accent);
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.5);
-    background: #374151;
-}
-
-/* Canvas/Overlay */
-#canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-    cursor: grab;
-    background-color: #fff; /* Canvas needs to be white for image analysis contrast */
-    border-radius: 8px;
-}
-#cropOverlay {
-    position: absolute;
-    border: 2px dashed var(--secondary-accent);
-    display: none;
-    pointer-events: none;
-}
-
-/* Result Section Styling */
-.result-section { 
-    padding: 15px; 
-    border-radius: 8px; 
-    margin-bottom: 15px;
-    background: #2b2b2b; /* Slightly lighter dark background for contrast */
-    border: 1px solid #374151;
-    min-height: 80px;
-}
-.result-section p { margin-bottom: 10px; line-height: 1.6; }
-.result-section ul { list-style: disc; margin-left: 20px; padding-top: 5px; }
-
-/* Samples */
-.sample-thumb {
-    width: 80px;
-    height: 40px;
-    border: 2px solid #4b5563;
-    border-radius: 6px;
-    cursor: pointer;
-    background-size: cover;
-    background-position: center;
-    transition: transform 0.15s, border-color: 0.15s;
-}
-.sample-thumb:hover {
-    transform: scale(1.05);
-    border-color: var(--secondary-accent);
-}
-
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Morse Code — Fun 2 Learn (Kids)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="theme-color" content="#2563eb" />
+  <style>
+    /* New styles for the custom modal */
+    #modalOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+    #modalContent{background:white;border-radius:12px;padding:20px;max-width:400px;width:90%;box-shadow:0 10px 25px rgba(0,0,0,0.2);animation:modal-open 0.15s ease-out}
+    @keyframes modal-open{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+    
+    /* Existing styles */
+    body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:#f0f4f8;margin:0;padding:1rem;display:flex;justify-content:center}
+    .main{max-width:900px;width:100%;background:white;border-radius:12px;padding:18px;box-shadow:0 10px 30px rgba(2,6,23,0.08)}
+    h1{font-size:1.75rem;margin:0 0 8px;color:#1f2937}
+    .progress-container{width:100%;background:#e6eef8;border-radius:999px;height:14px;overflow:hidden}
+    .progress-bar{height:100%;background:linear-gradient(90deg,#4f46e5,#06b6d4);width:0%;display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:11px}
+    .hidden{display:none}
+    .answer-button{background:#eef2ff;border-radius:10px;padding:10px;text-align:left;border:none;width:100%;cursor:pointer;transition:background 0.1s}
+    .answer-button:hover:not(:disabled){background:#e0e7ff}
+    .answer-button.correct{background:#16a34a;color:white}
+    .answer-button.incorrect{background:#ef4444;color:white}
+    .nav-button{background:#2563eb;color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;transition:background 0.1s}
+    .nav-button:hover{background:#1e40af}
+    .reward{display:inline-block;padding:6px 10px;border-radius:999px;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;font-weight:700}
+    .morse-dot{width:12px;height:12px;border-radius:50%;background:#111827;display:inline-block;margin-right:6px}
+    .morse-dash{display:inline-block;width:36px;height:12px;background:#111827;border-radius:6px;margin-right:6px}
+    .card{background:#ffffff;border-radius:10px;padding:12px;box-shadow:0 4px 12px rgba(2,6,23,0.06)}
+    @media (max-width:640px){ .grid-cols-3{grid-template-columns:repeat(2,1fr)} h1{font-size:1.4rem} }
+  </style>
 </head>
-<body class="p-4 sm:p-8">
-<div class="max-w-7xl mx-auto">
-    <header class="mb-8">
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-indigo-400">
-            Professional Graphology Analyzer
-        </h1>
-        <p class="text-base sm:text-lg text-muted mt-1">AI-Powered Handwriting Analysis and Personality Synthesis.</p>
-    </header>
+<body>
+  <div class="main" id="appRoot">
+    <h1>📡 Morse Code — Fun 2 Learn (for kids)</h1>
+    <p style="margin:6px 0 12px;color:#374151">Restored UI (from your Tamil app). PDFs removed — content converted into gamified lessons. Use tabs below to study, practice, take quizzes and track progress.</p>
 
-    <div class="lg:grid lg:grid-cols-3 gap-8">
-        
-        <!-- === LEFT COLUMN: CANVAS & CONTROLS (Col 1 & 2) === -->
-        <section class="lg:col-span-2 space-y-8 mb-8 lg:mb-0">
-            
-            <!-- 1. Canvas/View Card -->
-            <div class="card">
-                <h2 class="text-xl font-semibold mb-4 border-b pb-2 border-gray-700">Handwriting Sample Viewer</h2>
-                
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-                    <!-- File Upload & Crop -->
-                    <div class="flex gap-3 items-center flex-wrap">
-                        <label class="btn-ghost cursor-pointer text-sm">
-                            <input id="file" type="file" accept="image/*" class="hidden"/>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                            Upload Sample
-                        </label>
-                        <button id="cropBtn" class="btn-ghost text-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H5z" /></svg>
-                            Apply Crop (Shift+Drag)
-                        </button>
-                    </div>
-
-                    <!-- View Controls -->
-                    <div class="flex gap-2 text-sm">
-                        <button id="resetView" class="btn-ghost">Reset View</button>
-                        <button id="zoomOut" class="btn-ghost text-xl leading-none px-3">− </button>
-                        <button id="zoomIn" class="btn-primary text-xl leading-none px-3"> + </button>
-                    </div>
-                </div>
-                
-                <div style="height:400px;position:relative;border-radius:10px;overflow:hidden;border:1px solid #374151; background-color: #374151;">
-                    <canvas id="canvas"></canvas>
-                    <div id="cropOverlay"></div>
-                    <div id="canvas-placeholder" class="absolute inset-0 flex flex-col justify-center items-center text-gray-500 pointer-events-none p-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-12 5h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                        <p class="text-sm text-center">Upload an image or select a sample to begin analysis.</p>
-                    </div>
-                </div>
-
-                <div id="samples" class="flex gap-3 flex-wrap mt-4 items-center">
-                    <span class="font-medium text-sm text-muted">Quick Samples:</span>
-                </div>
-            </div>
-
-            <!-- 2. Control Card -->
-            <div class="card">
-                <div class="p-3 mb-4 rounded-lg font-semibold text-sm transition-colors duration-300
-                    bg-indigo-900/40 border border-indigo-700 text-indigo-400" 
-                    id="engineBanner">
-                    <span role="img" aria-label="Calculator">🧮</span> Pure JS Heuristics (Default for Auto Mode)
-                </div>
-                
-                <h3 class="font-bold text-xl mb-4">Analysis Settings</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                        <label class="text-sm font-medium block mb-1 text-muted">Analysis Mode</label>
-                        <select id="modeSelect">
-                            <option value="auto">Auto (Image Analysis)</option>
-                            <option value="manual">Manual (Feature Selection)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium block mb-1 text-muted">Context Focus</label>
-                        <select id="contextSelect">
-                            <option value="general">General Personality</option>
-                            <option value="job">Job Recruitment (HR)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium block mb-1 text-muted">AI Engine</label>
-                        <select id="engineSelect">
-                            <option value="js">Heuristics (Fast)</option>
-                            <option value="tf">TensorFlow.js (Stub)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium block mb-1 text-muted">Report Tone</label>
-                        <select id="hrTone">
-                            <option value="professional">Professional</option>
-                            <option value="psych">Psychological</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="manual-mode-guide" class="text-sm p-3 rounded-md mt-4 hidden 
-                    bg-amber-900/40 border border-amber-700 text-amber-400">
-                    <span class="font-semibold">Manual Mode Active:</span> Select traits below based on your observation of the handwriting sample.
-                </div>
-
-                <div id="traits" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Trait selectors will be injected here -->
-                </div>
-                
-                <div class="flex flex-col sm:flex-row gap-4 mt-6">
-                    <button id="analyze" class="btn-primary flex-grow text-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                        Run AI Analysis
-                    </button>
-                    <button id="resetAll" class="btn-ghost">Reset All</button>
-                </div>
-
-                <!-- Loading Indicator -->
-                <div id="loading-indicator" class="hidden text-center py-4 mt-4 bg-gray-700 rounded-lg">
-                    <svg class="animate-spin mx-auto h-6 w-6 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <p class="mt-2 text-sm text-indigo-400 font-medium">AI Engine Analyzing... (Contacting Cloudflare Worker)</p>
-                </div>
-
-                <!-- Error Message -->
-                <div id="error-message" class="hidden bg-red-900/40 border border-red-700 text-red-400 p-4 rounded-lg mt-4" role="alert">
-                    <strong class="font-bold">Analysis Error!</strong>
-                    <span class="block sm:inline" id="error-text"></span>
-                </div>
-            </div>
-        </section>
-
-        <!-- === RIGHT COLUMN: REPORT & METADATA (Col 3) === -->
-        <aside class="lg:col-span-1">
-            <div class="card sticky top-8">
-                <h2 class="text-xl font-semibold mb-4 border-b pb-2 border-gray-700">Analysis Report</h2>
-                
-                <h3 class="font-bold text-base mb-2 mt-4 text-muted">Subject Metadata (Optional)</h3>
-                <div class="space-y-2 mb-4">
-                    <input id="rep_name" placeholder="Name / Subject ID" type="text"/>
-                    <input id="rep_age" placeholder="Age" type="text"/>
-                    <input id="rep_sex" placeholder="Sex" type="text"/>
-                    <input id="rep_place" placeholder="Location" type="text"/>
-                </div>
-
-                <h3 class="font-bold text-base mb-2 mt-6">Raw Trait Data</h3>
-                <div id="analysisResult" class="result-section text-sm text-gray-300">
-                    <p>Raw trait data will appear here after analysis.</p>
-                </div>
-                
-                <h3 class="font-bold text-base mb-2 mt-6">AI Synthesis (Personality Report)</h3>
-                <div id="synthesis" class="result-section text-sm text-gray-300">
-                    <p>The AI-generated personality synthesis will be placed here.</p>
-                </div>
-
-                <h3 class="font-bold text-base mb-2 mt-6">Remedies / Recommendations</h3>
-                <div id="remedies-container" class="result-section text-sm text-gray-300">
-                    <ul id="remedies">
-                        <li>Actionable recommendations will be listed here.</li>
-                    </ul>
-                </div>
-
-                <div id="citations" class="text-xs text-gray-500 mt-4 border-t border-dotted border-gray-700 pt-3"></div>
-
-                <button id="downloadPdf" class="btn-primary w-full mt-6 text-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    Download Professional PDF
-                </button>
-            </div>
-        </aside>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+      <button class="nav-button" id="tabStudy">Study</button>
+      <button class="nav-button" id="tabPractice">Practice</button>
+      <button class="nav-button" id="tabQuiz">Quizzes</button>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
-<script type="module">
-// --- Global Setup ---
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>Progress: <span id="progressLabel">0 / 0</span></div>
+      <div style="display:flex;gap:8px;align-items:center"><div id="streak">🔥 Streak: 0</div><div class="reward" id="coinCount">⭐ 0</div></div>
+    </div>
+    <div class="progress-container mb-4"><div class="progress-bar" id="progressBar">0%</div></div>
 
-// *********************************************************************************
-// ** CRITICAL CHANGE: Set this to the URL of your deployed Cloudflare Worker! **
-// ** Using your confirmed URL: https://graphology-geminiproxy.surajts05.workers.dev **
-// *********************************************************************************
-const CLOUDFLARE_WORKER_URL = 'https://graphology-geminiproxy.surajts05.workers.dev'; 
-const API_ENDPOINT = CLOUDFLARE_WORKER_URL.endsWith('/') ? `${CLOUDFLARE_WORKER_URL}api/analyze` : `${CLOUDFLARE_WORKER_URL}/api/analyze`;
+    <!-- STUDY SECTION (REPLACES PDF) -->
+    <div id="studySection" class="card">
+      <h2 style="font-size:1.1rem;margin-bottom:6px">📘 Study — Lessons from Study Manual</h2>
+      <p style="color:#374151;margin-bottom:8px">I converted the Study-Manual-General-Grade-22.pdf into bite-sized lessons. Each lesson has narration, micro-activities and a mini-quiz.</p>
+      <div id="lessonsList"></div>
+    </div>
 
-// Define the accent color from the CSS variables for use in PDF
-let ACCENT_COLOR_HEX = '#6366f1'; 
-let SECONDARY_ACCENT = '#22d3ee';
+    <!-- PRACTICE SECTION -->
+    <div id="practiceSection" class="card hidden" style="margin-top:12px">
+      <h2 style="font-size:1.1rem;margin-bottom:6px">🎧 Practice — Hear & Send</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <select id="practiceLetter" style="padding:8px;border-radius:8px"></select>
+        <button class="nav-button" id="playMorseBtn">Play Morse</button>
+        <button class="nav-button" id="playSlowBtn">Play Slow</button>
+        <button class="nav-button" id="openSend">Open Send Practice</button>
+      </div>
+      <div id="morseVisual"></div>
+    </div>
 
-// Trait definitions used for Manual Mode and LLM prompting
-const TRAIT_DEFINITIONS = [
-    { id: 'slant', label: 'Slant (Emotions)', options: { 'rightward': 'Rightward (Outgoing)', 'vertical': 'Vertical (Controlled)', 'leftward': 'Leftward (Reserved)' } },
-    { id: 'pressure', label: 'Pressure (Intensity)', options: { 'heavy': 'Heavy (Intense)', 'medium': 'Balanced', 'light': 'Light (Sensitive)' } },
-    { id: 'size', label: 'Size (Focus)', options: { 'large': 'Large (Extroverted)', 'average': 'Average (Balanced)', 'small': 'Small (Detailed)' } },
-    { id: 'spacing', label: 'Spacing (Social)', options: { 'wide': 'Wide (Need Space)', 'narrow': 'Narrow (Need Proximity)' } },
-];
+    <!-- QUIZ SECTION -->
+    <div id="quizSection" class="card hidden" style="margin-top:12px">
+      <h2 style="font-size:1.1rem;margin-bottom:6px">🧩 Quizzes (ASOC question bank)</h2>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+        <button class="nav-button" id="btnRules">Rules & Regulations</button>
+        <button class="nav-button" id="btnElec">Basic Electronics</button>
+        <label style="margin-left:6px">Max questions:</label>
+        <input id="maxQuestions" type="number" min="1" max="200" value="10" style="width:80px;padding:6px;border-radius:6px;border:1px solid #e5e7eb" />
+        <label style="margin-left:12px">Mode:</label>
+        <select id="quizMode" style="padding:6px;border-radius:6px">
+            <option value="practice">Practice (instant feedback)</option>
+            <option value="exam">Exam (timed)</option>
+        </select>
+      </div>
+      <div id="quizSetup">
+        Choose quiz and start.
+        <!-- The Start button is now explicitly in HTML -->
+        <button class="nav-button mt-4" id="startQuizBtn">Start Quiz</button>
+      </div>
+      <div id="quizPlay" class="hidden" style="margin-top:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div>Q <span id="currentQ">0</span> / <span id="totalQ">0</span></div>
+          <div>Score: <strong id="score">0</strong></div>
+        </div>
+        <div style="padding:12px;border-radius:10px;background:#f8fafc;margin-bottom:8px">
+          <div id="questionText" style="font-size:1.05rem;font-weight:600"></div>
+        </div>
+        <div id="answersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        <div id="feedback" style="margin-top:8px;font-weight:700"></div>
+        <div style="display:flex;gap:8px;margin-top:12px"><button class="nav-button" id="nextBtn">Next</button><button class="nav-button" id="quitBtn">Quit</button></div>
+      </div>
+    </div>
 
-// --- DOM Elements ---
-const canvas=document.getElementById('canvas');
-const ctx=canvas.getContext('2d',{willReadFrequently:true});
-let offscreen=document.createElement('canvas'),offCtx=offscreen.getContext('2d');
-let image=null,loadedImageData=null,cropBox=null,scale=1,originX=0,originY=0;
-let isPanning=false,panStart={x:0,y:0},startOrigin={x:0,y:0};
-const cropOverlay=document.getElementById('cropOverlay');
-const samplesDiv=document.getElementById('samples');
-const banner=document.getElementById('engineBanner');
-const engineSelect=document.getElementById('engineSelect');
-const modeSelect=document.getElementById('modeSelect');
-const traitsDiv = document.getElementById('traits');
-const analyzeBtn = document.getElementById('analyze');
-const loadingIndicator = document.getElementById('loading-indicator');
-const errorDiv = document.getElementById('error-message');
-const errorText = document.getElementById('error-text');
-const canvasPlaceholder = document.getElementById('canvas-placeholder');
+    <hr style="margin:18px 0" />
+    <div style="font-size:13px;color:#6b7280">Suggestions: daily 15–20 minute lessons, flashcards, hands-on oscillator project and parent dashboard for tracking. (Study Manual content used to generate lessons).</div>
+  </div>
 
-let currentEngine='js';
-let currentTraits = {}; // Holds the final traits for analysis
+  <!-- CUSTOM MODAL HTML (Replaces alert/confirm) -->
+  <div id="modalOverlay" class="hidden">
+    <div id="modalContent">
+      <div id="modalTitle" class="text-xl font-semibold text-gray-800 mb-2"></div>
+      <div id="modalText" class="text-gray-600 mb-4"></div>
+      <div id="modalFooter" class="flex justify-end pt-3 gap-2">
+        <!-- Buttons added dynamically by JS -->
+      </div>
+    </div>
+  </div>
 
-// --- Canvas/Image Logic ---
+<script>
+(function() { // START IIFE WRAPPER
 
-function resizeCanvas(){canvas.width=canvas.clientWidth;canvas.height=canvas.clientHeight;draw();}
-window.addEventListener('resize',resizeCanvas);resizeCanvas();
+// ---------------------- CUSTOM MODAL IMPLEMENTATION ----------------------
+const modalOverlay = document.getElementById('modalOverlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalText = document.getElementById('modalText');
+const modalFooter = document.getElementById('modalFooter');
 
-const SAMPLE_URIS={
-  balanced:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIj48cmVjdCBmaWxsPSIjZmZmIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PHRleHQgeD0iMjAiIHk9IjgwIiBmb250LXNpemU9IjQ0IiBmb250LWZhbWlseT0iQnJ1c2ggU2NyaXB0IE1UIj5CYWxhbmNlZCBTYW1wbGU8L3RleHQ+PC9zdmc+=",
-  determined:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIj48cmVjdCBmaWxsPSIjZmZmIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PHRleHQgeD0iMjAiIHk9IjgwIiBmb250LXNpemU9IjQ0IiBmb250LWZhbWlseT0iQnJ1c2ggU2NyaXB0IE1UIj5EZXRlcm1pbmVkIFdvcmtldCBTYW1wbGU8L3RleHQ+PC9zdmc+=",
-  reserved:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIj48cmVjdCBmaWxsPSIjZmZmIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PHRleHQgeD0iMjAiIHk9IjgwIiBmb250LXNpemU9IjQ0IiBmb250LWZhbWlseT0iQnJ1c2ggU2NyaXB0IE1UIj5SZXNlcnZlZCBJbm5lcnMgU2FtcGxlPC90ZXh0Pjwvc3ZnPg=="
-};
-Object.keys(SAMPLE_URIS).forEach(k=>{
-  const s=document.createElement('div');
-  s.className='sample-thumb';
-  s.style.backgroundImage=`url('${SAMPLE_URIS[k]}')`;
-  s.onclick=()=>loadDataUriSample(SAMPLE_URIS[k]);
-  samplesDiv.appendChild(s);
-});
-function loadDataUriSample(uri){const img=new Image();img.onload=()=>setImage(img);img.src=uri;}
-document.getElementById('file').addEventListener('change',e=>{
-  const f=e.target.files[0];if(!f)return;
-  const img=new Image();
-  img.onload=()=>setImage(img);
-  img.src=URL.createObjectURL(f);
-});
-function setImage(img){
-  image=img;
-  canvasPlaceholder.classList.add('hidden'); // Hide placeholder when image loads
-  const s=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight));
-  offscreen.width=Math.round(img.naturalWidth*s);offscreen.height=Math.round(img.naturalHeight*s);
-  offCtx.drawImage(img,0,0,offscreen.width,offscreen.height);
-  loadedImageData=offCtx.getImageData(0,0,offscreen.width,offscreen.height);
-  scale=Math.min(canvas.width/offscreen.width,canvas.height/offscreen.height);
-  originX=(canvas.width-offscreen.width*scale)/2;originY=(canvas.height-offscreen.height*scale)/2;
-  draw();
-}
-function draw(){
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height); // Keep canvas background white
-  if(!image) {
-    canvasPlaceholder.classList.remove('hidden'); // Show placeholder if no image
-    return;
-  }
-  ctx.setTransform(scale,0,0,scale,originX,originY);
-  ctx.drawImage(offscreen,0,0);
-  ctx.setTransform(1,0,0,1,0,0);
-  if(cropBox){
-    cropOverlay.style.display='block';
-    cropOverlay.style.left=cropBox.x+'px';
-    cropOverlay.style.top=cropBox.y+'px';
-    cropOverlay.style.width=cropBox.w+'px';
-    // --- FIX: The variable was incorrect here ---
-    cropOverlay.style.height=cropBox.h+'px';
-  }else cropOverlay.style.display='none';
-}
-canvas.addEventListener('pointerdown',e=>{
-  const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
-  if(e.shiftKey){cropBox={x,y,w:0,h:0};document.addEventListener('pointermove',cropMove);document.addEventListener('pointerup',cropUp);}
-  else{isPanning=true;panStart={x:e.clientX,y:e.clientY};startOrigin={x:originX,y:originY};}
-});
-function cropMove(e){
-  const r=canvas.getBoundingClientRect();
-  cropBox.w=e.clientX-r.left-cropBox.x;
-  cropBox.h=e.clientY-r.top-cropBox.y;
-  draw();
-}
-function cropUp(){document.removeEventListener('pointermove',cropMove);document.removeEventListener('pointerup',cropUp);}
-window.addEventListener('pointermove',e=>{if(isPanning){const dx=e.clientX-panStart.x,dy=e.clientY-panStart.y;originX=startOrigin.x+dx;originY=startOrigin.y+dy;draw();}});
-window.addEventListener('pointerup',()=>isPanning=false);
-document.getElementById('cropBtn').addEventListener('click',()=>{
-  if(!cropBox)return console.error("Draw a crop first (SHIFT+drag).");
-  const r=canvas.getBoundingClientRect();
-  // Transform crop box coordinates back to unscaled image coordinates
-  const sx=(cropBox.x-originX)/scale,sy=(cropBox.y-originY)/scale,sw=cropBox.w/scale,sh=cropBox.h/scale;
-
-  // Clamp values to ensure they are within the offscreen canvas bounds
-  const x_start = Math.max(0, sx);
-  const y_start = Math.max(0, sy);
-  const width = Math.min(sw, offscreen.width - x_start);
-  const height = Math.min(sh, offscreen.height - y_start);
-
-  const tmp=offCtx.getImageData(x_start,y_start,width,height);
-  offscreen.width=width;offscreen.height=height;offCtx.putImageData(tmp,0,0);
-  cropBox=null;draw();
-});
-document.getElementById('zoomIn').onclick=()=>{scale*=1.2;draw();}
-document.getElementById('zoomOut').onclick=()=>{scale/=1.2;draw();}
-function fit(){
-    if (!image) return;
-    scale=Math.min(canvas.width/offscreen.width,canvas.height/offscreen.height);
-    originX=(canvas.width-offscreen.width*scale)/2;
-    originY=(canvas.height-offscreen.height*scale)/2;
-    draw();
-}
-document.getElementById('resetView').onclick=()=>{fit();}
-document.getElementById('resetAll').onclick=()=>{
-    // Safely reset input fields that exist in the form
-    ['rep_name','rep_age','rep_sex','rep_place'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-    
-  document.getElementById('analysisResult').innerHTML='<p class="text-sm text-gray-500">Raw trait data will appear here after analysis.</p>';
-  document.getElementById('synthesis').innerHTML='<p class="text-sm text-gray-500">The AI-generated personality synthesis will be placed here.</p>';
-  document.getElementById('remedies').innerHTML='<li>Actionable recommendations will be listed here.</li>';
-  document.getElementById('citations').innerHTML='';
-  errorDiv.classList.add('hidden');
-  currentTraits = {};
-  renderTraitSelectors(); // Reset selectors to default
-};
-
-// --- Heuristics (Used for Auto Mode Stub) ---
-function analyzeImageHeuristicsCropAware(){
-  if(!offscreen.width)return null;
-  const data=offCtx.getImageData(0,0,offscreen.width,offscreen.height);
-  return analyzeImageHeuristics(data);
-}
-function analyzeImageHeuristics(imgData){
-  const {width:w,height:h,data}=imgData;
-  // Simple brightness check for pressure (stub)
-  const gray=new Float32Array(w*h);
-  for(let i=0;i<w*h;i++){gray[i]=(0.299*data[i*4]+0.587*data[i*4+1]+0.114*data[i*4+2])/255;}
-  const mean=gray.reduce((a,b)=>a+b,0)/gray.length;const pressureScore=1-mean;
-  // Random stubs for other features
-  const slantDeg=(Math.random()*30)-15;
-  const sizeScore = Math.random();
-  const spacingScore = Math.random();
-  const sizeMap = sizeScore < 0.33 ? 'small' : (sizeScore < 0.66 ? 'average' : 'large');
-  const spacingMap = spacingScore < 0.5 ? 'narrow' : 'wide';
-  
-  return {pressureScore, slantDeg, sizeScore: sizeMap, spacingScore: spacingMap};
-}
-function heuristicsToTraits(h){
-  const t={};
-  t.pressure=h.pressureScore>0.6?'heavy':(h.pressureScore<0.4?'light':'medium');
-  t.slant=h.slantDeg>5?'rightward':(h.slantDeg<-5?'leftward':'vertical');
-  t.size=h.sizeScore;
-  t.spacing=h.spacingScore;
-  return t;
-}
-
-// --- Dynamic Trait Selector Generation ---
-function renderTraitSelectors() {
-    traitsDiv.innerHTML = '';
-    TRAIT_DEFINITIONS.forEach(trait => {
-        const default_value = currentTraits[trait.id] || Object.keys(trait.options)[0];
-        currentTraits[trait.id] = default_value;
-
-        const div = document.createElement('div');
-        div.innerHTML = `
-            <div>
-                <label for="${trait.id}" class="text-sm font-medium block mb-1 text-muted">${trait.label}</label>
-                <select id="${trait.id}" class="w-full" onchange="window.updateTraitValue('${trait.id}', this.value)">
-                    ${Object.entries(trait.options).map(([value, text]) => 
-                        `<option value="${value}" ${value === default_value ? 'selected' : ''}>${text}</option>`
-                    ).join('')}
-                </select>
-            </div>
-        `;
-        traitsDiv.appendChild(div);
-    });
-    toggleManualMode();
-}
-window.updateTraitValue = (id, value) => {
-    currentTraits[id] = value;
-};
-function toggleManualMode() {
-    const isManual = modeSelect.value === 'manual';
-    traitsDiv.querySelectorAll('select').forEach(select => {
-        select.disabled = !isManual;
-    });
-    document.getElementById('manual-mode-guide').classList.toggle('hidden', !isManual);
-}
-modeSelect.onchange = toggleManualMode;
-
-
-// --- Engine toggle & analysis handler ---
-engineSelect.onchange=e=>{
-  currentEngine=e.target.value;
-  if(currentEngine==='tf'){
-    banner.className='p-3 mb-4 rounded-lg font-semibold text-sm transition-colors duration-300 bg-emerald-900/40 border border-emerald-700 text-emerald-400';
-    banner.innerHTML='<span role="img" aria-label="Settings">⚙</span> TensorFlow.js Mode Active (Stub)';
-  } else{
-    banner.className='p-3 mb-4 rounded-lg font-semibold text-sm transition-colors duration-300 bg-indigo-900/40 border border-indigo-700 text-indigo-400';
-    banner.innerHTML='<span role="img" aria-label="Calculator">🧮</span> Pure JS Heuristics (Default for Auto Mode)';
-  }
-};
-
-// --- Core LLM API Logic (Modified to call Cloudflare Worker URL) ---
-function constructPrompt(traits, context, tone) {
-    let traitList = Object.entries(traits).map(([key, value]) => 
-        `**${key.charAt(0).toUpperCase() + key.slice(1)}**: ${value}`
-    ).join('\n');
-    
-    let reportContext = context === 'job' ? 
-        "Focus the analysis on suitability for a professional environment, leadership potential, teamwork, and reaction to stress. The tone must be suitable for an HR manager, focusing on workplace relevance." :
-        "Focus the analysis on core psychological drivers, emotional stability, and general life approach. The tone should be consultative and insightful.";
-
-    let reportTone = tone === 'psych' ? 
-        "Use analytical, academic, and psychological terminology (e.g., refer to ego strength, emotional resilience, cognitive style, psychomotor rhythm)." :
-        "Use clear, professional, and actionable language (e.g., refer to determination, collaboration skills, focus, work-life balance).";
-
-    return `You are an expert graphologist and psychological profiler. Generate a professional and insightful personality analysis based on the following handwriting features:
-
-${traitList}
-
-**Analysis Context:** ${reportContext}
-**Analysis Tone:** ${reportTone}
-
-The report must follow this structure exactly:
-Paragraph 1 (Core Synthesis): Summarize the individual's core personality, emotional style, and overall energy level.
-Paragraph 2 (Strengths & Motivators): Detail the primary strengths, professional assets (if job context), and key internal motivators.
-Paragraph 3 (Challenges & Growth): Identify potential areas for growth and common pitfalls.
-Paragraph 4 (Remedies): Provide three specific, actionable remedies or recommendations for personal or professional development. Start this paragraph with the heading 'Remedies:' followed by a numbered list of three items.
-
-Do not include any greeting or introduction outside of the report. The entire response must be a single block of text.`;
-}
-
-async function callGeminiApi(userQuery) {
-    // API URL points to the secure Cloudflare Worker
-    const apiUrl = API_ENDPOINT; 
-    
-    // ** CRITICAL DEBUG STEP: Log the actual URL being used **
-    console.log('Attempting to call API at:', apiUrl);
-
-    // Package the user query for the backend
-    const payload = {
-        userQuery: userQuery
+// Utility to create a button element
+function createButton(text, className, action) {
+    const btn = document.createElement('button');
+    btn.textContent = text;
+    btn.className = 'px-4 py-2 rounded-lg font-medium transition-colors ' + className;
+    btn.onclick = () => {
+        modalOverlay.classList.add('hidden');
+        if (action) action();
     };
+    return btn;
+}
 
-    const MAX_RETRIES = 5;
-    let delay = 1000;
+/** Replaces standard alert(). Shows a message and an OK button. */
+function showModal(title, message) {
+    modalTitle.textContent = title;
+    modalText.textContent = message;
+    modalFooter.innerHTML = '';
+    
+    const okBtn = createButton('OK', 'bg-blue-600 text-white hover:bg-blue-700');
+    modalFooter.appendChild(okBtn);
 
-    for (let i = 0; i < MAX_RETRIES; i++) {
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+    modalOverlay.classList.remove('hidden');
+}
 
-            if (!response.ok) {
-                // Read the error message sent from our proxy worker
-                const errorBody = await response.json().catch(() => ({ message: 'Unknown Worker Error or non-JSON response' }));
-                
-                if (response.status === 429 && i < MAX_RETRIES - 1) {
-                    // Exponential backoff for rate limiting
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2;
-                    continue;
-                }
-                // Throw an error with the worker's status and message
-                throw new Error(`Cloudflare Worker responded with status ${response.status}: ${errorBody.message || 'API call failed.'}`);
-            }
+/** Replaces standard confirm(). Shows a message with Confirm/Cancel buttons. */
+function showConfirmation(title, message, onConfirm, onCancel = null) {
+    modalTitle.textContent = title;
+    modalText.textContent = message;
+    modalFooter.innerHTML = '';
 
-            // The result should be the structured response from the Gemini API, passed through by the Worker.
-            const result = await response.json();
-            const candidate = result.candidates?.[0];
+    const cancelBtn = createButton('Cancel', 'bg-gray-200 text-gray-700 hover:bg-gray-300', onCancel);
+    const confirmBtn = createButton('Confirm', 'bg-red-600 text-white hover:bg-red-700', onConfirm);
 
-            if (candidate && candidate.content?.parts?.[0]?.text) {
-                const text = candidate.content.parts[0].text;
-                let sources = [];
-                const groundingMetadata = candidate.groundingMetadata;
-                if (groundingMetadata && groundingMetadata.groundingAttributions) {
-                    sources = groundingMetadata.groundingAttributions
-                        .map(attribution => ({ uri: attribution.web?.uri, title: attribution.web?.title }))
-                        .filter(source => source.uri && source.title);
-                }
-                return { text, sources };
+    modalFooter.appendChild(cancelBtn);
+    modalFooter.appendChild(confirmBtn);
 
-            } else {
-                throw new Error("Received empty or malformed response from the Cloudflare Worker.");
-            }
-        } catch (error) {
-            if (i === MAX_RETRIES - 1) { 
-                console.error('Final fetch attempt failed:', error.message);
-                throw error; 
-            }
-            // If it's a network error before hitting the server, retry
-            if (error.message.includes('Failed to fetch') && i < MAX_RETRIES - 1) {
-                console.warn(`Fetch attempt ${i + 1} failed (Network Error), retrying in ${delay}ms...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                delay *= 2;
-                continue;
-            } else {
-                throw error; // Re-throw fatal errors
-            }
+    modalOverlay.classList.remove('hidden');
+}
+
+// ---------------------- DATA IMPORTED FROM UPLOADED FILES (Now EMPTY) ----------------------
+// Note: Quiz banks are currently empty. A placeholder will be displayed when starting a quiz.
+const rulesBank = []; 
+const electronicsBank = []; 
+
+// ---------------------- APP STATE ----------------------
+let state = {currentSet:[],currentIndex:0,total:0,score:0,coins:0,streak:0}; 
+// State for sequential lesson quiz
+let miniQuizState = { correct: 0, lesson: null, step: 0 };
+
+// UI elements (reduced for brevity)
+const studySection = document.getElementById('studySection');
+const practiceSection = document.getElementById('practiceSection');
+const quizSection = document.getElementById('quizSection');
+const lessonsList = document.getElementById('lessonsList');
+const practiceLetter = document.getElementById('practiceLetter');
+const playMorseBtn = document.getElementById('playMorseBtn');
+const playSlowBtn = document.getElementById('playSlowBtn');
+const openSend = document.getElementById('openSend');
+const btnRules = document.getElementById('btnRules');
+const btnElec = document.getElementById('btnElec');
+const startQuizBtn = document.getElementById('startQuizBtn'); 
+const quizPlay = document.getElementById('quizPlay');
+const quizSetup = document.getElementById('quizSetup');
+const questionText = document.getElementById('questionText');
+const answersGrid = document.getElementById('answersGrid');
+const currentQ = document.getElementById('currentQ');
+const totalQ = document.getElementById('totalQ');
+const scoreEl = document.getElementById('score');
+const progressBar = document.getElementById('progressBar');
+const progressLabel = document.getElementById('progressLabel');
+const coinCount = document.getElementById('coinCount');
+const streakEl = document.getElementById('streak');
+
+// Tab buttons
+document.getElementById('tabStudy').onclick = ()=>{studySection.scrollIntoView({behavior:'smooth'}); studySection.classList.remove('hidden'); practiceSection.classList.add('hidden'); quizSection.classList.add('hidden');};
+document.getElementById('tabPractice').onclick = ()=>{practiceSection.classList.remove('hidden'); studySection.classList.add('hidden'); quizSection.classList.add('hidden');};
+document.getElementById('tabQuiz').onclick = ()=>{quizSection.classList.remove('hidden'); studySection.classList.add('hidden'); practiceSection.classList.add('hidden');};
+
+// ---------------------- LESSONS & MINI QUIZ (SEQUENTIAL FLOW) ----------------------
+const lessons = [
+  {id:'m1',title:'Intro to Amateur Radio & Safety',questions:[
+    {q:'Is a dash 3 times the length of a dot?', correct: true},
+    {q:'Should you identify at the start and end of contact?', correct: true},
+    {q:'Ohm\'s law is V = I x R?', correct: true}
+  ],text:`Amateur radio helps people communicate across distances. You'll learn about callsigns, safety, and why radio is useful in emergencies. Key points: always keep the key at earth potential, log your contacts, and follow operator rules.`},
+  {id:'m2',title:'Morse Basics — Dots & Dashes',text:`Dot = 1 unit, Dash = 3 units. Space between elements = 1 unit, between letters = 3 units, between words = 5 units. Learn the rhythm first — think of music rhythm.`},
+  {id:'m3',title:'Operating Procedures',text:`Identify at the start and end of contacts. Use phonetics for clarity. During emergencies use any mode necessary. Keep CQ short and polite.`},
+  {id:'m4',title:'Basic Electronics (kid-friendly)',text:`Voltage pushes current; current is the flow; resistance slows it. Ohm's law: V = I × R. Batteries, resistors, capacitors and simple circuits are explained with hands-on projects.`},
+  {id:'m5',title:'Practice Oscillator & Sending',text:`A simple code practice oscillator (CPO) produces a tone (800–1000 Hz). Practice sending from the wrist and keep the key at earth potential. Build a small CPO for classroom practice.`}
+]; 
+
+function renderLessons(){ 
+  lessonsList.innerHTML=''; 
+  lessons.forEach(ls=>{ 
+    const d=document.createElement('div'); 
+    d.className='card'; 
+    d.style.marginBottom='8px'; 
+    d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${ls.title}</strong><div style="color:#374151;font-size:13px">${ls.text}</div></div><div><button class='nav-button' data-id='${ls.id}'>Start</button></div></div>`; 
+    lessonsList.appendChild(d); 
+  });
+  // attach start listeners
+  document.querySelectorAll('#lessonsList .nav-button').forEach(b=>b.onclick=(e)=>{ 
+    const id=e.target.dataset.id; 
+    startLesson(id); 
+  });
+}
+
+function startLesson(id) { 
+  const l = lessons.find(x => x.id === id); 
+  if (!l) return; 
+
+  // Reset quiz state and set initial step
+  miniQuizState = { correct: 0, lesson: l, step: 0 };
+
+  // Show Lesson Info Modal
+  showModal(`Lesson: ${l.title}`, 
+    `${l.text}<br><br>Complete the mini-quiz (if available) to earn coins.`
+  );
+  
+  if (l.questions && l.questions.length > 0) {
+      setTimeout(() => {
+          miniQuizState.step = 1; // Start with the first question
+          askMiniQuizQuestion();
+      }, 300); // Delay slightly so the info modal can be read before quiz starts
+  }
+}
+
+function askMiniQuizQuestion() {
+    const l = miniQuizState.lesson;
+    const currentQIndex = miniQuizState.step - 1;
+
+    if (currentQIndex < l.questions.length) {
+        const qItem = l.questions[currentQIndex];
+        const isTrueFalse = qItem.q.endsWith('?'); // Simple heuristic for Q&A
+
+        if (isTrueFalse) {
+            showConfirmation(
+                `Mini-Quiz (${miniQuizState.step}/${l.questions.length})`, 
+                qItem.q, 
+                () => handleMiniQuizAnswer(true), // Confirm/Yes
+                () => handleMiniQuizAnswer(false)  // Cancel/No
+            );
+        } else {
+            // For general questions, just show a message until we get more robust Q&A structures
+            handleMiniQuizAnswer(qItem.correct); // Auto-correct for simplicity until a proper question structure is provided
         }
+    } else {
+        // Quiz finished
+        const earned = miniQuizState.correct * 5; 
+        state.coins += earned; 
+        state.streak++; 
+        coinCount.textContent = `⭐ ${state.coins}`; 
+        streakEl.textContent = `🔥 Streak: ${state.streak}`; 
+        updateProgress(); 
+        showModal('Lesson Complete!', `Mini-Quiz finished. You got ${miniQuizState.correct} correct and earned ${earned} coins!`);
     }
 }
 
-// --- Analysis Orchestration ---
-analyzeBtn.onclick = async () => {
-    analyzeBtn.disabled = true;
-    loadingIndicator.classList.remove('hidden');
-    errorDiv.classList.add('hidden');
-    
-    const mode = modeSelect.value;
-    let traits = {};
-    
-    // 1. Determine Traits
-    if (mode === 'manual') {
-        traits = currentTraits; 
-    } else { // Auto Mode (Heuristics or TF Stub)
-        if (!image) {
-            errorText.textContent = "Please upload a handwriting sample or select Manual Mode.";
-            errorDiv.classList.remove('hidden');
-            analyzeBtn.disabled = false;
-            loadingIndicator.classList.add('hidden');
-            return;
-        }
-        
-        const h = analyzeImageHeuristicsCropAware();
-        traits = heuristicsToTraits(h);
-    }
-    
-    // Display raw analysis result
-    const traitDisplay = Object.entries(traits).map(([key, value]) => 
-        `<div class="inline-block mr-4 mb-1"><span class="font-semibold">${key.charAt(0).toUpperCase() + key.slice(1)}:</span> <span class="text-indigo-400 font-medium">${value}</span></div>`
-    ).join(' | ');
-    document.getElementById('analysisResult').innerHTML = `<div class="flex flex-wrap text-sm">${traitDisplay}</div>`;
-    
-    // 2. Prepare and call LLM
-    const context = document.getElementById('contextSelect').value;
-    const tone = document.getElementById('hrTone').value;
-    const userQuery = constructPrompt(traits, context, tone);
-
-    try {
-        const { text, sources } = await callGeminiApi(userQuery);
-        
-        // 3. Process and display report
-        renderReport(text, sources, traits);
-
-    } catch (error) {
-        errorText.textContent = `AI Analysis Failed: ${error.message}. Please check the Cloudflare Worker logs for the root cause.`;
-        errorDiv.classList.remove('hidden');
-        document.getElementById('synthesis').innerHTML = '<p class="text-red-400">Analysis failed. See error above.</p>';
-        document.getElementById('remedies').innerHTML = '<li>Error in generation.</li>';
-    } finally {
-        loadingIndicator.classList.add('hidden');
-        analyzeBtn.disabled = false;
-    }
-};
-
-/**
- * Renders the LLM output and citations into the synthesis/remedies divs.
- */
-function renderReport(text, sources) {
-    // Look for the 'Remedies:' header to split the text
-    const remediesIndex = text.indexOf('Remedies:');
-    let synthesisContent = text;
-    let remediesContent = '';
-
-    if (remediesIndex > -1) {
-        synthesisContent = text.substring(0, remediesIndex).trim();
-        remediesContent = text.substring(remediesIndex + 'Remedies:'.length).trim();
-    }
-
-    // Process Synthesis (split into paragraphs)
-    // Each paragraph is wrapped in <p> which will be used by the PDF generator for numbering.
-    document.getElementById('synthesis').innerHTML = synthesisContent.split('\n').map(p => 
-        p.trim() ? `<p>${p.trim()}</p>` : ''
-    ).join('');
-
-    // Process Remedies (split by numbered list items)
-    const remedyList = remediesContent.match(/\d\.\s*([^\n]+)/g) || [];
-    // Keep remedies as <ul>/<li> for display on the webpage
-    const remedyHtml = remedyList.length > 0
-        ? remedyList.map(item => `<li>${item.replace(/^\d\.\s*/, '').trim()}</li>`).join('')
-        : `<li class="text-sm text-gray-500">No specific remedies were generated by the AI for this profile.</li>`;
-        
-    document.getElementById('remedies').innerHTML = remedyHtml;
-
-    // Process Citations
-    if (sources.length > 0) {
-        const sourceHtml = `
-            <p class="font-semibold mb-1">Sources Referenced for Analysis:</p>
-            ${sources.slice(0, 3).map((s, index) => `
-                <div class="truncate">
-                    <a href="${s.uri}" target="_blank" class="text-indigo-400 hover:text-indigo-300 underline">${s.title || 'Source Link'}</a>
-                </div>
-            `).join('')}
-        `;
-        document.getElementById('citations').innerHTML = sourceHtml;
-    } else {
-        document.getElementById('citations').innerHTML = '';
-    }
+function handleMiniQuizAnswer(isCorrect) {
+    if (isCorrect) miniQuizState.correct++;
+    miniQuizState.step++;
+    // Continue sequence or finish
+    askMiniQuizQuestion(); 
 }
 
-// --- PDF Generation Logic (Unchanged) ---
 
-document.getElementById('downloadPdf').onclick = () => {
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) return console.error("PDF library not loaded.");
-    
-    // Get root accent color
-    const rootStyle = getComputedStyle(document.documentElement);
-    ACCENT_COLOR_HEX = rootStyle.getPropertyValue('--accent').trim();
-    SECONDARY_ACCENT = rootStyle.getPropertyValue('--secondary-accent').trim();
+// ---------------------- PRACTICE (Morse play) ----------------------
+for(const ch of ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','1','2','3','4','5','6','7','8','9','0']){
+  const o=document.createElement('option'); o.value=ch; o.textContent=ch; practiceLetter.appendChild(o);
+}
+const audioCtx = new (window.AudioContext||window.webkitAudioContext)(); 
 
-    const doc = new jsPDF('p', 'mm', 'a4');
-    let y = 15;
-    const margin = 15;
-    const pageWidth = 210;
-    const maxLineWidth = pageWidth - 2 * margin; 
-    const lineHeight = 6;
-
-    // --- 1. Header Bar ---
-    doc.setFillColor(ACCENT_COLOR_HEX);
-    doc.rect(0, 0, pageWidth, 20, 'F');
-    doc.setFontSize(18);
-    doc.setTextColor(255, 255, 255);
-    doc.text("Graphology Personality Report", margin, 13);
-    doc.setFontSize(9);
-    doc.setTextColor(255, 255, 255);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth - margin, 13, { align: 'right' });
-    doc.setTextColor(0, 0, 0); // Reset text color
-    y = 30;
-
-    // --- 2. Subject Information (Two-Column Layout) ---
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text("Subject Information", margin, y);
-    y += 5;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    
-    const info = [
-        { label: "Name / Subject ID", value: document.getElementById('rep_name').value || 'N/A' },
-        { label: "Age", value: document.getElementById('rep_age').value || 'N/A' },
-        { label: "Sex", value: document.getElementById('rep_sex').value || 'N/A' },
-        { label: "Location", value: document.getElementById('rep_place').value || 'N/A' },
-        { label: "Context", value: document.getElementById('contextSelect').value.toUpperCase() },
-        { label: "Tone", value: document.getElementById('hrTone').value.toUpperCase() }
-    ];
-
-    info.forEach((item, index) => {
-        const col = index % 2;
-        const x = margin + (col * (maxLineWidth / 2));
-        const currentY = y + (Math.floor(index / 2) * lineHeight);
-        
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${item.label}:`, x, currentY);
-        const labelWidth = doc.getStringUnitWidth(`${item.label}:`) * doc.internal.getFontSize();
-        
-        doc.setFont('helvetica', 'normal');
-        doc.text(item.value, x + labelWidth + 2, currentY);
-    });
-    y += Math.ceil(info.length / 2) * lineHeight + 5;
-    doc.setDrawColor(150, 150, 150);
-    doc.line(margin, y, pageWidth - margin, y); // Separator Line
-    y += 5;
-
-    // --- 3. Raw Trait Analysis (Two-Column Table) ---
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text("Handwriting Trait Analysis", margin, y);
-    y += 7;
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-
-    // Parse the display text for PDF generation
-    const rawTraitsContent = document.getElementById('analysisResult').textContent;
-    // Split by ' | ' and then by ':'
-    const rawTraitsArray = rawTraitsContent.split(' | ').map(s => s.trim()).filter(s => s.includes(':'));
-
-    // Draw the trait table
-    rawTraitsArray.forEach((trait, index) => {
-        const [key, value] = trait.split(':').map(s => s.trim());
-        const col = index % 2;
-        const x = margin + (col * (maxLineWidth / 2));
-        const currentY = y + (Math.floor(index / 2) * lineHeight);
-        
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${key}:`, x, currentY);
-        const labelWidth = doc.getStringUnitWidth(`${key}:`) * doc.internal.getFontSize();
-        
-        doc.setFont('helvetica', 'normal');
-        doc.text(value, x + labelWidth + 2, currentY);
-    });
-    y += Math.ceil(rawTraitsArray.length / 2) * lineHeight + 5;
-
-    // --- 4. AI Synthesis (Now Numbered List) ---
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text("AI Synthesis: Core Personality Profile", margin, y);
-    y += 7;
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    
-    // Get all paragraphs from the synthesis div
-    const synthesisElements = Array.from(document.getElementById('synthesis').getElementsByTagName('p'));
-    const synthesisParagraphs = synthesisElements.map(p => p.textContent.trim()).filter(p => p.length > 0);
-
-    if (synthesisParagraphs.length === 0) {
-        doc.text('No synthesis generated.', margin, y);
-        y += lineHeight + 5;
-    } else {
-        const itemIndent = 6; // Space for the number (e.g., "1.") and its margin
-        const itemWidth = maxLineWidth - itemIndent;
-
-        synthesisParagraphs.forEach((p, index) => {
-            if (y > 275) { doc.addPage(); y = 20; }
-            
-            // 1. Draw the number
-            doc.setFont('helvetica', 'bold');
-            doc.text(`${index + 1}.`, margin, y);
-            
-            // 2. Split and draw the paragraph text, indented
-            doc.setFont('helvetica', 'normal');
-            const splitText = doc.splitTextToSize(p, itemWidth);
-            doc.text(splitText, margin + itemIndent, y);
-            
-            y += splitText.length * lineHeight; // Advance y by the height of wrapped text
-            y += 3; // Padding between numbered points
-        });
+function playMorseSequence(code,wpm=18){ 
+    const dot = 1.2/wpm; 
+    const dash = dot*3; 
+    let t=audioCtx.currentTime; 
+    const osc=audioCtx.createOscillator(); 
+    const g=audioCtx.createGain(); 
+    osc.type='sine'; 
+    osc.frequency.value=900; 
+    osc.connect(g); 
+    g.connect(audioCtx.destination); 
+    g.gain.setValueAtTime(0,t); 
+    osc.start(); 
+    const viz=document.getElementById('morseVisual'); 
+    viz.innerHTML=''; 
+    for(const c of code){ 
+        if(c==='.') { 
+            g.gain.setValueAtTime(1,t); 
+            t+=dot; 
+            g.gain.setValueAtTime(0,t); 
+            t+=dot; 
+            viz.innerHTML += '<span class="morse-dot"></span>'; 
+        } else if(c==='-'){ 
+            g.gain.setValueAtTime(1,t); 
+            t+=dash; 
+            g.gain.setValueAtTime(0,t); 
+            t+=dot; 
+            viz.innerHTML += '<span class="morse-dash"></span>'; 
+        } 
     }
-    y += 5;
+    osc.stop(t+0.05);
+}
 
+playMorseBtn.onclick = ()=>{ const c = practiceLetter.value; const code = mapMorse(c); playMorseSequence(code,20); };
+playSlowBtn.onclick = ()=>{ const c = practiceLetter.value; const code = mapMorse(c); playMorseSequence(code,12); };
+openSend.onclick = ()=>{ openSendPractice(); };
 
-    // --- 5. Remedies ---
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text("Actionable Remedies & Development Suggestions", margin, y);
-    y += 7;
+function mapMorse(ch){ const map = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',0:'-----'}; return map[ch]||''; }
 
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    
-    const remediesList = Array.from(document.getElementById('remedies').getElementsByTagName('li')).map(li => li.textContent.trim());
+function openSendPractice(){ // simple tap-based sender
+  const w = window.open('','sendPractice','width=420,height=680');
+  // NOTE: This embedded script is single-line to prevent parser issues on some environments.
+  w.document.write(`<html><head><title>Send Practice</title><style>body{font-family:Arial;padding:10px}button{padding:20px;font-size:16px;border-radius:8px}#out{font-size:24px;margin-top:12px}</style></head><body><h3>Tap to send (press & hold for dash)</h3><button id='pad'>Hold / Tap</button><div id='out'></div><script>let start;const out=document.getElementById('out');document.getElementById('pad').addEventListener('mousedown',e=>start=Date.now());document.getElementById('pad').addEventListener('mouseup',e=>{const d=Date.now()-start; out.textContent += (d>200?'-':'.');});document.addEventListener('keydown',e=>{ if(e.code==='Space'){start=Date.now();} });document.addEventListener('keyup',e=>{ if(e.code==='Space'){const d=Date.now()-start; out.textContent += (d>200?'-':'.');} });</script></body></html>`);
+}
 
-    if (remediesList.length > 0 && remediesList[0] !== 'Actionable recommendations will be listed here.') {
-        remediesList.forEach((item, index) => {
-            if (y > 280) { doc.addPage(); y = 20; }
-            const indent = 4;
-            // Add bullet point
-            doc.text('\u2022', margin, y); 
-            // Wrap and indent the text for the item
-            const itemText = doc.splitTextToSize(item, maxLineWidth - indent);
-            doc.text(itemText, margin + indent, y);
-            y += itemText.length * lineHeight;
-        });
-    } else {
-        doc.text("No specific remedies were available or generated for this report.", margin, y);
-        y += lineHeight;
+// ---------------------- QUIZ ENGINE ----------------------
+function openQuizBank(bank){ 
+  quizPlay.classList.add('hidden'); 
+  quizSetup.classList.remove('hidden'); 
+  quizSection.dataset.type = bank; 
+  document.getElementById('quizSetup').innerHTML = `Ready: ${bank} quiz — choose max questions and mode, then Start. <button class="nav-button mt-4" id="startQuizBtn">Start Quiz</button>`; 
+  // Re-attach listener for the dynamically created start button
+  document.getElementById('startQuizBtn').addEventListener('click', startQuizFromButton);
+}
+
+btnRules.onclick = ()=>openQuizBank('rules'); 
+btnElec.onclick = ()=>openQuizBank('electronics');
+
+document.getElementById('maxQuestions').value = 10;
+
+function startQuizFromButton(){ 
+  const type = quizSection.dataset.type || 'rules'; 
+  const max = parseInt(document.getElementById('maxQuestions').value)||10; 
+  let bank = (type==='rules')? [...rulesBank] : [...electronicsBank]; 
+  
+  if (bank.length === 0) {
+      showModal('No Questions', 'The question bank for this category is currently empty. Please check back later!');
+      return;
+  }
+  
+  shuffle(bank); 
+  const pick = bank.slice(0,Math.min(max,bank.length)); 
+  state.currentSet = pick; 
+  state.currentIndex = 0; 
+  state.total = pick.length; 
+  state.score = 0; 
+  totalQ.textContent = state.total; 
+  currentQ.textContent = 0; 
+  scoreEl.textContent = 0; 
+  quizSetup.classList.add('hidden'); 
+  quizPlay.classList.remove('hidden'); 
+  renderQuestion(); 
+  updateProgress(); 
+}
+
+function renderQuestion(){ 
+  if(state.currentIndex >= state.total){ 
+    finishQuiz(); 
+    return;
+  } 
+  
+  const item = state.currentSet[state.currentIndex]; 
+  currentQ.textContent = state.currentIndex+1; 
+  questionText.textContent = item.q; 
+  answersGrid.innerHTML=''; 
+  item.a.forEach((opt,idx)=>{ 
+    const b=document.createElement('button'); 
+    b.className='answer-button'; 
+    b.textContent=opt; 
+    b.onclick=()=>selectAnswer(idx); 
+    answersGrid.appendChild(b); 
+  }); 
+}
+
+function selectAnswer(idx){ 
+  const item = state.currentSet[state.currentIndex]; 
+  const buttons = Array.from(answersGrid.children); 
+  buttons.forEach(b=>{b.disabled=true}); 
+  
+  if(idx===item.correct){ 
+    buttons[idx].classList.add('correct'); 
+    state.score++; 
+    state.coins+=5; 
+    scoreEl.textContent = state.score; 
+    coinCount.textContent = `⭐ ${state.coins}`; 
+    document.getElementById('feedback').textContent='Correct! +5 coins'; 
+  } else { 
+    buttons[idx].classList.add('incorrect'); 
+    buttons[item.correct].classList.add('correct'); 
+    state.coins+=1; 
+    coinCount.textContent = `⭐ ${state.coins}`; 
+    document.getElementById('feedback').textContent='Not quite — review the lesson and try again.'; 
+  }
+}
+
+document.getElementById('nextBtn').onclick = ()=>{ 
+  state.currentIndex++; 
+  document.getElementById('feedback').textContent=''; 
+  renderQuestion(); 
+  updateProgress(); 
+}; 
+
+document.getElementById('quitBtn').onclick = ()=>{ 
+  // Use non-blocking showConfirmation instead of confirm()
+  showConfirmation(
+    'Quit Quiz?', 
+    'Are you sure you want to quit the current quiz? Your score will be saved, but coins for unattempted questions will be lost.',
+    ()=>{ // On Confirm
+      quizPlay.classList.add('hidden'); 
+      quizSetup.classList.remove('hidden');
     }
-    y += 5;
+  );
+}; 
 
+function finishQuiz(){ 
+  quizPlay.classList.add('hidden'); 
+  quizSetup.classList.remove('hidden'); 
+  // Use non-blocking showModal instead of alert()
+  showModal(
+    'Quiz Complete!', 
+    `You finished the quiz! Final Score: ${state.score} / ${state.total}. You earned ${state.coins} total coins!`
+  );
+}
 
-    // --- 6. Citations (Footer) ---
-    const citationsText = document.getElementById('citations').textContent.trim();
-    if (citationsText) {
-        if (y > 275) { doc.addPage(); y = 20; }
-        doc.setFontSize(8);
-        doc.setTextColor(150, 150, 150);
-        doc.text("Citations (for Grounded Analysis):", margin, y);
-        y += 4;
-        const splitCitations = doc.splitTextToSize(citationsText, maxLineWidth);
-        doc.text(splitCitations, margin, y);
-    }
+function updateProgress(){ 
+  const done = state.currentIndex; 
+  const total = state.total || 1; 
+  const pct = Math.round((done/total)*100); 
+  progressBar.style.width = pct + '%'; 
+  progressBar.textContent = pct + '%'; 
+  progressLabel.textContent = `${done} / ${state.total}`; 
+}
 
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
 
-    doc.save(`${document.getElementById('rep_name').value || 'Graphology_Subject'}_Report.pdf`);
-};
+// ---------------------- Initialize ----------------------
+document.getElementById('startQuizBtn').addEventListener('click', startQuizFromButton);
 
+renderLessons();
+updateProgress();
+coinCount.textContent = `⭐ ${state.coins}`;
+streakEl.textContent = `🔥 Streak: ${state.streak}`;
 
-// --- Initialization ---
-window.onload = () => {
-    // CRITICAL: Check the URL the script is using in the console
-    console.warn("Worker URL configured for fetch:", API_ENDPOINT);
-    
-    loadDataUriSample(SAMPLE_URIS.balanced);
-    renderTraitSelectors();
-};
+})(); // END IIFE WRAPPER
 </script>
 </body>
 </html>
