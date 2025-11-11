@@ -209,18 +209,17 @@
             </div>
         </div> -->
 		
-		            <div class="card p-6 rounded-xl order-2">
+				<div class="card p-6 rounded-xl order-2">
                 <h2 class="text-3xl font-bold mb-4 border-b pb-2 border-sky-400">2. Reception Practice (Text to Tone)</h2>
                 <p class="text-sm text-gray-300 mb-4">Select a speed and enter text to practice receiving.</p>
 
-                <!-- WPM Control - IMPROVED UI -->
+                <!-- WPM Control -->
                 <div class="mb-4 pt-2">
                     <label class="block text-sm font-medium text-gray-300 mb-3" for="wpmRange">
                         Speed: <span id="wpmValue" class="text-amber-300 font-bold text-lg">10</span> WPM
                     </label>
                     <div class="flex items-center space-x-3">
                         <span class="text-sm text-gray-400">4 WPM</span>
-                        <!-- Updated class to bg-gray-700 for better track visibility -->
                         <input type="range" id="wpmRange" min="4" max="40" value="10" step="1" class="flex-grow h-2 bg-gray-700 rounded-lg cursor-pointer">
                         <span class="text-sm text-gray-400">40 WPM</span>
                     </div>
@@ -228,9 +227,16 @@
                 
                 <textarea id="inputText" class="w-full h-32 p-3 rounded-lg bg-gray-700 text-white resize-none focus:ring-sky-400 focus:border-sky-400" placeholder="Type your message here (A-Z, 0-9, space)"></textarea>
                 
-            <button id="playMorseButton" class="btn-primary w-full py-3 mt-4 rounded-lg text-lg">
-                Play Morse Code
-            </button>
+                <!-- UPDATED BUTTON GROUP FOR PLAY/PAUSE/RESUME AND STOP -->
+                <div class="flex space-x-2 mt-4">
+                    <button id="playMorseButton" class="btn-primary flex-1 py-3 rounded-lg text-lg">
+                        Play
+                    </button>
+                    <button id="stopMorseButton" class="btn-secondary flex-1 py-3 rounded-lg text-lg" disabled>
+                        Stop
+                    </button>
+                </div>
+                <!-- END UPDATED BUTTON GROUP -->
 
                 <div class="mt-4 p-3 bg-gray-700 rounded-lg">
                     <p class="text-sm text-gray-400 mb-2">Morse Sequence:</p>
@@ -1365,7 +1371,7 @@ const ELECTRONICS_CONTENT = [
             showSection('morsepractice'); // Start on the Morse Code section
         };
     </script>
-<script>
+    <script>
         (function() { 
         
         // --- Core Morse Code Data ---
@@ -1405,6 +1411,8 @@ const ELECTRONICS_CONTENT = [
         // --- DOM Elements ---
         const inputText = document.getElementById('inputText');
         const playMorseButton = document.getElementById('playMorseButton');
+        // Removed pauseMorseButton from DOM elements
+        const stopMorseButton = document.getElementById('stopMorseButton');
         const morseSequenceOutput = document.getElementById('morseSequenceOutput');
         const currentCharacter = document.getElementById('currentCharacter');
         const wpmRange = document.getElementById('wpmRange');
@@ -1415,9 +1423,12 @@ const ELECTRONICS_CONTENT = [
         const decodedOutput = document.getElementById('decodedOutput');
         const clearKeyerButton = document.getElementById('clearKeyerButton');
         
+        // --- Playback State Variables ---
         let audioContext;
-        let isPlaying = false;
-        
+        let isPlaying = false; // True if playback is active (playing or paused)
+        let isPaused = false; // True if playback is suspended
+        let stopRequested = false; // Flag for full reset
+
         // Global Audio Node references for immediate cancellation
         let receptionOscillator = null; 
         let receptionGainNode = null; 
@@ -1430,7 +1441,30 @@ const ELECTRONICS_CONTENT = [
         let keyerOscillator = null; 
         let keyerGainNode = null;
         
-        let stopRequested = false;
+
+        // --- UI Update Function ---
+        function updatePlaybackUI() {
+            if (!isPlaying) { // READY state (Initial state or Stopped/Finished)
+                playMorseButton.textContent = 'Play';
+                playMorseButton.disabled = false;
+                stopMorseButton.disabled = true;
+                inputText.disabled = false;
+                wpmRange.disabled = false;
+            } else if (isPaused) { // PAUSED state
+                playMorseButton.textContent = 'Resume';
+                playMorseButton.disabled = false;
+                stopMorseButton.disabled = false;
+                inputText.disabled = true;
+                wpmRange.disabled = true;
+                currentCharacter.textContent = 'PAUSED';
+            } else { // PLAYING state
+                playMorseButton.textContent = 'Pause';
+                playMorseButton.disabled = false; // Allow pausing
+                stopMorseButton.disabled = false;
+                inputText.disabled = true;
+                wpmRange.disabled = true;
+            }
+        }
 
         // --- Web Audio Functions ---
 
@@ -1442,7 +1476,10 @@ const ELECTRONICS_CONTENT = [
 
         /** Plays a single tone (dot or dash). */
         function playTone(duration) {
-            return new Promise((resolve, reject) => { // Capture both resolve and reject
+            return new Promise((resolve, reject) => { 
+                // Check for pause state before creating nodes
+                if (isPaused) return; // Should not happen, but safety check
+
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
 
@@ -1487,6 +1524,13 @@ const ELECTRONICS_CONTENT = [
                     if (stopRequested) {
                         return reject(new Error("Playback stopped")); 
                     }
+                    if (isPaused) {
+                         // When paused, we wait for the context to resume.
+                         // The loop execution is effectively stopped by the suspended audioContext, 
+                         // but we use a small delay here in case of race conditions.
+                         await new Promise(r => setTimeout(r, 100)); 
+                         continue; // Re-check the timeElapsed and stopRequested conditions
+                    }
                     
                     const waitTime = Math.min(checkInterval, ms - timeElapsed); 
                     await new Promise(r => setTimeout(r, waitTime)); 
@@ -1496,14 +1540,15 @@ const ELECTRONICS_CONTENT = [
             });
         }
         
-        /** Handles all the logic to stop audio and break the playback loop. */
-        function stopPlayback() {
+        /** Full reset: Stops audio, resets flags and UI to READY. */
+        function resetPlayback() {
             stopRequested = true;
-            isPlaying = false; // <<< IMMEDIATELY SET ISPLAYING TO FALSE
-            playMorseButton.textContent = 'Play Morse Code'; // <<< IMMEDIATELY RESET BUTTON TEXT
-            console.log("STOP: Stop requested flag set."); 
+            isPaused = false;
+            isPlaying = false; 
             
-            // 1. Suspend the AudioContext (Still important for clearing buffer)
+            console.log("STOP: Full reset requested."); 
+            
+            // 1. Suspend the AudioContext (Safest way to clear buffer)
             if (audioContext && audioContext.state !== 'suspended') {
                 audioContext.suspend().then(() => {
                     console.log("STOP: AudioContext successfully suspended."); 
@@ -1514,20 +1559,13 @@ const ELECTRONICS_CONTENT = [
             const stopTime = audioContext ? audioContext.currentTime : 0;
             
             if (receptionOscillator) {
-                console.log("STOP: Attempting to STOP and disconnect receptionOscillator."); 
                 try {
-                    // Force immediate stop of the oscillator source
                     receptionOscillator.stop(stopTime); 
-                    console.log("STOP: Oscillator source manually stopped.");
                     receptionOscillator.disconnect();
                 } catch (e) { console.error("Oscillator stop error:", e); }
-            } else {
-                console.log("STOP: receptionOscillator was null/cleared. Sound should have stopped naturally."); 
             }
-            
             if (receptionGainNode) {
                 try {
-                    // Ensure the gain drops immediately and clear future ramps
                     receptionGainNode.gain.cancelScheduledValues(stopTime);
                     receptionGainNode.gain.setValueAtTime(0, stopTime);
                     receptionGainNode.disconnect();
@@ -1551,33 +1589,114 @@ const ELECTRONICS_CONTENT = [
             currentToneResolve = null;
             currentToneReject = null;
             toneTimeout = null;
+            
+            morseSequenceOutput.innerHTML = '_';
+            currentCharacter.textContent = 'STOPPED';
+            updatePlaybackUI(); // Update UI to READY state
         }
+        
+        /** Pause action: Suspends the context and sets paused flag. */
+        async function pausePlayback() {
+            if (!isPlaying || isPaused) return;
+
+            isPaused = true;
+            updatePlaybackUI();
+            
+            // Stop any currently active tone immediately
+            resetTone(true); 
+            
+            if (audioContext && audioContext.state === 'running') {
+                try {
+                    await audioContext.suspend();
+                    console.log("PAUSE: AudioContext suspended.");
+                } catch (e) {
+                    console.error("Failed to suspend AudioContext:", e);
+                }
+            }
+        }
+        
+        /** Helper function to stop the current tone without full reset */
+        function resetTone(isPausing = false) {
+             const stopTime = audioContext ? audioContext.currentTime : 0;
+            
+            if (receptionOscillator) {
+                try {
+                    receptionOscillator.stop(stopTime); 
+                    receptionOscillator.disconnect();
+                } catch (e) { console.error("Oscillator stop error:", e); }
+            }
+            if (receptionGainNode) {
+                try {
+                    receptionGainNode.gain.cancelScheduledValues(stopTime);
+                    receptionGainNode.gain.setValueAtTime(0, stopTime);
+                    receptionGainNode.disconnect();
+                } catch (e) { console.error("Gain stop error:", e); }
+            }
+            if (toneTimeout) {
+                clearTimeout(toneTimeout);
+                toneTimeout = null;
+            }
+            // If we are pausing, we don't reject the whole playback promise chain, 
+            // just clear the current tone promise to allow the loop to re-check the 'isPaused' flag.
+            if (!isPausing && currentToneReject) {
+                 currentToneReject(new Error("Tone interrupted")); 
+            }
+
+            receptionOscillator = null;
+            receptionGainNode = null;
+            currentToneResolve = null;
+            currentToneReject = null;
+        }
+
+        /** Resume action: Resumes the context and clears paused flag. */
+        async function resumePlayback() {
+            if (!isPlaying || !isPaused) return;
+            
+            isPaused = false;
+            updatePlaybackUI();
+            
+            if (audioContext && audioContext.state === 'suspended') {
+                try {
+                    await audioContext.resume();
+                    console.log("RESUME: AudioContext resumed.");
+                } catch (e) {
+                    console.error("Failed to resume AudioContext:", e);
+                }
+            }
+        }
+
 
         // --- Playback (Text to Morse) Logic ---
 
         async function startPlayback() {
-
             initAudioContext();
             
-            console.log("PLAY: AudioContext state before resume:", audioContext.state); 
+            // If we are already playing but paused, call resume instead of starting new
+            if (isPlaying && isPaused) {
+                resumePlayback();
+                return;
+            }
+            
+            // If we are already playing and not paused, do nothing (should be handled by button)
+            if (isPlaying) return; 
+
+            stopRequested = false; 
+            isPaused = false;
+            isPlaying = true;
+            updatePlaybackUI();
 
             if (audioContext.state !== 'running') {
                 try {
                     await audioContext.resume();
-                    console.log("PLAY: AudioContext successfully resumed."); 
                 } catch (e) {
                     console.error("Failed to resume AudioContext:", e);
+                    resetPlayback();
                     return; 
                 }
             }
             
-            stopRequested = false; 
-            isPlaying = true;
-            // playMorseButton.disabled = true; // <<< REMOVED DISABLE
-            playMorseButton.textContent = 'Playing... (Click to Stop)';
-
             const text = inputText.value.toUpperCase().trim();
-            let fullDisplaySequence = "";
+            let fullDisplaySequence = ""; // Sequence is reset on new start
 
             try {
                 for (let i = 0; i < text.length && !stopRequested; i++) {
@@ -1593,12 +1712,14 @@ const ELECTRONICS_CONTENT = [
                         fullDisplaySequence += '<span class="text-gray-500 mx-2">/</span>';
                         morseSequenceOutput.innerHTML = fullDisplaySequence;
                         await interruptibleSleep(T * 7); 
+                        if (stopRequested) throw new Error("Playback stopped");
                         continue;
                     }
 
                     // Inter-character space (3T)
                     if (i > 0 && text[i-1] !== ' ') {
                          await interruptibleSleep(T * 3); 
+                         if (stopRequested) throw new Error("Playback stopped");
                     }
                     
                     for (let j = 0; j < morse.length && !stopRequested; j++) {
@@ -1615,8 +1736,13 @@ const ELECTRONICS_CONTENT = [
                             displayElement = `<span class="dash text-3xl">-</span>`;
                         }
 
-                        // Await playTone (will reject instantly if stopPlayback runs)
-                        await playTone(duration);
+                        // Await playTone (will reject instantly if resetPlayback runs)
+                        try {
+                            await playTone(duration);
+                        } catch (e) {
+                            // If tone was stopped/interrupted, re-throw if it's a full stop
+                            if (e.message === "Playback stopped") throw e; 
+                        }
                         
                         if (stopRequested) throw new Error("Playback stopped"); 
                         
@@ -1626,6 +1752,7 @@ const ELECTRONICS_CONTENT = [
                         // Intra-element space (1T)
                         if (j < morse.length - 1) {
                             await interruptibleSleep(T); 
+                            if (stopRequested) throw new Error("Playback stopped");
                         }
                     }
 
@@ -1633,51 +1760,30 @@ const ELECTRONICS_CONTENT = [
                 }
 
             } catch(e) {
-                // This block is hit instantly by the rejection from stopPlayback.
                 if (stopRequested || e.message === "Playback stopped") {
-                    console.log("FINALLY: Playback flow interrupted by Promise rejection."); 
+                    console.log("FINALLY: Playback flow interrupted by Promise rejection/stop."); 
                 } else {
                     console.error("Morse Code Playback Error:", e);
                 }
             } finally {
                 
-                const wasStopped = stopRequested; 
-                
-                // Final cleanup of references is mostly done in stopPlayback.
-                // Reset isPlaying happens in stopPlayback() if stopped manually.
-
-                if (wasStopped) {
-                    morseSequenceOutput.innerHTML = fullDisplaySequence;
-                    currentCharacter.textContent = "STOPPED";
-                    console.log("FINALLY: Playback flow cleanup complete after user stop."); 
-                } else {
+                if (!stopRequested && !isPaused) {
+                    // Finished naturally
                     morseSequenceOutput.innerHTML = fullDisplaySequence;
                     currentCharacter.textContent = "DONE";
-                    isPlaying = false; // Reset if finished naturally
-                    playMorseButton.textContent = 'Play Morse Code'; // Reset button text
+                    isPlaying = false; 
                     
-                    // If finished naturally, suspend the context so it's ready to resume instantly next time.
                     if (audioContext && audioContext.state !== 'suspended') {
                          audioContext.suspend().catch(e => console.error("Failed to suspend AudioContext on finish:", e));
                     }
-                }
-                
-                // playMorseButton.disabled = false; // <<< REMOVED DISABLE
+                    updatePlaybackUI();
+                } else if (stopRequested) {
+                    // Was fully stopped by user (resetPlayback handles UI update)
+                } 
+                // If isPaused is true, the UI update happens in pausePlayback
             }
         }
         
-        /** Unified handler for the Play/Stop button. */
-        function handlePlayStopClick() {
-            if (isPlaying) {
-                // If currently playing, this click means STOP
-                stopPlayback();
-            } else {
-                // If not playing, this click means PLAY
-                startPlayback();
-            }
-        }
-
-
         // --- Transmission (Keyer) Logic (Unchanged) ---
 
         let isKeying = false;
@@ -1775,9 +1881,21 @@ const ELECTRONICS_CONTENT = [
         // --- Initialization and Event Listeners ---
 
         updateTimingConstants(parseInt(wpmRange.value));
+        updatePlaybackUI(); // Initial UI state
 
-        // 1. Reception Practice: Use the unified handler
-        playMorseButton.addEventListener('click', handlePlayStopClick);
+        // 1. Reception Practice: Combined Play/Pause/Resume handler
+        playMorseButton.addEventListener('click', () => {
+            if (!isPlaying) {
+                startPlayback(); // Start new
+            } else if (isPaused) {
+                resumePlayback(); // Resume paused
+            } else {
+                pausePlayback(); // Pause active playback
+            }
+        });
+        
+        stopMorseButton.addEventListener('click', resetPlayback);
+
         wpmRange.addEventListener('input', (e) => {
             const newWPM = parseInt(e.target.value);
             updateTimingConstants(newWPM);
