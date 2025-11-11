@@ -1351,6 +1351,25 @@ const ELECTRONICS_CONTENT = [
             Object.entries(MORSE_CODE).map(([key, value]) => [value, key])
         );
 
+			// ADD THIS BLOCK TO YOUR JAVASCRIPT
+function activateAudio() {
+    // Check if the Tone.js context is suspended or closed
+    if (Tone.context.state !== 'running') {
+        Tone.start().then(() => {
+            console.log('Tone.js audio context resumed successfully.');
+        }).catch(err => {
+            console.error('Failed to resume audio context:', err);
+        });
+    }
+    // Remove the event listeners after the first successful activation
+    document.removeEventListener('click', activateAudio);
+    document.removeEventListener('touchstart', activateAudio);
+}
+
+// Add event listeners for the first user interaction
+document.addEventListener('click', activateAudio);
+document.addEventListener('touchstart', activateAudio);
+
         // Morse Timing Standard (Dot time unit, T = 50ms for a fast application)
         const T = 50; 
         const FREQUENCY = 700; // Tone frequency in Hz
