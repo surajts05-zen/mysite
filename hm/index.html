@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General & Restricted Grade Ham Radio Exam Prep Guide (India)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Tone.js for Morse Code audio generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        /* Custom font import and basic styling */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+		        :root {
+             /* --primary: #38bdf8; Sky 400 */
+			--primary: ##3b82f6; /* Sky 400 */
+            --secondary: #fcd34d; /* Amber 300 */
+            --bg-dark: #1f2937; /* Gray 800 */
+            --bg-light: #4b5563; /* Gray 600 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Dark Theme Background and default text color */
+            background-color: #1a202c; /* dark slate gray */
+            color: #e2e8f0; /* light gray text */
+            min-height: 100vh;
+        }
+        /* Custom styling for cards and shadows */
+        .card {
+            /* Slightly lighter dark background for cards */
+            background: #2d3748; /* dark gray */
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+		        .card2 {
+            /* Slightly lighter dark background for cards */
+            background: #2d3748; /* dark gray */
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card2:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+        .tab-button.active {
+            background-color: #3b82f6; /* bright blue-500 */
+            color: white;
+            font-weight: 600;
+        }
+        .dot-dash {
+            font-family: monospace;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #60a5fa; /* light blue for morse */
+        }
+        /* Simple table for phonetics */
+        .phonetic-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        .phonetic-item {
+            background-color: #374151; /* gray-700 */
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        .phonetic-letter {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .phonetic-word {
+            font-size: 1rem;
+            color: #60a5fa; /* light blue-400 */
+        }
+        /* Simple table for lists */
+        .simple-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.5rem;
+        }
+        .simple-list-item {
+            background-color: #374151; /* gray-700 */
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-family: monospace;
+        }
+		
+		        .btn-primary {
+            background-color: var(--primary);
+            color: var(--bg-dark);
+            font-weight: 700;
+            border: 2px solid var(--primary);
+            transition: all 0.15s;
+        }
+        .btn-primary:hover {
+            background-color: #0ea5e9; /* Sky 500 */
+            transform: translateY(-1px);
+        }
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+        .keyer-button {
+            height: 150px;
+            background-color: var(--primary);
+            border: 4px solid var(--secondary);
+            animation: pulse-border 2s infinite;
+        }
+        .keyer-button:active {
+            background-color: #0ea5e9;
+            box-shadow: 0 0 40px var(--primary);
+        }
+        .dot { color: var(--secondary); }
+        .dash { color: var(--primary); }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(252, 211, 77, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(252, 211, 77, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(252, 211, 77, 0); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 text-gray-100">
+
+    <div id="app" class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-gray-50">Ham Prep India <span class="text-xl text-blue-400">General Grade</span></h1>
+            <p class="text-gray-400 mt-2">Your interactive study guide for the ASOC Examination.</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex justify-center bg-gray-800 p-2 rounded-xl shadow-lg mb-8 space-x-2">
+			<button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('morsecode')">Morse Code</button>
+            <button class="tab-button active px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('morsepractice')">Morse Practice</button>
+            <button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('rules')">Part A: Rules</button>
+            <button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('electronics')">Part B: Electronics</button>
+            <button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('quiz')">Quiz Time!</button>
+			<button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('syllabus')">Syllabus</button>
+        </nav>
+
+        <!-- Content Sections -->
+
+        <!-- 1. Morse Code Trainer -->
+      <!--  <section id="morse" class="content-section">
+            <h2 class="text-3xl font-bold mb-4 text-blue-400">1. Morse Code Trainer</h2>
+            <div class="card p-6 mb-8">
+                <label for="morse-input" class="block text-lg font-semibold mb-2 text-gray-200">Enter Text to Convert & Play:</label>
+                <input type="text" id="morse-input" class="w-full p-3 border border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 mb-4 bg-gray-700 text-white" placeholder="Type CQ DX DE VU2AAB" oninput="updateMorseOutput()">
+                <div id="morse-output" class="p-4 bg-gray-700 rounded-lg text-lg font-mono mb-4 min-h-[40px] text-gray-300"></div>
+                <button onclick="playMorseCode()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-green-700 transition">
+                    <svg class="inline w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.536-9.536a9 9 0 010 12.728M2.43 14.93c.725.725 1.54 1.258 2.454 1.572.946.326 1.956.49 3.016.49h.01c.08-.001.16-.007.24-.02l3.42-1.04a2 2 0 001.07-1.68V7.32a2 2 0 00-1.07-1.68l-3.42-1.04c-.08-.013-.16-.019-.24-.02h-.01c-1.06 0-2.07.164-3.016.49-1.014.349-2.02.884-2.924 1.488-1.782 1.2-2.73 2.87-2.73 4.742 0 1.872.948 3.542 2.73 4.742z"></path></svg>
+                    Start Sending (800Hz)
+                </button>
+            </div>
+
+            <h3 class="text-2xl font-semibold mb-3 text-gray-100">Standard International Morse Code</h3>
+            <div id="morse-chart" class="card p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 text-center">
+               
+            </div>
+        </section> -->
+<section id="morsepractice" class="content-section">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <div class="card p-6 rounded-xl order-1">
+            <h2 class="text-3xl font-bold mb-4 border-b pb-2 border-amber-300">1. Transmission Practice (Keyer)</h2>
+            <p class="text-sm text-gray-300 mb-4">Click the keyer button or hold the <span class="font-bold text-amber-300">SPACEBAR</span> to send dots and dashes.</p>
+            
+            <div class="flex flex-col items-center">
+                <button id="keyerButton" class="keyer-button w-full rounded-2xl text-2xl font-bold shadow-xl">
+                    KEYER (Press/Hold)
+                </button>
+                <p class="text-sm text-gray-400 mt-2">Hold down for a DASH (-), quick tap for a DOT (.).</p>
+            </div>
+
+            <div class="mt-4 p-3 bg-gray-700 rounded-lg">
+                <p class="text-sm text-gray-400 mb-2">Input Morse (Current Character):</p>
+                <p id="inputMorseDisplay" class="text-2xl h-8 break-words text-sky-400">_</p>
+                
+                <p class="text-sm text-gray-400 mt-4 mb-2">Decoded Message:</p>
+                <p id="decodedOutput" class="text-2xl h-16 overflow-hidden">_</p>
+                
+                <button id="clearKeyerButton" class="btn-primary w-full py-2 mt-4 rounded-lg text-base bg-red-500 hover:bg-red-600 border-red-500">
+                    Clear Input
+                </button>
+            </div>
+        </div>
+        
+        <div class="card p-6 rounded-xl order-2">
+            <h2 class="text-3xl font-bold mb-4 border-b pb-2 border-sky-400">2. Reception Practice (Text to Tone)</h2>
+            <p class="text-sm text-gray-300 mb-4">Enter text, and press 'Play' to hear the corresponding Morse code sound.</p>
+            
+            <textarea id="inputText" class="w-full h-32 p-3 rounded-lg bg-gray-700 text-white resize-none focus:ring-sky-400 focus:border-sky-400" placeholder="Type your message here (A-Z, 0-9, space)"></textarea>
+            
+            <button id="playMorseButton" class="btn-primary w-full py-3 mt-4 rounded-lg text-lg">
+                Play Morse Code
+            </button>
+
+            <div class="mt-4 p-3 bg-gray-700 rounded-lg">
+                <p class="text-sm text-gray-400 mb-2">Morse Sequence:</p>
+                <p id="morseSequenceOutput" class="text-xl break-words h-10 overflow-hidden">_</p>
+                <p id="currentCharacter" class="text-center mt-4 text-4xl font-bold text-amber-300 h-10">
+                    </p>
+            </div>
+        </div>
+    </div> </section>
+
+
+<section id="morsecode" class="content-section">
+    <div class="card p-6 rounded-xl order-3 **lg:col-span-2**">
+        <h3 class="text-2xl font-semibold mb-3 text-gray-100">Standard International Morse Code</h3>
+        <div id="morse-chart" class="card p-3 grid **grid-cols-3** sm:grid-cols-4 md:grid-cols-5 gap-3 text-center"> </div>
+    </div> 
+</section>
+
+
+        <!-- 2. Part A: Operating Procedures & Rules -->
+        <section id="rules" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-4 text-blue-400">2. Part A: Operating Rules & Regulations</h2>
+            <p class="mb-6 text-gray-400">This section covers the official rules, operating procedures, Q-codes, and emergency signals for the General Grade examination, based on WPC regulations and ITU rules. **All required syllabus topics are included below.**</p>
+
+            <!-- Rules Content will be inserted here by JS -->
+            <div id="rules-content" class="space-y-6"></div>
+        </section>
+
+        <!-- 3. Part B: Basic Electronics & Theory -->
+        <section id="electronics" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-4 text-blue-400">3. Part B: Basic Electronics Concepts</h2>
+            <p class="mb-6 text-gray-400">The core concepts needed for the theory part of the exam, explained simply and intuitively.</p>
+
+            <!-- Electronics Content will be inserted here by JS -->
+            <div id="electronics-content" class="space-y-6"></div>
+        </section>
+
+        <!-- 4. Quiz Section -->
+        <section id="quiz" class="content-section hidden">
+            <h2 class="text-3xl font-bold mb-4 text-blue-400">4. General Grade Practice Quiz</h2>
+
+            <!-- Quiz Setup Panel -->
+            <div id="quiz-setup" class="card p-6 mb-8">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-100">Setup Your Exam Session</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="quiz-category" class="block text-sm font-medium text-gray-300">1. Choose Exam Part:</label>
+                        <select id="quiz-category" class="mt-1 block w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white">
+                            <option value="rules">Part A: Rules & Procedures</option>
+                            <option value="electronics">Part B: Basic Electronics</option>
+                            <option value="mixed">Mixed (Both Parts)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="quiz-count" class="block text-sm font-medium text-gray-300">2. Number of Questions:</label>
+                        <select id="quiz-count" class="mt-1 block w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white">
+                            <option value="5">5 Questions (Quick Test)</option>
+                            <option value="10">10 Questions (Standard)</option>
+                            <option value="20">20 Questions (Marathon)</option>
+                        </select>
+                    </div>
+                    <button onclick="startQuiz()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-blue-700 transition">
+                        Start Quiz!
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Active Panel -->
+            <div id="quiz-active" class="hidden">
+                <div id="question-card" class="card p-6 mb-6 min-h-[300px] relative">
+                    <p id="question-number" class="text-sm font-medium text-blue-400 mb-2"></p>
+                    <h4 id="question-text" class="text-xl font-bold mb-4 text-gray-100"></h4>
+                    <div id="options-container" class="space-y-3">
+                        <!-- Options will be dynamically inserted here -->
+                    </div>
+                    <button id="submit-btn" onclick="submitAnswer()" class="mt-6 bg-indigo-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-600 transition disabled:opacity-50">
+                        Submit Answer
+                    </button>
+                </div>
+
+                <!-- Explanation / Feedback Section (Dark Theme Colors) -->
+                <div id="feedback-card" class="card p-4 bg-yellow-900 border-l-4 border-yellow-400 text-yellow-300 hidden">
+                    <h5 id="feedback-title" class="font-bold text-lg mb-2"></h5>
+                    <p id="feedback-explanation"></p>
+                </div>
+
+                <!-- Score Indicator (Gamification) -->
+                <div class="mt-4 flex justify-between items-center text-gray-300 font-medium">
+                    <span>Score: <span id="current-score" class="text-green-400 font-bold">0</span> / <span id="total-questions">0</span></span>
+                    <span>Progress: <span id="current-progress" class="text-blue-400 font-bold">0</span> of <span id="total-progress">0</span></span>
+                </div>
+            </div>
+
+            <!-- Quiz Results Panel -->
+            <div id="quiz-results" class="hidden text-center card p-8">
+                <h3 class="text-3xl font-bold mb-4 text-gray-100">Quiz Complete!</h3>
+                <div id="result-message" class="text-2xl font-semibold mb-4 text-green-400"></div>
+                <p class="text-gray-300 mb-6">You got <span id="final-score" class="font-bold text-blue-400"></span> out of <span id="final-total" class="font-bold text-blue-400"></span> correct.</p>
+                <button onclick="showSection('quiz'); resetQuizSetup();" class="bg-purple-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-700 transition">
+                    Start a New Quiz
+                </button>
+            </div>
+
+        </section>
+
+<section id="syllabus" class="content-section hidden">
+    <div class="card p-6 rounded-xl lg:col-span-2">
+        <h2 class="text-3xl font-bold mb-4 border-b pb-2 border-green-500 text-green-400">
+            Syllabus and Examination Details (India)
+        </h2>
+        
+        <p class="text-lg font-semibold text-gray-200 mb-4">
+            SYLLABUS AND DETAILS OF EXAMINATIONS FOR THE AWARD OF AMATEUR STATION OPERATOR’S LICENCE (Restricted) and (General) in India.
+        </p>
+
+        <h3 class="text-xl font-bold mt-6 mb-3 text-amber-300">Examination Structure</h3>
+        <div class="space-y-4 text-gray-300">
+            <p>The examination shall consist of the following two parts:</p>
+            
+            <div class="p-3 bg-gray-700 rounded-lg">
+                <p class="font-semibold text-white">PART I – Written Test</p>
+                <ul class="list-disc list-inside ml-4 mt-2 space-y-2">
+                    <li>**Section A: Radio Theory and Practice**
+                        <p class="text-sm text-gray-400 mt-1">
+                            *Note: Applicants holding a degree/diploma in Engineering/Science with electronics or telecommunications are **exempted** from Section A.*
+                        </p>
+                    </li>
+                    <li>**Section B: National and International Telecommunication Union (ITU) Radio Regulations** applicable to amateur station operation.</li>
+                </ul>
+            </div>
+            
+            <div class="p-3 bg-gray-700 rounded-lg">
+                <p class="font-semibold text-white">PART II – Morse (Only for General Certificate)</p>
+                <p>Morse reception and sending **(8 words per minute - wpm)**.</p>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-bold mt-8 mb-3 text-amber-300">DETAILED SYLLABUS</h3>
+
+        <div class="mt-6 p-4 border border-gray-600 rounded-lg">
+            <h4 class="text-2xl font-bold text-sky-400 border-b pb-2 mb-3">Restricted Examination</h4>
+            
+            <p class="font-semibold text-white">Part I – Written Test (1 Hour)</p>
+            
+            <p class="mt-2 font-medium text-gray-200">Section A: Radio Theory and Practice</p>
+            <ul class="list-disc list-inside ml-4 text-sm space-y-1 text-gray-300">
+                <li>**Elementary Electricity and Magnetism:** Passive/Active Devices, Kirchoff’s Laws, Ohm’s Law, Power, Magnetism.</li>
+                <li>**Elementary Theory of Alternating Currents:** Sinusoidal quantities (RMS, peak), Phase, Reactance, Impedance, Resonance, Rectifiers.</li>
+                <li>**Elementary Theory of Semiconductor Devices:** Diodes, Transistors (amplifiers, oscillators, detectors).</li>
+                <li>**Radio Receivers:** T.R.F. and Superheterodyne, CW reception, Receiver characteristics (Sensitivity, Selectivity, AVC).</li>
+                <li>**Transmitter:** Low power transmitter principles, Crystal oscillators, Semiconductor based transmitters.</li>
+                <li>**Radio Wave Propagation:** Electromagnetic Spectrum, Wavelength, Ground/Sky/Space waves, Skip distance, Fading.</li>
+                <li>**Aerials:** Common transmitting and receiving types.</li>
+                <li>**Frequency Measurement:** Simple frequency meters.</li>
+            </ul>
+
+            <p class="mt-4 font-medium text-gray-200">Section B: Radio Regulations</p>
+            <ul class="list-disc list-inside ml-4 text-sm space-y-1 text-gray-300">
+                <li>Indian Wireless Telegraph Rules (1973) and Amateur Service Rules (1978).</li>
+                <li>ITU Radio Regulations (Designation of Emission, Phonetic alphabets, Frequencies, Interference, Distress/Urgency Signals, Call Signs, Amateur Station Article 25).</li>
+                <li>Standard Frequency and Time Signals.</li>
+                <li>**'Q' codes and Abbreviations:** (QRA through QUM, AA through WB).</li>
+            </ul>
+            <p class="text-sm text-yellow-400 mt-3">
+                **Pass Criteria:** Max Marks 100. Must secure **40%** in each section and **50%** in aggregate. **NO Morse test** for Restricted grade.
+            </p>
+        </div>
+
+        <div class="mt-6 p-4 border border-gray-600 rounded-lg">
+            <h4 class="text-2xl font-bold text-amber-300 border-b pb-2 mb-3">General Examination</h4>
+            
+            <p class="font-semibold text-white">Part I – Written Test (2 Hours)</p>
+            
+            <p class="mt-2 font-medium text-gray-200">Section A: Radio Theory and Practice (Restricted Syllabus + Additions)</p>
+            <ul class="list-disc list-inside ml-4 text-sm space-y-1 text-gray-300">
+                <li>**Principles of Communications:** Analog/Digital, Modulation (AM, FM, Pulse), Demodulation.</li>
+                <li>**Alternating Current:** Transformers (construction, losses, matching).</li>
+                <li>**Semi Conductor devices and Transistors:** Conduction, Biasing.</li>
+                <li>**Power Supplies:** Half/Full wave, Bridge rectifier, Smoothing/Regulating circuits.</li>
+                <li>**Transmitters and Receivers:** Elementary principles of Facsimile and Television signals.</li>
+                <li>**Propagation:** Ionosphere/Troposphere characteristics, Critical frequency.</li>
+                <li>**Aerials:** Principles of radiation, aerials for different frequency bands (including microwave).</li>
+                <li>**Space Communications:** Elementary principles of communication via satellites.</li>
+            </ul>
+
+            <p class="mt-4 font-medium text-gray-200">Section B: Radio Regulations</p>
+            <p class="text-sm text-gray-300">Same syllabus as prescribed for the Restricted examination.</p>
+            <p class="text-sm text-yellow-400 mt-3">
+                **Pass Criteria:** Max Marks 100. Must secure **50%** in each section and **60%** in aggregate.
+            </p>
+
+            <p class="font-semibold text-white mt-4">Part II – Morse (8 wpm)</p>
+            <ul class="list-disc list-inside ml-4 text-sm space-y-1 text-gray-300">
+                <li>**Reception:** 5-minute test of a 200-character plain language passage (letters, figures, and common punctuation) at **8 wpm**. More than 5 errors is a fail.</li>
+                <li>**Sending:** 5-minute test sending a similar passage at a speed **not less than 8 wpm**.</li>
+                <li>Candidate must pass **both** receiving and sending simultaneously.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+    </div>
+
+    <script>
+        // --- DATA DEFINITIONS ---
+
+        // 1. Morse Code Mapping
+        const MORSE_MAP = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
+            'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+            'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
+            '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
+            '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
+            '.': '.-.-.-', ',': '--..--', '?': '..--..', '/': '-..-.',
+            ' ': ' ' // Space separates words
+        };
+
+        // 2. Rules & Regulations (Part A) Content
+        // *** NOW FULLY EXPANDED BASED ON SYLLABUS ***
+        const RULES_CONTENT = [
+            {
+                title: "License Categories & Eligibility (Amateur Service Rules, 1978 & 1973)",
+                content: `
+                    <p>The WPC (Wireless Planning & Coordination Wing) issues two main categories of licenses for individuals based on the **Indian Wireless Telegraph Rules, 1973** and the **Amateur Service Rules, 1978 and amendments**:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-gray-300">
+                        <li><b>Amateur Wireless Telegraph Station License (GENERAL)</b></li>
+                        <li><b>Amateur Wireless Telegraph Station License (RESTRICTED)</b></li>
+                    </ul>
+                    <p class="mt-3">To be eligible, you must be:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-gray-300">
+                        <li>A citizen of India.</li>
+                        <li>At least 18 years of age. (Relaxed to 14 for General, 12 for Restricted).</li>
+                        <li>Have passed the Amateur Station Operators' Examination (ASOC) for the required grade.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Amateur Station Regulations (ITU Art. 25)",
+                content: `
+                    <p>An amateur station (Art. 25) is for personal, non-commercial use only. You are <b>strictly forbidden</b> to transmit:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-2 ml-4 text-red-300">
+                        <li>Music, broadcast programmes, or any entertainment.</li>
+                        <li>Advertisements or any communications for business (no "pecuniary interest").</li>
+                        <li>False or misleading signals (like a fake "MAYDAY"). (Art. 19)</li>
+                        <li>Messages for or on behalf of third parties (with one major exception...).</li>
+                        <li>Any matter which is indecent, obscene, or offensive.</li>
+                        <li>Statements on political or industrial controversy.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Emergency & Third-Party Messages (1978 Rules)",
+                content: `
+                    <p>The rule against transmitting for third parties has one crucial exception: <b>EMERGENCIES!</b></p>
+                    <p class="mt-2">In the event of a failure of normal communication systems (per the 1978 rules), you are <b>PERMITTED</b> to handle third-party messages related to:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-green-300">
+                        <li>Natural calamities like earthquakes, floods, or cyclones.</li>
+                        <li>Widespread fires or other major disasters.</li>
+                    </ul>
+                    <p class="mt-3"><b>The Condition:</b> These messages must originate from or be addressed to a competent civil authority (like a District Magistrate). You must also inform the licensing authority (WPC) by letter after you use your station for this purpose.</p>
+                `
+            },
+            {
+                title: "Distress and Urgency Signals (ITU Art. 30, 31, 32 & 33)",
+                content: `
+                    <p>Articles 30-33 cover the protocol for handling safety and distress. These signals have absolute priority:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-3 ml-4">
+                        <li><span class="text-2xl font-bold text-red-400">MAYDAY</span> (spoken 3 times):<br>
+                            <b>Meaning:</b> **Distress Signal**. Grave and imminent danger, requires immediate assistance.</li>
+                        <li><span class="text-2xl font-bold text-yellow-400">PAN PAN</span> (spoken 3 times):<br>
+                            <b>Meaning:</b> **Urgency Signal**. A serious situation concerning safety, but **no immediate danger**. Priority over everything except MAYDAY.</li>
+                        <li><span class="text-2xl font-bold text-blue-300">SECURITE</span> (spoken 3 times):<br>
+                            <b>Meaning:</b> **Safety Signal**. Transmitting a message concerning safety of navigation or important meteorological warnings.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Interference & Tests (ITU Art. 15)",
+                content: `
+                    <p>Article 15 governs interference and station tests. Your station must not endanger other services or "seriously degrade, obstruct, or repeatedly interrupt" any other radio service.</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-gray-300">
+                        <li><b>Listen First:</b> Always listen to ensure the frequency is clear before transmission.</li>
+                        <li><b>Stop if Causing Harm:</b> If you are told you are causing interference, you must stop or restrict transmissions immediately.</li>
+                        <li><b>Tests:</b> Keep tests (like calling "VVV" or a short carrier) as short as possible. Use a dummy load for longer, internal equipment tests.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Nomenclature of Frequency & Wavelength (ITU Art. 2)",
+                content: `
+                    <p>Article 2 defines the naming conventions for the radio spectrum bands:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-gray-300">
+                        <li><b>VLF</b> (Very Low Frequency): 3 - 30 kHz</li>
+                        <li><b>LF</b> (Low Frequency): 30 - 300 kHz</li>
+                        <li><b>MF</b> (Medium Frequency): 300 - 3000 kHz</li>
+                        <li><b>HF</b> (High Frequency): <b>3 - 30 MHz</b> (The primary long-distance band)</li>
+                        <li><b>VHF</b> (Very High Frequency): <b>30 - 300 MHz</b> (Includes 2m band)</li>
+                        <li><b>UHF</b> (Ultra High Frequency): <b>300 - 3000 MHz</b> (Includes 70cm band)</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Frequency Allocation for Amateur Services (ITU Art. 5)",
+                content: `
+                    <p>Article 5 is the global frequency allocation master table. For General Grade Indian amateurs, the key allocated bands are:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-gray-300">
+                        <li><b>HF Bands:</b> 80m (3.5 MHz), 40m (7.0 MHz), 20m (14.0 MHz), 15m (21.0 MHz), 10m (28.0 MHz), and others.</li>
+                        <li><b>VHF Band:</b> 2m (144 - 146 MHz)</li>
+                        <li><b>UHF Band:</b> 70cm (434 - 438 MHz)</li>
+                    </ul>
+                    <p class="mt-2">Many bands are **shared**, meaning amateurs must not interfere with primary services in those segments.</p>
+                `
+            },
+            {
+                title: "Emission Designations (ITU Appendix-I)",
+                content: `
+                    <p>Appendix-I provides the code for *what* your signal is (e.g., J3E for voice). A designation has three parts:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-2 ml-4">
+                        <li><b>First Letter (Modulation):</b> <b>A</b> (AM), <b>F</b> (FM), <b>J</b> (Single Sideband, suppressed carrier).</li>
+                        <li><b>Second Number (Modulating Signal):</b> <b>1</b> (Digital, no sub-carrier, e.g., CW), <b>3</b> (Analogue, voice/sound).</li>
+                        <li><b>Third Letter (Information):</b> <b>A</b> (Telegraphy for aural reception - Morse), <b>E</b> (Telephony - voice).</li>
+                    </ul>
+                    <p class="mt-3 font-semibold">Key codes to know:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-blue-300">
+                        <li><b>A1A:</b> CW (Morse Code - pure carrier keyed).</li>
+                        <li><b>J3E:</b> SSB Voice (Common on HF).</li>
+                        <li><b>F3E:</b> FM Voice (Common on VHF/UHF repeaters).</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Call Signs & Identification (ITU Art. 19 & App. 42)",
+                content: `
+                    <p>Your call sign is your international ID (Art. 19). You must transmit it at the start, end, and at least every 10 minutes during transmission.</p>
+                    <p class="mt-2"><b>Indian Call Signs (Appendix 42):</b> The ITU allocates blocks of call signs. India is allocated:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-gray-300">
+                        <li><b>ATA - AWZ</b></li>
+                        <li><b>VTA - VWZ</b> (The VU block comes from this)</li>
+                        <li><b>8TA - 8YZ</b></li>
+                    </ul>
+                `
+            },
+            {
+                title: "Standard Frequency and Time Signals Services",
+                content: `
+                    <p>These services provide synchronized time and a stable frequency reference across the world (e.g., for setting your radio's clock).</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-gray-300">
+                        <li><b>WWV</b> & <b>WWVH:</b> Operated by the USA (NIST).</li>
+                        <li><b>CHU:</b> Operated by Canada.</li>
+                        <li><b>ATA:</b> Operated by **India** (National Physical Laboratory, New Delhi).</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Q-Codes: The Full List (Syllabus)",
+                content: `
+                    <p>Here are the Q-Codes you are required to know for the exam. They are a fast way to exchange common information.</p>
+                    <div class="simple-list mt-3">
+                        <div class="simple-list-item"><b>QRA:</b> What is the name of your station?</div>
+                        <div class="simple-list-item"><b>QRG:</b> What is my exact frequency?</div>
+                        <div class="simple-list-item"><b>QRH:</b> Does my frequency vary?</div>
+                        <div class="simple-list-item"><b>QRI:</b> How is my tone? (1-3)</div>
+                        <div class="simple-list-item"><b>QRK:</b> What is my readability? (1-5)</div>
+                        <div class="simple-list-item"><b>QRL:</b> Are you busy? (I am busy)</div>
+                        <div class="simple-list-item"><b>QRM:</b> Are you being interfered with? (Man-made)</div>
+                        <div class="simple-list-item"><b>QRN:</b> Are you troubled by static? (Natural)</div>
+                        <div class="simple-list-item"><b>QRO:</b> Shall I increase power?</div>
+                        <div class="simple-list-item"><b>QRS:</b> Shall I send more slowly?</div>
+                        <div class="simple-list-item"><b>QRT:</b> Shall I stop sending?</div>
+                        <div class="simple-list-item"><b>QRU:</b> Have you anything for me? (No)</div>
+                        <div class="simple-list-item"><b>QRV:</b> Are you ready?</div>
+                        <div class="simple-list-item"><b>QRW:</b> Shall I inform... you are calling?</div>
+                        <div class="simple-list-item"><b>QRX:</b> When will you call again? (Stand by)</div>
+                        <div class="simple-list-item"><b>QRZ:</b> Who is calling me?</div>
+                        <div class="simple-list-item"><b>QSA:</b> What is my signal strength? (1-5)</div>
+                        <div class="simple-list-item"><b>QSB:</b> Are my signals fading?</div>
+                        <div class="simple-list-item"><b>QSL:</b> Can you acknowledge receipt? (I acknowledge)</div>
+                        <div class="simple-list-item"><b>QSO:</b> Can you communicate with...?</div>
+                        <div class="simple-list-item"><b>QSU:</b> Shall I reply on this frequency?</div>
+                        <div class="simple-list-item"><b>QSV:</b> Shall I send 'V's? (For test)</div>
+                        <div class="simple-list-item"><b>QSW:</b> Will you send on this frequency?</div>
+                        <div class="simple-list-item"><b>QSX:</b> Will you listen to... on...?</div>
+                        <div class="simple-list-item"><b>QSY:</b> Shall I change frequency?</div>
+                        <div class="simple-list-item"><b>QSZ:</b> Shall I send each word twice?</div>
+                        <div class="simple-list-item"><b>QTC:</b> How many messages to send?</div>
+                        <div class="simple-list-item"><b>QTH:</b> What is your location?</div>
+                        <div class="simple-list-item"><b>QTR:</b> What is the correct time?</div>
+                        <div class="simple-list-item"><b>QUM:</b> Is the distress traffic over?</div>
+                    </div>
+                `
+            },
+            {
+                title: "Common Abbreviations (CW & Voice)",
+                content: `
+                    <p>These abbreviations are used to speed up conversations, especially in Morse Code (CW).</p>
+                    <div class="simple-list mt-3">
+                        <div class="simple-list-item"><b>AA:</b> All after</div>
+                        <div class="simple-list-item"><b>AB:</b> All before</div>
+                        <div class="simple-list-item"><b>AR:</b> End of message (End of transmission)</div>
+                        <div class="simple-list-item"><b>AS:</b> Wait / Stand by</div>
+                        <div class="simple-list-item"><b>C:</b> Yes / Correct</div>
+                        <div class="simple-list-item"><b>CFM:</b> Confirm</div>
+                        <div class="simple-list-item"><b>CL:</b> Closing down station</div>
+                        <div class="simple-list-item"><b>CQ:</b> Calling any station</div>
+                        <div class="simple-list-item"><b>DE:</b> From (e.g., "VU2XYZ DE VU3ABC")</div>
+                        <div class="simple-list-item"><b>K:</b> Go ahead and transmit (Over)</div>
+                        <div class="simple-list-item"><b>NIL:</b> Nothing</div>
+                        <div class="simple-list-item"><b>OK:</b> Correct / Agreed</div>
+                        <div class="simple-list-item"><b>R:</b> Received (Roger)</div>
+                        <div class="simple-list-item"><b>TU:</b> Thank You</div>
+                        <div class="simple-list-item"><b>VA:</b> End of work (Signing off - SK)</div>
+                        <div class="simple-list-item"><b>WA:</b> Word after</div>
+                        <div class="simple-list-item"><b>WB:</b> Word before</div>
+                    </div>
+                `
+            },
+            {
+                title: "The Phonetic Alphabet (ITU Appendix 14)",
+                content: `
+                    <p>To avoid confusion, especially in noisy conditions, we use the International Phonetic Alphabet (Appendix 14). This is mandatory knowledge!</p>
+                    <div class="phonetic-table mt-4">
+                        <div class="phonetic-item"><div class="phonetic-letter">A</div><div class="phonetic-word">Alfa</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">B</div><div class="phonetic-word">Bravo</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">C</div><div class="phonetic-word">Charlie</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">D</div><div class="phonetic-word">Delta</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">E</div><div class="phonetic-word">Echo</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">F</div><div class="phonetic-word">Foxtrot</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">G</div><div class="phonetic-word">Golf</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">H</div><div class="phonetic-word">Hotel</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">I</div><div class="phonetic-word">India</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">J</div><div class="phonetic-word">Juliett</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">K</div><div class="phonetic-word">Kilo</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">L</div><div class="phonetic-word">Lima</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">M</div><div class="phonetic-word">Mike</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">N</div><div class="phonetic-word">November</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">O</div><div class="phonetic-word">Oscar</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">P</div><div class="phonetic-word">Papa</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">Q</div><div class="phonetic-word">Quebec</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">R</div><div class="phonetic-word">Romeo</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">S</div><div class="phonetic-word">Sierra</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">T</div><div class="phonetic-word">Tango</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">U</div><div class="phonetic-word">Uniform</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">V</div><div class="phonetic-word">Victor</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">W</div><div class="phonetic-word">Whiskey</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">X</div><div class="phonetic-word">X-ray</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">Y</div><div class="phonetic-word">Yankee</div></div>
+                        <div class="phonetic-item"><div class="phonetic-letter">Z</div><div class="phonetic-word">Zulu</div></div>
+                    </div>
+                `
+            }
+        ];
+
+        // 3. Basic Electronics (Part B) Content
+       /* const ELECTRONICS_CONTENT = [
+            {
+                title: "Ohm's Law: The Water Pipe Analogy",
+                content: `
+                    <p>Ohm's Law is the foundation: **$$V = I \times R$$**. It relates Voltage (V), Current (I), and Resistance (R).</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-4 text-gray-300">
+                        <li>**Voltage (V):** Like **Water Pressure**. The force pushing the electrons. Measured in **Volts**.</li>
+                        <li>**Current (I):** Like **Water Flow**. The rate of electron movement. Measured in **Amperes** (Amps).</li>
+                        <li>**Resistance (R):** Like the **Pipe Narrowness**. How much the material opposes flow. Measured in **Ohms** ($$\\Omega$$).</li>
+                    </ul>
+                    <p class="mt-2 font-semibold">If you increase the pressure (V), the flow (I) increases, assuming the pipe (R) stays the same.</p>
+                `
+            },
+            {
+                title: "Capacitors and Inductors (Energy Storage)",
+                content: `
+                    <h4 class="font-semibold text-lg mt-3">Capacitors: The Temporary Battery</h4>
+                    <p>A capacitor stores energy in an **electric field** between two plates. It **blocks DC** current but **passes AC** current. Think of it as a tiny, temporary battery that smooths out voltage spikes.</p>
+                    <p class="mt-2 text-sm text-gray-400">Unit: Farad (F). Reactance (opposition to AC) is inversely proportional to frequency.</p>
+                    <h4 class="font-semibold text-lg mt-3">Inductors: The Magnetic Flywheel</h4>
+                    <p>An inductor (coil of wire) stores energy in a **magnetic field**. It **passes DC** current but **opposes changes in AC** current (reactance increases with frequency). It resists sudden changes in current.</p>
+                    <p class="mt-2 text-sm text-gray-400">Unit: Henry (H). Used in filters and resonant circuits.</p>
+                `
+            },
+            {
+                title: "Resonance in RLC Circuits (The Tuning Sweet Spot)",
+                content: `
+                    <p>A **Resonant Circuit** is an RLC circuit (Resistor, Inductor, Capacitor) where the **capacitive reactance ($$X_C$$)** and the **inductive reactance ($$X_L$$)** are equal, causing them to cancel each other out. This occurs at a single frequency, the **resonant frequency ($$f_r$$)**.</p>
+                    <p class="mt-2 font-semibold">This is how radio receivers and transmitters are 'tuned'—the circuit becomes highly sensitive to energy at the resonant frequency, allowing specific signals to be selected.</p>
+                `
+            },
+        ];*/
+		
+		// ELECTRONICS_CONTENT: using Part A card template — full chapters from Electronics.docx
+const ELECTRONICS_CONTENT = [
+    {
+        title: "CHAPTER 1: ELEMENTARY ELECTRICITY AND MAGNETISM",
+        content: `
+            <h4 class="font-semibold">1. The Structure of Matter</h4>
+            <p>To understand electricity, we must first look at the atomic level:</p>
+            <table class="w-full text-sm mt-2 text-gray-300">
+                <tr><td><b>Particle</b></td><td><b>Location</b></td><td><b>Charge</b></td></tr>
+                <tr><td>Proton</td><td>Nucleus (Central Region)</td><td>Positive (+)</td></tr>
+                <tr><td>Neutron</td><td>Nucleus (Central Region)</td><td>Neutral (No Charge)</td></tr>
+                <tr><td>Electron</td><td>Cloud around Nucleus</td><td>Negative (-)</td></tr>
+            </table>
+            <p class="mt-2">A stable atom has an equal number of electrons and protons (electrically neutral). Valence electrons (outermost shell) are responsible for electrical conduction.</p>
+
+            <h4 class="font-semibold mt-3">2. Fundamental Electrical Quantities</h4>
+            <ul class="list-disc list-inside mt-2 ml-4 text-gray-300">
+                <li><b>Current (I)</b> — Ampere (A): The rate of flow of electric charge (electrons).</li>
+                <li><b>Voltage (E or V)</b> — Volt (V): Electric potential difference causing current flow (EMF).</li>
+                <li><b>Resistance (R)</b> — Ohm (Ω): Opposition to current flow.</li>
+                <li><b>Power (P)</b> — Watt (W): Rate at which electric energy is consumed.</li>
+            </ul>
+
+            <h4 class="font-semibold mt-3">3. Conductors, Insulators, and Semiconductors</h4>
+            <p class="text-gray-300">Conductors (e.g., copper) allow current; Insulators (e.g., rubber) block current; Semiconductors (e.g., silicon) have controllable conductivity.</p>
+
+            <h4 class="font-semibold mt-3">4. Fundamental Electrical Laws</h4>
+            <p class="text-gray-300"><b>Ohm's Law:</b> <code>V = I × R</code>. Power formulas: <code>P = E × I</code>, <code>P = I^2 × R</code>, <code>P = E^2 / R</code>.</p>
+
+            <h4 class="font-semibold mt-3">5. Capacitance and Inductance</h4>
+            <p class="text-gray-300"><b>Capacitance (C)</b> — Farad (F): Stores energy in electric field; blocks DC. <b>Inductance (L)</b> — Henry (H): Stores energy in magnetic field; opposes change in current.</p>
+
+            <h4 class="font-semibold mt-3">6. Circuit Configurations</h4>
+            <p class="text-gray-300">Series/parallel rules for R, L, and C. (Resistors add in series; reciprocals in parallel. Capacitors are the inverse.)</p>
+
+            <h4 class="font-semibold mt-3">7. Elementary Magnetism and Transformers</h4>
+            <p class="text-gray-300">Current creates magnetic fields; changing magnetic field induces EMF. Transformers transfer AC energy; voltage ratio proportional to turn ratio.</p>
+        `
+    },
+    {
+        title: "CHAPTER 2: ELEMENTARY THEORY OF ALTERNATING CURRENTS",
+        content: `
+            <h4 class="font-semibold">1. What is Alternating Current (AC)?</h4>
+            <p class="text-gray-300">AC constantly changes amplitude and reverses direction at regular intervals.</p>
+
+            <h4 class="font-semibold mt-2">2. AC Waveform Parameters</h4>
+            <p class="text-gray-300">Frequency (f) in Hz; Period (T) where T = 1/f.</p>
+
+            <h4 class="font-semibold mt-2">3. AC Voltage and Current Values</h4>
+            <p class="text-gray-300">Peak value Vp and RMS value Vrms (Vrms = 0.707 × Vp).</p>
+
+            <h4 class="font-semibold mt-2">4. Phase and Phase Difference</h4>
+            <p class="text-gray-300">ELI the ICE man mnemonic: In inductors E leads I; in capacitors I leads E; resistors: E and I in phase.</p>
+
+            <h4 class="font-semibold mt-2">5. Reactance and Impedance</h4>
+            <p class="text-gray-300">Inductive reactance XL = 2πfL; Capacitive reactance XC = 1/(2πfC). Impedance Z = √(R^2 + (XL − XC)^2).</p>
+
+            <h4 class="font-semibold mt-2">6. Resonance and Q-Factor</h4>
+            <p class="text-gray-300">Resonance when XL = XC; f_r = 1/(2π√(LC)). Q = XL/R (selectivity measure).</p>
+        `
+    },
+    {
+        title: "CHAPTER 3: DIODES AND TRANSISTORS - PROPERTIES AND USE",
+        content: `
+            <h4 class="font-semibold">1. Semiconductors and Doping</h4>
+            <p class="text-gray-300">Semiconductors like silicon and germanium; doping creates P-type (holes) and N-type (electrons).</p>
+
+            <h4 class="font-semibold mt-2">2. Diodes (P-N Junctions)</h4>
+            <p class="text-gray-300">Diode permits current one way. Forward bias conducts; reverse bias blocks. Uses include rectification and detection.</p>
+
+            <h4 class="font-semibold mt-2">3. Bipolar Junction Transistors (BJTs)</h4>
+            <p class="text-gray-300">Transistors (Emitter-Base-Collector) amplify or switch. Small base current controls large collector current.</p>
+        `
+    },
+    {
+        title: "CHAPTER 4: RADIO RECEIVERS",
+        content: `
+            <h4 class="font-semibold">1. Fundamentals of Radio Reception</h4>
+            <p class="text-gray-300">A receiver captures radio waves, selects frequency, amplifies, demodulates and outputs audio.</p>
+
+            <h4 class="font-semibold mt-2">2. Tuning and Selectivity</h4>
+            <p class="text-gray-300">Tuning adjusts resonant L-C circuits; selectivity is ability to reject nearby signals; sensitivity is ability to amplify weak signals.</p>
+
+            <h4 class="font-semibold mt-2">3. Modulation Techniques</h4>
+            <p class="text-gray-300">AM, SSB (J3E), FM, PM and digital modes like PSK/QAM.</p>
+
+            <h4 class="font-semibold mt-2">4. Basic Receiver Architectures</h4>
+            <p class="text-gray-300">Crystal set (no power), Superheterodyne (most common) uses IF conversion for stable selectivity.</p>
+        `
+    },
+    {
+        title: "CHAPTER 5: RADIO TRANSMITTERS",
+        content: `
+            <h4 class="font-semibold">1. Transmitter Function and Components</h4>
+            <p class="text-gray-300">Transmitter generates carrier (oscillator), modulates with information, amplifies, and radiates via antenna.</p>
+
+            <h4 class="font-semibold mt-2">2. The Oscillator</h4>
+            <p class="text-gray-300">Oscillator converts DC to periodic AC at audio or RF frequencies.</p>
+
+            <h4 class="font-semibold mt-2">3. Modulator & Amplifier</h4>
+            <p class="text-gray-300">Modulator imposes information on carrier (AM/SSB/FM). RF amplifiers increase power for transmission.</p>
+        `
+    },
+    {
+        title: "CHAPTER 6: RADIO WAVE PROPAGATION",
+        content: `
+            <h4 class="font-semibold">1. The Electromagnetic Spectrum and Velocity</h4>
+            <p class="text-gray-300">Radio waves travel at ~3×10^8 m/s. Relationship λ = V/f.</p>
+
+            <h4 class="font-semibold mt-2">2. Modes of Propagation</h4>
+            <p class="text-gray-300">Ground wave (LF/MF), Sky wave (HF via ionosphere), Space wave (VHF/UHF line-of-sight).</p>
+
+            <h4 class="font-semibold mt-2">3. The Ionosphere</h4>
+            <p class="text-gray-300">D, E, F layers; F layer critical for HF long distance; daytime/nighttime behavior affects propagation.</p>
+
+            <h4 class="font-semibold mt-2">4. Test & Measurement Equipment</h4>
+            <p class="text-gray-300">Frequency counter, SWR meter, field strength meter — their purposes described.</p>
+        `
+    },
+    {
+        title: "CHAPTER 7: FARADAY'S LAW AND TRANSFORMERS",
+        content: `
+            <h4 class="font-semibold">1. Faraday's Law of Electromagnetic Induction</h4>
+            <p class="text-gray-300">Changing magnetic flux induces EMF in a coil. Principle behind motors, generators, transformers.</p>
+
+            <h4 class="font-semibold mt-2">2. Transformers</h4>
+            <p class="text-gray-300">Transformers transfer energy via induction. They work only with AC. Voltage ratio Vs/Vp = Ns/Np. Ideal transformer is lossless.</p>
+
+            <h4 class="font-semibold mt-2">3. Construction and Losses</h4>
+            <p class="text-gray-300">Cores use laminations to reduce eddy currents; insulation to prevent shorting; real transformers have losses.</p>
+
+            <h4 class="font-semibold mt-3">Practice Questions (Self-Check)</h4>
+            <ol class="list-decimal list-inside ml-4 text-gray-300">
+                <li>What happens to current in a series circuit if source voltage is doubled and resistance unchanged? — It doubles (Ohm's Law).</li>
+                <li>30 VAC, designed for 6 A; resistance suddenly becomes 2 Ω — what happens to fuse? — Fuse blows (current rises to 15 A).</li>
+                <li>How many watts are in 100 microwatts? — 0.1 milliwatts.</li>
+                <li>Main purpose of diode in power supply? — Rectification.</li>
+                <li>Typical material for P-type semiconductor? — Trivalent impurity like Boron.</li>
+                <li>Primary advantage of superheterodyne receiver? — Stable, high selectivity via IF conversion.</li>
+            </ol>
+        `
+    }
+];
+
+        // 4. Quiz Questions (Mixed Part A & B)
+        // *** ADDED NEW QUESTIONS FROM SYLLABUS ***
+        const QUIZ_QUESTIONS = [
+            {
+                category: 'rules',
+                question: "What Q-code is used to ask 'Who is calling me?'",
+                options: ["QSY", "QRZ", "QRL", "QTH"],
+                answer: "QRZ",
+                explanation: "QRZ specifically means 'Who is calling me?' or 'You are being called by...'. QSY is for changing frequency, QRL for being busy, and QTH for location."
+            },
+            {
+                category: 'electronics',
+                question: "What is the unit of measure for electrical resistance?",
+                options: ["Ampere", "Volt", "Watt", "Ohm"],
+                answer: "Ohm",
+                explanation: "Resistance is measured in Ohms ($$\\Omega$$), representing the opposition to current flow. Volts measure Voltage (pressure), Amperes measure Current (flow), and Watts measure Power."
+            },
+            {
+                category: 'rules',
+                question: "What does the Q-code 'QTH' mean?",
+                options: ["What is the time?", "What is your location?", "Are you busy?", "Shall I change frequency?"],
+                answer: "What is your location?",
+                explanation: "QTH is the Q-code for 'What is your position/location?' (or 'My location is...')."
+            },
+            {
+                category: 'electronics',
+                question: "An inductor stores energy in which type of field?",
+                options: ["Thermal field", "Electric field", "Magnetic field", "Gravitational field"],
+                answer: "Magnetic field",
+                explanation: "Inductors store energy by creating a magnetic field when current flows through the coil. Capacitors store energy in an electric field."
+            },
+            {
+                category: 'rules',
+                question: "What is the frequency range for the HF (High Frequency) band according to ITU Art. 2?",
+                options: ["30 - 300 MHz", "3 - 30 MHz", "300 - 3000 kHz", "300 - 3000 MHz"],
+                answer: "3 - 30 MHz",
+                explanation: "The HF band, where most long-distance amateur radio operates, is defined as 3 to 30 MegaHertz."
+            },
+            {
+                category: 'electronics',
+                question: "In a series R-L-C circuit, what condition defines resonance?",
+                options: ["Resistance equals Impedance.", "Inductive reactance (XL) is half the capacitive reactance (XC).", "XL equals XC.", "Voltage equals Current."],
+                answer: "XL equals XC.",
+                explanation: "Resonance occurs when the inductive reactance ($$X_L$$) exactly cancels out the capacitive reactance ($$X_C$$), leading to a minimum impedance (in a series circuit)."
+            },
+            {
+                category: 'rules',
+                question: "Which call sign prefix block is allocated to India (ITU App. 42)?",
+                options: ["USA - USZ", "GTA - GUZ", "VTA - VWZ", "F1A - F9Z"],
+                answer: "VTA - VWZ",
+                explanation: "India is allocated `ATA-AWZ`, `VTA-VWZ`, and `8TA-8YZ`. This is why our call signs start with `VU`."
+            },
+            {
+                category: 'electronics',
+                question: "According to Ohm's law, if resistance (R) is kept constant and voltage (V) is doubled, the current (I) will:",
+                options: ["Be halved.", "Remain the same.", "Be doubled.", "Be squared."],
+                answer: "Be doubled.",
+                explanation: "Ohm's Law is $$V = I \times R$$. If V doubles and R is constant, I must also double ($$I = V/R$$)."
+            },
+            {
+                category: 'rules',
+                question: "What is the emergency signal for 'Urgency' (a serious situation, but not immediate danger)?",
+                options: ["MAYDAY, MAYDAY, MAYDAY", "PAN PAN, PAN PAN, PAN PAN", "SECURITE, SECURITE, SECURITE", "BREAK, BREAK, BREAK"],
+                answer: "PAN PAN, PAN PAN, PAN PAN",
+                explanation: "The 'Urgency' signal is PAN PAN. 'MAYDAY' is for 'Distress' (immediate danger), and 'SECURITE' is for 'Safety' (navigational or weather warnings)."
+            },
+            {
+                category: 'rules',
+                question: "The Q-signal to ask 'Are you troubled by static?' is:",
+                options: ["QRM", "QRN", "QSB", "QTH"],
+                answer: "QRN",
+                explanation: "QRN is the code for natural interference (static). QRM is for man-made interference."
+            },
+            {
+                category: 'rules',
+                question: "What does the emission designation 'J3E' mean?",
+                options: ["FM Voice", "CW (Morse Code)", "SSB Voice", "AM Voice"],
+                answer: "SSB Voice",
+                explanation: "J = Single Sideband, 3 = Analogue (voice), E = Telephony (voice). Therefore, J3E is SSB voice."
+            },
+            {
+                category: 'rules',
+                question: "What does the abbreviation 'AR' mean in a CW contact?",
+                options: ["All received", "End of message", "Wait", "All correct"],
+                answer: "End of message",
+                explanation: "'AR' is the procedural signal to indicate the end of a specific message, before handing it over."
+            },
+            {
+                category: 'electronics',
+                question: "Which component is used to **block DC** current while allowing AC current to pass?",
+                options: ["Resistor", "Inductor", "Capacitor", "Diode"],
+                answer: "Capacitor",
+                explanation: "A capacitor acts as an open circuit to DC (blocking it) and its reactance decreases with increasing frequency (allowing AC to pass). An inductor does the opposite."
+            },
+            {
+                category: 'rules',
+                question: "What is the absolute highest priority emergency signal?",
+                options: ["PAN PAN", "SECURITE", "MAYDAY", "SOS"],
+                answer: "MAYDAY",
+                explanation: "MAYDAY is the distress signal for grave and imminent danger. It has absolute priority over all other communications."
+            },
+            {
+                category: 'rules',
+                question: "How long must you preserve your amateur station logbook?",
+                options: ["For 6 months.", "For 1 year from the date of the last entry.", "For 5 years.", "Indefinitely."],
+                answer: "For 1 year from the date of the last entry.",
+                explanation: "According to Annexure I, Sec VI of the 1978 rules, the log must be preserved for a period of one year from the date of the last entry."
+            },
+             {
+                category: 'rules',
+                question: "What does the Q-code 'QTR' mean?",
+                options: ["What is your location?", "What is the correct time?", "Are you ready?", "Shall I stop sending?"],
+                answer: "What is the correct time?",
+                explanation: "QTR is the Q-code for 'What is the correct time?'"
+            },
+             {
+                category: 'rules',
+                question: "Which station provides the 'ATA' standard time signal service?",
+                options: ["USA", "Canada", "India", "Russia"],
+                answer: "India",
+                explanation: "ATA is the call sign for India's standard time and frequency signal service, broadcast from the National Physical Laboratory in New Delhi."
+            },
+			// Chapter 1 (6 questions)
+{category:'electronics', chapter:1, question:"What is the unit of electrical resistance?", options:["Volt","Ohm","Ampere","Watt"], answer:"Ohm", explanation:"Resistance is measured in Ohms (Ω)."},
+{category:'electronics', chapter:1, question:"Which particle carries negative charge in an atom?", options:["Proton","Neutron","Electron","Photon"], answer:"Electron", explanation:"Electrons carry negative charge."},
+{category:'electronics', chapter:1, question:"Ohm's law is written as which equation?", options:["V = I × R","I = V × R","P = VI","V = IR^2"], answer:"V = I × R", explanation:"Ohm's law relates voltage, current and resistance."},
+{category:'electronics', chapter:1, question:"Which component stores energy in an electric field?", options:["Inductor","Capacitor","Resistor","Transformer"], answer:"Capacitor", explanation:"Capacitors store energy in an electric field."},
+{category:'electronics', chapter:1, question:"Which material is a good conductor?", options:["Rubber","Glass","Copper","Air"], answer:"Copper", explanation:"Copper is a common conductor."},
+{category:'electronics', chapter:1, question:"Power dissipated in a resistor can be calculated by which formula?", options:["P = V × I","P = R/I","P = V^2 × I","P = I^3 R"], answer:"P = V × I", explanation:"Power = voltage × current."},
+
+// Chapter 2 (6 questions)
+{category:'electronics', chapter:2, question:"What is the relationship between frequency f and period T?", options:["T = f","T = 1/f","f = 2πT","f = T^2"], answer:"T = 1/f", explanation:"Period is inverse of frequency."},
+{category:'electronics', chapter:2, question:"Inductive reactance XL equals which expression?", options:["XL = 1/(2πfL)","XL = 2πfL","XL = R/L","XL = L/(2πf)"], answer:"XL = 2πfL", explanation:"Inductive reactance increases with frequency."},
+{category:'electronics', chapter:2, question:"Capacitive reactance XC equals which expression?", options:["XC = 2πfC","XC = 1/(2πfC)","XC = R × C","XC = f/(2πC)"], answer:"XC = 1/(2πfC)", explanation:"Capacitive reactance decreases with frequency."},
+{category:'electronics', chapter:2, question:"Resonance in an RLC circuit occurs when which condition holds?", options:["R = 0","XL = XC","V = I","Q = 0"], answer:"XL = XC", explanation:"At resonance inductive and capacitive reactances cancel."},
+{category:'electronics', chapter:2, question:"RMS voltage relates to peak voltage by which factor?", options:["0.5","0.707","1.414","2"], answer:"0.707", explanation:"Vrms = 0.707 × Vpeak for a sine wave."},
+{category:'electronics', chapter:2, question:"Impedance Z of a circuit combining R and reactance is given by which formula?", options:["Z = R + X","Z = √(R^2 + (XL − XC)^2)","Z = R × X","Z = (XL + XC)/R"], answer:"Z = √(R^2 + (XL − XC)^2)", explanation:"Impedance combines resistance and reactance."},
+
+// Chapter 3 (6 questions)
+{category:'electronics', chapter:3, question:"A P-N junction diode allows current to flow in which direction?", options:["Both directions equally","Only from P to N (forward)","Only from N to P in reverse","Neither direction"], answer:"Only from P to N (forward)", explanation:"Diodes conduct when forward biased."},
+{category:'electronics', chapter:3, question:"What does 'doping' a semiconductor mean?", options:["Removing impurities","Adding impurities to change conductivity","Melting the material","Cooling the crystal"], answer:"Adding impurities to change conductivity", explanation:"Doping introduces donor or acceptor atoms."},
+{category:'electronics', chapter:3, question:"Which part of a BJT controls the collector current?", options:["Emitter","Base","Collector","Substrate"], answer:"Base", explanation:"A small base current controls a larger collector current."},
+{category:'electronics', chapter:3, question:"Which device is typically used for rectification in a power supply?", options:["Transistor","Diode","Inductor","Capacitor"], answer:"Diode", explanation:"Diodes convert AC to DC by rectification."},
+{category:'electronics', chapter:3, question:"An N-type semiconductor has majority carriers that are which?", options:["Holes","Electrons","Protons","Neutrons"], answer:"Electrons", explanation:"N-type has excess free electrons."},
+{category:'electronics', chapter:3, question:"A transistor used as a switch operates in which region?", options:["Active region","Saturation and cut-off","Reverse breakdown","Linear region"], answer:"Saturation and cut-off", explanation:"In switching, transistor toggles between cut-off and saturation."},
+
+// Chapter 4 (3 questions)
+{category:'electronics', chapter:4, question:"Which receiver architecture converts incoming signals to an intermediate frequency (IF)?", options:["Crystal receiver","Superheterodyne","Direct conversion","Digital only"], answer:"Superheterodyne", explanation:"Superhet uses IF for stable selectivity."},
+{category:'electronics', chapter:4, question:"What is selectivity in a radio receiver?", options:["Ability to amplify weak signals","Ability to reject nearby frequencies","Ability to transmit","Ability to change frequency quickly"], answer:"Ability to reject nearby frequencies", explanation:"Selectivity separates desired signal from others."},
+{category:'electronics', chapter:4, question:"Single-Sideband (SSB) is efficient because it does what?", options:["Uses both sidebands","Suppresses carrier and one sideband","Increases bandwidth","Uses more power"], answer:"Suppresses carrier and one sideband", explanation:"SSB saves power and bandwidth by removing carrier and one sideband."},
+
+// Chapter 5 (3 questions)
+{category:'electronics', chapter:5, question:"The primary function of an oscillator in a transmitter is to produce what?", options:["DC power","A stable periodic carrier signal","Audio only","Antenna impedance"], answer:"A stable periodic carrier signal", explanation:"Oscillator generates the RF carrier."},
+{category:'electronics', chapter:5, question:"What component increases the power level of a modulated RF signal before transmission?", options:["Antenna","RF Power Amplifier","Oscillator","Mixer"], answer:"RF Power Amplifier", explanation:"The RF power amplifier boosts signal power for transmission."},
+{category:'electronics', chapter:5, question:"Modulation is the process of:" , options:["Converting DC to AC","Adding information onto a carrier","Measuring frequency","Tuning an antenna"], answer:"Adding information onto a carrier", explanation:"Modulation imposes info on the carrier (AM/FM/SSB)."},
+
+// Chapter 6 (3 questions)
+{category:'electronics', chapter:6, question:"Which propagation mode is mainly responsible for long-distance HF communication?", options:["Space wave","Ground wave","Sky wave (ionospheric)","Surface wave"], answer:"Sky wave (ionospheric)", explanation:"Sky wave refracted by ionosphere enables long-distance HF contacts."},
+{category:'electronics', chapter:6, question:"The ionospheric layer most responsible for HF long-distance refraction is which?", options:["D layer","E layer","F layer","Troposphere"], answer:"F layer", explanation:"F layer refracts HF signals for long-distance propagation."},
+{category:'electronics', chapter:6, question:"Line-of-sight VHF/UHF signals primarily use which propagation?", options:["Sky wave","Space wave","Ground wave","Ionospheric"], answer:"Space wave", explanation:"VHF/UHF are mainly line-of-sight (space wave)."},
+
+// Chapter 7 (2 questions)
+{category:'electronics', chapter:7, question:"A transformer cannot operate on which type of current?", options:["AC","Pulsating DC","DC","High-frequency AC"], answer:"DC", explanation:"Transformers require changing flux — DC produces none."},
+{category:'electronics', chapter:7, question:"The voltage ratio of an ideal transformer equals which ratio?", options:["Np/Ns","Ns/Np","Vp/Vs","Ns × Np"], answer:"Ns/Np", explanation:"Vs/Vp = Ns/Np (turns ratio)."}
+        ];
+
+        // --- GLOBAL APP STATE & SERVICES ---
+
+        // State for managing sections
+        let activeSection = 'morse';
+
+        // State for Quiz
+        let quizState = {
+            questions: [],
+            currentQuestionIndex: 0,
+            score: 0,
+            userAnswer: null,
+            isAnswered: false,
+        };
+
+        // Morse Code Audio Generator (Tone.js)
+        const MORSE_SPEED = 12; // 12 WPM (WPM = words per minute)
+        const FREQUENCY = 800; // 800 Hz tone
+        const DIT_LENGTH = 1.2 / MORSE_SPEED; // Basic unit length (seconds)
+
+        // Setup Tone.js (lazy load synth)
+        let morseSynth = null;
+        async function getMorseSynth() {
+            if (morseSynth === null) {
+                await Tone.start(); // Necessary for audio context in browsers
+                morseSynth = new Tone.Oscillator(FREQUENCY, "sine").toDestination();
+            }
+            return morseSynth;
+        }
+
+        // --- CORE UI FUNCTIONS ---
+
+        /**
+         * Switches the active content section.
+         * @param {string} sectionId - The ID of the section to show.
+         */
+        function showSection(sectionId) {
+            activeSection = sectionId;
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-button').forEach(button => {
+                const target = button.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (target === sectionId) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            // Specific action for quiz section
+            if (sectionId === 'quiz') {
+                resetQuizSetup();
+            }
+        }
+
+        /**
+         * Dynamically generates the content for the Rules and Electronics sections.
+         */
+        function renderStudyContent() {
+            const rulesContainer = document.getElementById('rules-content');
+            rulesContainer.innerHTML = RULES_CONTENT.map(item => `
+                <div class="card p-5">
+                    <h3 class="text-2xl font-bold text-gray-100 mb-3 border-b border-gray-600 pb-1">${item.title}</h3>
+                    <div class="text-gray-300">${item.content}</div>
+                </div>
+            `).join('');
+
+            const electronicsContainer = document.getElementById('electronics-content');
+            electronicsContainer.innerHTML = ELECTRONICS_CONTENT.map(item => `
+                <div class="card p-5">
+                    <h3 class="text-2xl font-bold text-gray-100 mb-3 border-b border-gray-600 pb-1">${item.title}</h3>
+                    <div class="text-gray-300">${item.content}</div>
+                </div>
+            `).join('');
+        }
+
+        // --- MORSE CODE LOGIC ---
+
+        /**
+         * Generates the Morse code output string.
+         
+        function updateMorseOutput() {
+            const input = document.getElementById('morse-input').value.toUpperCase();
+            const outputDiv = document.getElementById('morse-output');
+            let morseString = '';
+
+            for (const char of input) {
+                const code = MORSE_MAP[char];
+                if (code) {
+                    morseString += code === ' ' ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' : `<span class="dot-dash">${code}</span> `;
+                }
+            }
+
+            outputDiv.innerHTML = morseString || '...Enter text to see the Morse equivalent...';
+        }
+*/
+        /**
+         * Plays the Morse code using Tone.js.
+         *//*
+        async function playMorseCode() {
+            const input = document.getElementById('morse-input').value.toUpperCase();
+            const synth = await getMorseSynth();
+            const sequence = [];
+
+            for (const char of input) {
+                const code = MORSE_MAP[char];
+                if (code) {
+                    for (const signal of code) {
+                        if (signal === '.') {
+                            sequence.push({ time: DIT_LENGTH, duration: DIT_LENGTH, type: 'dit' });
+                        } else if (signal === '-') {
+                            sequence.push({ time: DIT_LENGTH * 3, duration: DIT_LENGTH * 3, type: 'dah' });
+                        }
+                    }
+                    // Inter-character space (1 dit length)
+                    sequence.push({ time: DIT_LENGTH, duration: 0, type: 'space' });
+                } else if (char === ' ') {
+                    // Inter-word space (7 dit lengths total, we already added 1 inter-char space, so add 6 more)
+                    sequence.push({ time: DIT_LENGTH * 6, duration: 0, type: 'space' });
+                }
+            }
+
+            // Scheduling
+            let startTime = Tone.now();
+            synth.start(); // Start the oscillator
+
+            for (const item of sequence) {
+                if (item.duration > 0) {
+                    synth.triggerAttackRelease(FREQUENCY, item.duration, startTime);
+                    startTime += item.time;
+                } else {
+                    startTime += item.time;
+                }
+            }
+
+            // Stop the oscillator after the sequence ends
+            setTimeout(() => {
+                synth.stop();
+            }, (startTime - Tone.now() + 0.1) * 1000); // Add a small buffer
+
+        }
+*/
+        /**
+         * Renders the static Morse Code chart.
+         */
+        function renderMorseChart() {
+            const chartContainer = document.getElementById('morse-chart');
+            const items = Object.entries(MORSE_MAP)
+                .filter(([char, code]) => char.match(/[A-Z0-9]/) && code !== ' ')
+                .map(([char, code]) => `
+                    <div class="p-2 border border-gray-700 rounded-md bg-gray-700 hover:bg-gray-600 transition">
+                        <div class="text-3xl font-bold text-gray-100">${char}</div>
+                        <div class="dot-dash text-lg mt-1">${code}</div>
+                    </div>
+                `).join('');
+            chartContainer.innerHTML = items;
+        }
+		
+
+
+
+        // --- QUIZ LOGIC ---
+
+        function startQuiz() {
+            const category = document.getElementById('quiz-category').value;
+            const count = parseInt(document.getElementById('quiz-count').value, 10);
+
+            let availableQuestions = QUIZ_QUESTIONS;
+
+            if (category !== 'mixed') {
+                availableQuestions = QUIZ_QUESTIONS.filter(q => q.category === category);
+            }
+
+            // Shuffle and select questions
+            const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+            quizState.questions = shuffled.slice(0, count);
+
+            // Initialize state
+            quizState.currentQuestionIndex = 0;
+            quizState.score = 0;
+            quizState.userAnswer = null;
+            quizState.isAnswered = false;
+
+            // Update UI visibility
+            document.getElementById('quiz-setup').classList.add('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-active').classList.remove('hidden');
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (quizState.currentQuestionIndex >= quizState.questions.length) {
+                showResults();
+                return;
+            }
+
+            const currentQ = quizState.questions[quizState.currentQuestionIndex];
+            const optionsContainer = document.getElementById('options-container');
+            const shuffledOptions = currentQ.options.sort(() => 0.5 - Math.random()); // Shuffle options
+
+            document.getElementById('question-number').textContent = `Question ${quizState.currentQuestionIndex + 1} of ${quizState.questions.length}`;
+            document.getElementById('question-text').textContent = currentQ.question;
+            document.getElementById('feedback-card').classList.add('hidden');
+            document.getElementById('submit-btn').textContent = 'Submit Answer';
+            document.getElementById('submit-btn').disabled = true;
+
+            // Update progress/score display
+            document.getElementById('total-questions').textContent = quizState.questions.length;
+            document.getElementById('current-score').textContent = quizState.score;
+            document.getElementById('current-progress').textContent = quizState.currentQuestionIndex + 1;
+            document.getElementById('total-progress').textContent = quizState.questions.length;
+
+            optionsContainer.innerHTML = shuffledOptions.map((option, index) => `
+                <label class="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:bg-gray-700 transition quiz-option-label" data-option="${option}">
+                    <input type="radio" name="quiz-option" value="${option}" class="w-4 h-4 text-blue-500 focus:ring-blue-500 bg-gray-600" onclick="selectOption('${option}')">
+                    <span class="ml-3 text-gray-200 font-medium">${option}</span>
+                </label>
+            `).join('');
+
+            quizState.isAnswered = false;
+            quizState.userAnswer = null;
+        }
+
+        function selectOption(option) {
+            quizState.userAnswer = option;
+            document.getElementById('submit-btn').disabled = false;
+        }
+
+        function submitAnswer() {
+            if (!quizState.userAnswer || quizState.isAnswered) {
+                if (quizState.isAnswered) {
+                    // If already answered, move to next question
+                    quizState.currentQuestionIndex++;
+                    renderQuestion();
+                }
+                return;
+            }
+
+            quizState.isAnswered = true;
+            const currentQ = quizState.questions[quizState.currentQuestionIndex];
+            const isCorrect = quizState.userAnswer === currentQ.answer;
+            const allOptionLabels = document.querySelectorAll('.quiz-option-label');
+            const feedbackCard = document.getElementById('feedback-card');
+
+            // Disable all radio buttons
+            document.querySelectorAll('input[name="quiz-option"]').forEach(input => input.disabled = true);
+            document.getElementById('submit-btn').textContent = 'Next Question →';
+
+            // Reset feedback card classes
+            feedbackCard.classList.remove('bg-green-900', 'border-green-400', 'text-green-300', 'bg-red-900', 'border-red-400', 'text-red-300', 'bg-yellow-900', 'border-yellow-400', 'text-yellow-300');
+
+
+            if (isCorrect) {
+                quizState.score++;
+                document.getElementById('current-score').textContent = quizState.score; // Update score immediately
+
+                // Visual feedback for correct answer
+                allOptionLabels.forEach(label => {
+                    if (label.dataset.option === currentQ.answer) {
+                        label.classList.add('bg-green-900', 'border-green-400');
+                        label.classList.remove('hover:bg-gray-700');
+                    } else {
+                        label.classList.add('opacity-50', 'bg-gray-800');
+                        label.classList.remove('hover:bg-gray-700');
+                    }
+                });
+
+                // Gamified Feedback Message (Modal/Card)
+                document.getElementById('feedback-title').textContent = "✅ Correct! Great Job!";
+                document.getElementById('feedback-explanation').textContent = `You nailed it. This demonstrates a strong grasp of ${currentQ.category === 'rules' ? 'operating procedures' : 'basic electrical theory'}.`;
+                feedbackCard.classList.remove('hidden');
+                feedbackCard.classList.add('bg-green-900', 'border-green-400', 'text-green-300');
+
+            } else {
+                // Visual feedback for wrong answer
+                allOptionLabels.forEach(label => {
+                    if (label.dataset.option === currentQ.answer) {
+                        label.classList.add('bg-green-900', 'border-green-400'); // Correct answer (green)
+                        label.classList.remove('hover:bg-gray-700');
+                    } else if (label.dataset.option === quizState.userAnswer) {
+                        label.classList.add('bg-red-900', 'border-red-400'); // User's wrong answer (red)
+                        label.classList.remove('hover:bg-gray-700');
+                    } else {
+                        label.classList.add('opacity-50', 'bg-gray-800');
+                        label.classList.remove('hover:bg-gray-700');
+                    }
+                });
+
+                // Explanation for wrong answers
+                document.getElementById('feedback-title').textContent = "❌ Incorrect. Here's the concept:";
+                document.getElementById('feedback-explanation').textContent = currentQ.explanation;
+                feedbackCard.classList.remove('hidden');
+                feedbackCard.classList.add('bg-red-900', 'border-red-400', 'text-red-300');
+            }
+
+            // The button will now trigger the move to the next question
+            document.getElementById('submit-btn').disabled = false;
+        }
+
+        function showResults() {
+            const total = quizState.questions.length;
+            const score = quizState.score;
+            const percentage = (score / total) * 100;
+
+            let message = '';
+            if (percentage >= 80) {
+                message = "Excellent work! You're ready to tackle the exam!";
+            } else if (percentage >= 60) {
+                message = "Good attempt! Review the concepts in your weaker areas for a guaranteed pass.";
+            } else {
+                message = "Keep studying! Focus on the theory sections before trying again.";
+            }
+
+            document.getElementById('result-message').textContent = message;
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-total').textContent = total;
+
+            document.getElementById('quiz-active').classList.add('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
+        }
+
+        function resetQuizSetup() {
+            document.getElementById('quiz-setup').classList.remove('hidden');
+            document.getElementById('quiz-active').classList.add('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+        }
+
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            renderMorseChart();
+            renderStudyContent();
+            showSection('morsepractice'); // Start on the Morse Code section
+        };
+    </script>
+	    <script>
+        (function() { // IIFE added to create a new scope for all const/let declarations
+        
+        // --- PWA Service Worker Registration REMOVED to avoid 'blob:' URL protocol error ---
+
+        // --- Core Morse Code Data and Timing Constants ---
+        const MORSE_CODE = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..',
+            'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
+            '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
+            '9': '----.', '0': '-----',
+            '.': '.-.-.-', ',': '--..--', '?': '..--..', '/': '-..-.', ' ': ' '
+        };
+        const REVERSE_MORSE = Object.fromEntries(
+            Object.entries(MORSE_CODE).map(([key, value]) => [value, key])
+        );
+
+        // Morse Timing Standard (Dot time unit, T = 50ms for a fast application)
+        const T = 50; 
+        const FREQUENCY = 700; // Tone frequency in Hz
+        
+        // Keyer Thresholds (for user input to determine dot/dash and spacing)
+        const DASH_THRESHOLD_MS = T * 2.5; // Press time > 125ms is a dash (3T vs 1T)
+        const CHAR_BREAK_MS     = T * 4;   // Wait time > 200ms is a character break (3T)
+        const WORD_BREAK_MS     = T * 8;   // Wait time > 400ms is a word break (7T)
+
+        // --- DOM Elements ---
+        const inputText = document.getElementById('inputText');
+        const playMorseButton = document.getElementById('playMorseButton');
+        const morseSequenceOutput = document.getElementById('morseSequenceOutput');
+        const currentCharacter = document.getElementById('currentCharacter');
+
+        const keyerButton = document.getElementById('keyerButton');
+        const inputMorseDisplay = document.getElementById('inputMorseDisplay');
+        const decodedOutput = document.getElementById('decodedOutput');
+        const clearKeyerButton = document.getElementById('clearKeyerButton');
+        
+        let audioContext;
+        let isPlaying = false;
+        
+        // Variables for Keyer Audio (Transmission)
+        let keyerOscillator = null; 
+        let keyerGainNode = null;
+
+        // --- Web Audio Functions ---
+
+        /** Initializes AudioContext if not already done. */
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        /** Plays a single tone (dot or dash) for reception practice. */
+        function playTone(duration) {
+            return new Promise(resolve => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(FREQUENCY, audioContext.currentTime);
+
+                // Start tone instantly
+                gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+                // Fade out slightly before end to prevent clicks
+                gainNode.gain.linearRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration / 1000);
+
+                // Resolve the promise after the duration plus a small buffer
+                setTimeout(resolve, duration); 
+            });
+        }
+
+        /** Pauses for a specified duration (to represent silence). */
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // --- Reception (Text to Morse) Logic ---
+
+        /** Converts text to Morse and plays the sequence. */
+        async function playMorseCode() {
+            if (isPlaying) return;
+
+            initAudioContext();
+            isPlaying = true;
+            playMorseButton.disabled = true;
+            playMorseButton.textContent = 'Playing... (Click to Stop)';
+
+            const text = inputText.value.toUpperCase().trim();
+            const fullMorseSequence = [];
+            let fullDisplaySequence = "";
+            let stopRequested = false;
+
+            // Stop button functionality
+            const stopListener = () => {
+                stopRequested = true;
+                playMorseButton.textContent = 'Play Morse Code';
+                playMorseButton.disabled = false;
+                playMorseButton.removeEventListener('click', stopListener);
+                playMorseButton.addEventListener('click', playMorseCode);
+                isPlaying = false;
+                morseSequenceOutput.innerHTML = "";
+                currentCharacter.textContent = "";
+            };
+
+            playMorseButton.removeEventListener('click', playMorseCode);
+            playMorseButton.addEventListener('click', stopListener);
+
+
+            try {
+                for (let i = 0; i < text.length && !stopRequested; i++) {
+                    const char = text[i];
+                    const morse = MORSE_CODE[char];
+
+                    if (!morse) continue; // Skip unsupported characters
+
+                    // Update currently playing character visually
+                    currentCharacter.textContent = char === ' ' ? 'SPACE' : char;
+
+                    if (char === ' ') {
+                        // Word break (7T total, but 3T is already between characters, so 4T extra)
+                        fullDisplaySequence += '<span class="text-gray-500 mx-2">/</span>';
+                        morseSequenceOutput.innerHTML = fullDisplaySequence;
+                        await sleep(T * 7);
+                        continue;
+                    }
+
+                    // Inter-character space (3T) - only before the next character
+                    if (i > 0 && text[i-1] !== ' ') {
+                         await sleep(T * 3);
+                    }
+                    
+                    for (let j = 0; j < morse.length && !stopRequested; j++) {
+                        const element = morse[j];
+                        
+                        let duration;
+                        let displayElement;
+                        
+                        if (element === '.') {
+                            duration = T; // Dot duration 1T
+                            displayElement = `<span class="dot text-3xl">.</span>`;
+                        } else { // '-'
+                            duration = T * 3; // Dash duration 3T
+                            displayElement = `<span class="dash text-3xl">-</span>`;
+                        }
+
+                        // Play the tone
+                        await playTone(duration);
+                        
+                        fullDisplaySequence += displayElement;
+                        morseSequenceOutput.innerHTML = fullDisplaySequence;
+
+                        // Intra-element space (1T) - only between elements of the same character
+                        if (j < morse.length - 1) {
+                            await sleep(T);
+                        }
+                    }
+
+                    // Reset character display after it's finished playing
+                    currentCharacter.textContent = '';
+                }
+
+            } catch(e) {
+                console.error("Morse Code Playback Error:", e);
+            } finally {
+                // Ensure UI is reset if playback finishes normally or is stopped
+                if (stopRequested || !isPlaying) return; 
+
+                playMorseButton.textContent = 'Play Morse Code';
+                playMorseButton.disabled = false;
+                isPlaying = false;
+                morseSequenceOutput.innerHTML = fullDisplaySequence;
+                currentCharacter.textContent = "DONE";
+                
+                // Restore original listener
+                playMorseButton.removeEventListener('click', stopListener);
+                playMorseButton.addEventListener('click', playMorseCode);
+            }
+        }
+
+        // --- Transmission (Keyer) Logic ---
+
+        let isKeying = false;
+        let pressStartTime = 0;
+        let lastReleaseTime = 0;
+        let currentMorseSequence = '';
+        let decodedMessage = '';
+        let checkTimeout = null;
+        let keysPressed = {}; // To prevent repeat events
+
+        /** Decodes the current Morse sequence (e.g., '..-') into a character. */
+        function decodeCurrentSequence() {
+            let char = REVERSE_MORSE[currentMorseSequence] || '';
+            if (char) {
+                decodedMessage += char;
+                decodedOutput.textContent = decodedMessage;
+                currentMorseSequence = '';
+            }
+            inputMorseDisplay.textContent = currentMorseSequence || '_';
+        }
+        
+        /** Triggers when key/button is pressed down. */
+        function handleKeyDown() {
+            if (isKeying) return;
+            
+            initAudioContext();
+            
+            // Start Audio
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            if (audioContext && !keyerOscillator) {
+                keyerOscillator = audioContext.createOscillator();
+                keyerGainNode = audioContext.createGain();
+
+                keyerOscillator.connect(keyerGainNode);
+                keyerGainNode.connect(audioContext.destination);
+
+                keyerOscillator.type = 'sine';
+                keyerOscillator.frequency.setValueAtTime(FREQUENCY, audioContext.currentTime);
+                keyerGainNode.gain.setValueAtTime(1, audioContext.currentTime);
+
+                // Start the tone immediately
+                keyerOscillator.start(0);
+            }
+            // End Audio
+
+
+            // Check for inter-word/inter-character breaks
+            const currentTime = Date.now();
+            const waitDuration = currentTime - lastReleaseTime;
+
+            if (lastReleaseTime > 0) {
+                if (waitDuration >= WORD_BREAK_MS) {
+                    // 7T+ wait time: Word Break
+                    decodeCurrentSequence();
+                    decodedMessage += ' ';
+                    decodedOutput.textContent = decodedMessage;
+                    currentMorseSequence = '';
+
+                } else if (waitDuration >= CHAR_BREAK_MS) {
+                    // 3T+ wait time: Character Break
+                    decodeCurrentSequence();
+                }
+            }
+
+            // Clear any pending timeout
+            if (checkTimeout) clearTimeout(checkTimeout);
+            checkTimeout = null;
+
+            isKeying = true;
+            pressStartTime = currentTime;
+            keyerButton.classList.add('bg-sky-500', 'ring-8', 'ring-sky-300');
+        }
+
+        /** Triggers when key/button is released. */
+        function handleKeyUp() {
+            if (!isKeying) return;
+
+            const pressDuration = Date.now() - pressStartTime;
+            isKeying = false;
+            lastReleaseTime = Date.now();
+            keyerButton.classList.remove('bg-sky-500', 'ring-8', 'ring-sky-300');
+            
+            // Stop Audio
+            if (keyerOscillator) {
+                // Quick fade out to prevent clicking noise
+                keyerGainNode.gain.linearRampToValueAtTime(0.001, audioContext.currentTime + 0.01); 
+                
+                // Stop and clean up the oscillator after a tiny delay
+                keyerOscillator.stop(audioContext.currentTime + 0.01); 
+                keyerOscillator.disconnect();
+                
+                keyerOscillator = null;
+                keyerGainNode = null;
+            }
+            // End Audio
+
+
+            let element;
+            if (pressDuration < DASH_THRESHOLD_MS) {
+                // Dot
+                element = '.';
+            } else {
+                // Dash
+                element = '-';
+            }
+
+            currentMorseSequence += element;
+            inputMorseDisplay.textContent = currentMorseSequence;
+
+            // Set a timeout to automatically decode the character
+            checkTimeout = setTimeout(decodeCurrentSequence, CHAR_BREAK_MS + T);
+        }
+        
+        // --- Event Listeners ---
+
+        // 1. Reception Practice
+        playMorseButton.addEventListener('click', playMorseCode);
+
+        // 2. Transmission Practice (Button)
+        keyerButton.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // Prevent text selection
+            handleKeyDown();
+        });
+        keyerButton.addEventListener('mouseup', handleKeyUp);
+        keyerButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleKeyDown();
+        });
+        keyerButton.addEventListener('touchend', handleKeyUp);
+
+        // 2. Transmission Practice (Spacebar Key)
+        document.addEventListener('keydown', (e) => {
+            // Check that the input is not focused to prevent audio when typing
+            if (e.code === 'Space' && !keysPressed[e.code] && document.activeElement !== inputText) {
+                e.preventDefault(); 
+                keysPressed[e.code] = true;
+                handleKeyDown();
+            }
+        });
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space' && document.activeElement !== inputText) {
+                keysPressed[e.code] = false;
+                handleKeyUp();
+            }
+        });
+        
+        // Clear Keyer Button
+        clearKeyerButton.addEventListener('click', () => {
+            currentMorseSequence = '';
+            decodedMessage = '';
+            inputMorseDisplay.textContent = '_';
+            decodedOutput.textContent = '_';
+            if (checkTimeout) clearTimeout(checkTimeout);
+            checkTimeout = null;
+        });
+
+        })(); // End IIFE
+    </script>
+</body>
+</html>
