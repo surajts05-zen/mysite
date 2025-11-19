@@ -123,6 +123,7 @@
             70% { box-shadow: 0 0 0 20px rgba(252, 211, 77, 0); }
             100% { box-shadow: 0 0 0 0 rgba(252, 211, 77, 0); }
         }
+		
     </style>
 </head>
 <body class="p-4 md:p-8 text-gray-100">
@@ -141,6 +142,7 @@
             <button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('rules')">Part A: Rules</button>
             <button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('electronics')">Part B: Electronics</button>
             <button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('quiz')">Quiz Time!</button>
+			<button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('content-morse')">Morse Quiz</button>
 			<button class="tab-button px-4 py-2 text-sm md:text-base rounded-lg transition text-gray-200" onclick="showSection('syllabus')">Syllabus</button>
         </nav>
 
@@ -297,6 +299,7 @@
                             <option value="rules">Part A: Rules & Procedures</option>
                             <option value="electronics">Part B: Basic Electronics</option>
                             <option value="mixed">Mixed (Both Parts)</option>
+							<option value="prosigns">Prosigns & Phonetics</option>
                         </select>
                     </div>
                     <div>
@@ -446,6 +449,114 @@
         </div>
     </div>
 </section>
+<div id="content-morse" class="content-section hidden">
+    <!-- Content for New Morse Quiz -->
+    <div class="card p-6 rounded-xl">
+        <h2 class="text-2xl font-semibold mb-4 text-white">Morse Code Group Quiz</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end">
+            <div>
+                <label for="morse-length" class="block text-sm font-medium text-gray-400 mb-1">Group Length</label>
+                <select id="morse-length" class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
+                    <option value="1">1 Character</option>
+                    <option value="2">2 Characters (Double)</option>
+                    <option value="3">3 Characters (Triple)</option>
+                    <option value="4">4 Characters</option>
+                </select>
+            </div>
+            <div>
+                <label for="morse-mode" class="block text-sm font-medium text-gray-400 mb-1">Quiz Mode</label>
+                <select id="morse-mode" class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
+                    <option value="receive">Receive (Sound -> Type)</option>
+                    <option value="send">Send (Type -> Keyer Tap)</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button id="start-morse-quiz-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">
+                    Start Morse Quiz!
+                </button>
+            </div>
+        </div>
+
+        <!-- Morse Quiz Area -->
+        <div id="morse-quiz-area" class="mt-6 text-center card p-6">
+            <p class="text-center text-gray-400 mb-4" id="morse-message">Select length and mode, then click 'Start Morse Quiz!'</p>
+            
+            <div id="morse-quiz-container" class="hidden">
+                
+                <!-- Common Header & Current Word -->
+                <div class="mb-6">
+                    <p class="text-lg text-gray-400" id="morse-quiz-counter">0/10</p>
+                    <p id="morse-quiz-status" class="text-lg font-medium text-blue-400 mb-4"></p>
+                </div>
+
+                <!-- Receive Mode Elements -->
+                <div id="receive-mode-controls" class="hidden">
+                    <div class="bg-gray-800 p-6 rounded-xl mb-4">
+                        <p class="text-xl font-bold text-secondary mb-4">Listen carefully...</p>
+                        <button id="play-morse-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150">
+                            <svg class="w-6 h-6 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1V8a1 1 0 011-1h1.586l4.137-4.137A2 2 0 0111 3.536v16.928a2 2 0 01-.277 1.137l-4.137-4.137z"></path></svg>
+                            Play Morse
+                        </button>
+                    </div>
+
+                    <label for="morse-input-text" class="block text-sm font-medium text-gray-400 mb-2">Your Answer:</label>
+                    <input type="text" id="morse-input-text" maxlength="4" class="w-full max-w-sm mx-auto p-3 text-2xl text-center rounded-lg bg-gray-800 border border-gray-600 text-white uppercase focus:ring-blue-500 focus:border-blue-500" disabled>
+                    <button id="submit-morse-button" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">
+                        Submit
+                    </button>
+                    <p id="morse-receive-feedback" class="mt-4 text-xl font-bold"></p>
+                </div>
+                
+                <!-- Send Mode Elements -->
+                <div id="send-mode-controls" class="hidden">
+                    <div class="bg-gray-800 p-6 rounded-xl mb-4">
+                        <p class="text-sm font-medium text-gray-400 mb-2">Send the following with the Keyer:</p>
+                        <p id="target-send-text" class="text-5xl font-extrabold text-secondary tracking-widest"></p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <button id="morse-keyer-button" class="keyer-button w-48 h-16 text-2xl font-extrabold text-white rounded-xl mb-4 active:bg-red-700" data-keyer-state="up">
+                            KEY
+                        </button>
+                        <p class="text-gray-400 text-sm mb-4">Spacebar is also enabled for sending.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-center mt-4">
+                        <div class="bg-gray-900 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-400">Your Morse Input</h4>
+                            <p id="morse-send-input-display" class="text-xl font-mono text-yellow-400 truncate overflow-x-auto h-8 flex items-center justify-center">_</p>
+                        </div>
+                        <div class="bg-gray-900 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-400">Decoded</h4>
+                            <p id="morse-send-decoded-output" class="text-xl font-mono text-green-400 truncate overflow-x-auto h-8 flex items-center justify-center">_</p>
+                        </div>
+                    </div>
+
+                    <p id="morse-send-feedback" class="mt-4 text-xl font-bold"></p>
+                    <button id="send-next-button" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150 hidden">
+                        Next
+                    </button>
+                </div>
+
+                <!-- End Quiz Button -->
+                <button id="end-morse-quiz-button" class="mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150 hidden">
+                    End Quiz
+                </button>
+            </div>
+
+            <!-- Morse Quiz Results -->
+            <div id="morse-results-container" class="hidden mt-8 text-center card p-6">
+                <h3 class="text-3xl font-bold mb-4" id="morse-results-title">Quiz Finished!</h3>
+                <p class="text-xl mb-4 text-green-400">Final Score: <span id="morse-score-display" class="font-extrabold"></span></p>
+                <p class="text-gray-400 mb-6" id="morse-score-details"></p>
+                <button onclick="document.getElementById('start-morse-quiz-button').click();" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-150">
+                    Start New Morse Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 
     <script>
@@ -877,126 +988,610 @@ const ELECTRONICS_CONTENT = [
 
         // 4. Quiz Questions (Mixed Part A & B)
         // *** ADDED NEW QUESTIONS FROM SYLLABUS ***
-        const QUIZ_QUESTIONS = [
-            {
-                category: 'rules',
-                question: "What Q-code is used to ask 'Who is calling me?'",
-                options: ["QSY", "QRZ", "QRL", "QTH"],
-                answer: "QRZ",
-                explanation: "QRZ specifically means 'Who is calling me?' or 'You are being called by...'. QSY is for changing frequency, QRL for being busy, and QTH for location."
-            },
-            {
-                category: 'electronics',
-                question: "What is the unit of measure for electrical resistance?",
-                options: ["Ampere", "Volt", "Watt", "Ohm"],
-                answer: "Ohm",
-                explanation: "Resistance is measured in Ohms ($$\\Omega$$), representing the opposition to current flow. Volts measure Voltage (pressure), Amperes measure Current (flow), and Watts measure Power."
-            },
-            {
-                category: 'rules',
-                question: "What does the Q-code 'QTH' mean?",
-                options: ["What is the time?", "What is your location?", "Are you busy?", "Shall I change frequency?"],
-                answer: "What is your location?",
-                explanation: "QTH is the Q-code for 'What is your position/location?' (or 'My location is...')."
-            },
-            {
-                category: 'electronics',
-                question: "An inductor stores energy in which type of field?",
-                options: ["Thermal field", "Electric field", "Magnetic field", "Gravitational field"],
-                answer: "Magnetic field",
-                explanation: "Inductors store energy by creating a magnetic field when current flows through the coil. Capacitors store energy in an electric field."
-            },
-            {
-                category: 'rules',
-                question: "What is the frequency range for the HF (High Frequency) band according to ITU Art. 2?",
-                options: ["30 - 300 MHz", "3 - 30 MHz", "300 - 3000 kHz", "300 - 3000 MHz"],
-                answer: "3 - 30 MHz",
-                explanation: "The HF band, where most long-distance amateur radio operates, is defined as 3 to 30 MegaHertz."
-            },
-            {
-                category: 'electronics',
-                question: "In a series R-L-C circuit, what condition defines resonance?",
-                options: ["Resistance equals Impedance.", "Inductive reactance (XL) is half the capacitive reactance (XC).", "XL equals XC.", "Voltage equals Current."],
-                answer: "XL equals XC.",
-                explanation: "Resonance occurs when the inductive reactance ($$X_L$$) exactly cancels out the capacitive reactance ($$X_C$$), leading to a minimum impedance (in a series circuit)."
-            },
-            {
-                category: 'rules',
-                question: "Which call sign prefix block is allocated to India (ITU App. 42)?",
-                options: ["USA - USZ", "GTA - GUZ", "VTA - VWZ", "F1A - F9Z"],
-                answer: "VTA - VWZ",
-                explanation: "India is allocated `ATA-AWZ`, `VTA-VWZ`, and `8TA-8YZ`. This is why our call signs start with `VU`."
-            },
-            {
-                category: 'electronics',
-                question: "According to Ohm's law, if resistance (R) is kept constant and voltage (V) is doubled, the current (I) will:",
-                options: ["Be halved.", "Remain the same.", "Be doubled.", "Be squared."],
-                answer: "Be doubled.",
-                explanation: "Ohm's Law is $$V = I \times R$$. If V doubles and R is constant, I must also double ($$I = V/R$$)."
-            },
-            {
-                category: 'rules',
-                question: "What is the emergency signal for 'Urgency' (a serious situation, but not immediate danger)?",
-                options: ["MAYDAY, MAYDAY, MAYDAY", "PAN PAN, PAN PAN, PAN PAN", "SECURITE, SECURITE, SECURITE", "BREAK, BREAK, BREAK"],
-                answer: "PAN PAN, PAN PAN, PAN PAN",
-                explanation: "The 'Urgency' signal is PAN PAN. 'MAYDAY' is for 'Distress' (immediate danger), and 'SECURITE' is for 'Safety' (navigational or weather warnings)."
-            },
-            {
-                category: 'rules',
-                question: "The Q-signal to ask 'Are you troubled by static?' is:",
-                options: ["QRM", "QRN", "QSB", "QTH"],
-                answer: "QRN",
-                explanation: "QRN is the code for natural interference (static). QRM is for man-made interference."
-            },
-            {
-                category: 'rules',
-                question: "What does the emission designation 'J3E' mean?",
-                options: ["FM Voice", "CW (Morse Code)", "SSB Voice", "AM Voice"],
-                answer: "SSB Voice",
-                explanation: "J = Single Sideband, 3 = Analogue (voice), E = Telephony (voice). Therefore, J3E is SSB voice."
-            },
-            {
-                category: 'rules',
-                question: "What does the abbreviation 'AR' mean in a CW contact?",
-                options: ["All received", "End of message", "Wait", "All correct"],
-                answer: "End of message",
-                explanation: "'AR' is the procedural signal to indicate the end of a specific message, before handing it over."
-            },
-            {
-                category: 'electronics',
-                question: "Which component is used to **block DC** current while allowing AC current to pass?",
-                options: ["Resistor", "Inductor", "Capacitor", "Diode"],
-                answer: "Capacitor",
-                explanation: "A capacitor acts as an open circuit to DC (blocking it) and its reactance decreases with increasing frequency (allowing AC to pass). An inductor does the opposite."
-            },
-            {
-                category: 'rules',
-                question: "What is the absolute highest priority emergency signal?",
-                options: ["PAN PAN", "SECURITE", "MAYDAY", "SOS"],
-                answer: "MAYDAY",
-                explanation: "MAYDAY is the distress signal for grave and imminent danger. It has absolute priority over all other communications."
-            },
-            {
-                category: 'rules',
-                question: "How long must you preserve your amateur station logbook?",
-                options: ["For 6 months.", "For 1 year from the date of the last entry.", "For 5 years.", "Indefinitely."],
-                answer: "For 1 year from the date of the last entry.",
-                explanation: "According to Annexure I, Sec VI of the 1978 rules, the log must be preserved for a period of one year from the date of the last entry."
-            },
-             {
-                category: 'rules',
-                question: "What does the Q-code 'QTR' mean?",
-                options: ["What is your location?", "What is the correct time?", "Are you ready?", "Shall I stop sending?"],
-                answer: "What is the correct time?",
-                explanation: "QTR is the Q-code for 'What is the correct time?'"
-            },
-             {
-                category: 'rules',
-                question: "Which station provides the 'ATA' standard time signal service?",
-                options: ["USA", "Canada", "India", "Russia"],
-                answer: "India",
-                explanation: "ATA is the call sign for India's standard time and frequency signal service, broadcast from the National Physical Laboratory in New Delhi."
-            },
+    const QUIZ_QUESTIONS = [
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Who is calling me?'",
+        options: ["QSY", "QRZ", "QRL", "QTH"],
+        answer: "QRZ",
+        explanation: "QRZ specifically means 'Who is calling me?' or 'You are being called by...'. QSY is for changing frequency, QRL for being busy, and QTH for location."
+    },
+    {
+        category: 'electronics',
+        question: "What is the unit of measure for electrical resistance?",
+        options: ["Ampere", "Volt", "Watt", "Ohm"],
+        answer: "Ohm",
+        explanation: "Resistance is measured in Ohms ($$\\Omega$$), representing the opposition to current flow. Volts measure Voltage (pressure), Amperes measure Current (flow), and Watts measure Power."
+    },
+    {
+        category: 'rules',
+        question: "What does the Q-code 'QTH' mean?",
+        options: ["What is the time?", "What is your location?", "Are you busy?", "Shall I change frequency?"],
+        answer: "What is your location?",
+        explanation: "QTH is the Q-code for 'What is your position/location?' (or 'My location is...')."
+    },
+    {
+        category: 'electronics',
+        question: "An inductor stores energy in which type of field?",
+        options: ["Thermal field", "Electric field", "Magnetic field", "Gravitational field"],
+        answer: "Magnetic field",
+        explanation: "Inductors store energy by creating a magnetic field when current flows through the coil. Capacitors store energy in an electric field."
+    },
+    {
+        category: 'rules',
+        question: "What is the frequency range for the HF (High Frequency) band according to ITU Art. 2?",
+        options: ["30 - 300 MHz", "3 - 30 MHz", "300 - 3000 kHz", "300 - 3000 MHz"],
+        answer: "3 - 30 MHz",
+        explanation: "The HF band, where most long-distance amateur radio operates, is defined as 3 to 30 MegaHertz."
+    },
+    {
+        category: 'electronics',
+        question: "In a series R-L-C circuit, what condition defines resonance?",
+        options: ["Resistance equals Impedance.", "Inductive reactance (XL) is half the capacitive reactance (XC).", "XL equals XC.", "Voltage equals Current."],
+        answer: "XL equals XC.",
+        explanation: "Resonance occurs when the inductive reactance ($$X_L$$) exactly cancels out the capacitive reactance ($$X_C$$), leading to a minimum impedance (in a series circuit)."
+    },
+    {
+        category: 'rules',
+        question: "Which call sign prefix block is allocated to India (ITU App. 42)?",
+        options: ["USA - USZ", "GTA - GUZ", "VTA - VWZ", "F1A - F9Z"],
+        answer: "VTA - VWZ",
+        explanation: "India is allocated `ATA-AWZ`, `VTA-VWZ`, and `8TA-8YZ`. This is why our call signs start with `VU`."
+    },
+    {
+        category: 'electronics',
+        question: "According to Ohm's law, if resistance (R) is kept constant and voltage (V) is doubled, the current (I) will:",
+        options: ["Be halved.", "Remain the same.", "Be doubled.", "Be squared."],
+        answer: "Be doubled.",
+        explanation: "Ohm's Law is $$V = I \times R$$. If V doubles and R is constant, I must also double ($$I = V/R$$)."
+    },
+    {
+        category: 'rules',
+        question: "What is the emergency signal for 'Urgency' (a serious situation, but not immediate danger)?",
+        options: ["MAYDAY, MAYDAY, MAYDAY", "PAN PAN, PAN PAN, PAN PAN", "SECURITE, SECURITE, SECURITE", "BREAK, BREAK, BREAK"],
+        answer: "PAN PAN, PAN PAN, PAN PAN",
+        explanation: "The 'Urgency' signal is PAN PAN. 'MAYDAY' is for 'Distress' (immediate danger), and 'SECURITE' is for 'Safety' (navigational or weather warnings)."
+    },
+    {
+        category: 'rules',
+        question: "The Q-signal to ask 'Are you troubled by static?' is:",
+        options: ["QRM", "QRN", "QSB", "QTH"],
+        answer: "QRN",
+        explanation: "QRN is the code for natural interference (static). QRM is for man-made interference."
+    },
+    {
+        category: 'rules',
+        question: "What does the emission designation 'J3E' mean?",
+        options: ["FM Voice", "CW (Morse Code)", "SSB Voice", "AM Voice"],
+        answer: "SSB Voice",
+        explanation: "J = Single Sideband, 3 = Analogue (voice), E = Telephony (voice). Therefore, J3E is SSB voice."
+    },
+    {
+        category: 'rules',
+        question: "What does the abbreviation 'AR' mean in a CW contact?",
+        options: ["All received", "End of message", "Wait", "All correct"],
+        answer: "End of message",
+        explanation: "'AR' is the procedural signal to indicate the end of a specific message, before handing it over."
+    },
+    {
+        category: 'electronics',
+        question: "Which component is used to **block DC** current while allowing AC current to pass?",
+        options: ["Resistor", "Inductor", "Capacitor", "Diode"],
+        answer: "Capacitor",
+        explanation: "A capacitor acts as an open circuit to DC (blocking it) and its reactance decreases with increasing frequency (allowing AC to pass). An inductor does the opposite."
+    },
+    {
+        category: 'rules',
+        question: "What is the absolute highest priority emergency signal?",
+        options: ["PAN PAN", "SECURITE", "MAYDAY", "SOS"],
+        answer: "MAYDAY",
+        explanation: "MAYDAY is the distress signal for grave and imminent danger. It has absolute priority over all other communications."
+    },
+    {
+        category: 'rules',
+        question: "How long must you preserve your amateur station logbook?",
+        options: ["For 6 months.", "For 1 year from the date of the last entry.", "For 5 years.", "Indefinitely."],
+        answer: "For 1 year from the date of the last entry.",
+        explanation: "According to Annexure I, Sec VI of the 1978 rules, the log must be preserved for a period of one year from the date of the last entry."
+    },
+    {
+        category: 'rules',
+        question: "What does the Q-code 'QTR' mean?",
+        options: ["What is your location?", "What is the correct time?", "Are you ready?", "Shall I stop sending?"],
+        answer: "What is the correct time?",
+        explanation: "QTR is the Q-code for 'What is the correct time?'"
+    },
+    {
+        category: 'rules',
+        question: "Which station provides the 'ATA' standard time signal service?",
+        options: ["USA", "Canada", "India", "Russia"],
+        answer: "India",
+        explanation: "ATA is the call sign for India's standard time and frequency signal service, broadcast from the National Physical Laboratory in New Delhi."
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'What is my signal strength?' (1-5)?",
+        options: ["QSA", "QRV", "QRN", "QRO"],
+        answer: "QSA",
+        explanation: "QSA specifically means 'What is my signal strength?' or 'Your signal strength is...'. QRV means 'Are you ready?', QRN means 'Are you troubled by static?', and QRO means 'Shall I increase power?'."
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'What is the name of your station?'",
+        options: ["QRA", "QTH", "QTR", "QRZ"],
+        answer: "QRA",
+        explanation: "QRA is the Q-code for 'What is the name of your station?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'What is my exact frequency?'",
+        options: ["QRG", "QSY", "QRX", "QSO"],
+        answer: "QRG",
+        explanation: "QRG is the Q-code for 'What is my exact frequency?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Does my frequency vary?'",
+        options: ["QRH", "QRG", "QSU", "QSW"],
+        answer: "QRH",
+        explanation: "QRH is the Q-code for 'Does my frequency vary?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'How is my tone? (1-3)'",
+        options: ["QRK", "QRI", "QSA", "QSB"],
+        answer: "QRI",
+        explanation: "QRI is the Q-code for 'How is my tone? (1-3)'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'What is my readability? (1-5)'",
+        options: ["QRK", "QSA", "QRI", "QRM"],
+        answer: "QRK",
+        explanation: "QRK is the Q-code for 'What is my readability? (1-5)'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Are you busy? (I am busy)'",
+        options: ["QRL", "QRO", "QRT", "QUM"],
+        answer: "QRL",
+        explanation: "QRL is the Q-code for 'Are you busy? (I am busy)'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Are you being interfered with? (Man-made)'",
+        options: ["QRN", "QRM", "QSB", "QRO"],
+        answer: "QRM",
+        explanation: "QRM is the Q-code for 'Are you being interfered with? (Man-made)'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Shall I increase power?'",
+        options: ["QRO", "QRS", "QRP", "QRT"],
+        answer: "QRO",
+        explanation: "QRO is the Q-code for 'Shall I increase power?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Shall I send more slowly?'",
+        options: ["QRS", "QSZ", "QTC", "QRK"],
+        answer: "QRS",
+        explanation: "QRS is the Q-code for 'Shall I send more slowly?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Shall I stop sending?'",
+        options: ["QRT", "QRU", "QRP", "QSO"],
+        answer: "QRT",
+        explanation: "QRT is the Q-code for 'Shall I stop sending?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Have you anything for me? (No)'",
+        options: ["QRU", "QTR", "QTC", "QSL"],
+        answer: "QRU",
+        explanation: "QRU is the Q-code for 'Have you anything for me? (No)'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Are you ready?'",
+        options: ["QRV", "QSL", "QSV", "QSU"],
+        answer: "QRV",
+        explanation: "QRV is the Q-code for 'Are you ready?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Shall I inform... you are calling?'",
+        options: ["QRW", "QRX", "QRZ", "QSO"],
+        answer: "QRW",
+        explanation: "QRW is the Q-code for 'Shall I inform... you are calling?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'When will you call again? (Stand by)'",
+        options: ["QRX", "QRT", "QRV", "QSY"],
+        answer: "QRX",
+        explanation: "QRX is the Q-code for 'When will you call again? (Stand by)'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Are my signals fading?'",
+        options: ["QSB", "QSA", "QRK", "QRI"],
+        answer: "QSB",
+        explanation: "QSB is the Q-code for 'Are my signals fading?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Can you acknowledge receipt? (I acknowledge)'",
+        options: ["QSL", "QSO", "QRU", "QRW"],
+        answer: "QSL",
+        explanation: "QSL is the Q-code for 'Can you acknowledge receipt? (I acknowledge)'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Can you communicate with...?'",
+        options: ["QSO", "QTC", "QSV", "QSY"],
+        answer: "QSO",
+        explanation: "QSO is the Q-code for 'Can you communicate with...?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Shall I reply on this frequency?'",
+        options: ["QSU", "QSY", "QSX", "QRG"],
+        answer: "QSU",
+        explanation: "QSU is the Q-code for 'Shall I reply on this frequency?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Shall I send 'V's? (For test)'",
+        options: ["QSV", "QSA", "QRV", "QRK"],
+        answer: "QSV",
+        explanation: "QSV is the Q-code for 'Shall I send 'V's? (For test)'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Will you send on this frequency?'",
+        options: ["QSW", "QSU", "QSX", "QSO"],
+        answer: "QSW",
+        explanation: "QSW is the Q-code for 'Will you send on this frequency?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Will you listen to... on...?'",
+        options: ["QSX", "QSY", "QSL", "QRT"],
+        answer: "QSX",
+        explanation: "QSX is the Q-code for 'Will you listen to... on...?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Shall I change frequency?'",
+        options: ["QSY", "QRG", "QRX", "QSU"],
+        answer: "QSY",
+        explanation: "QSY is the Q-code for 'Shall I change frequency?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Shall I send each word twice?'",
+        options: ["QSZ", "QRS", "QTC", "QSO"],
+        answer: "QSZ",
+        explanation: "QSZ is the Q-code for 'Shall I send each word twice?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'How many messages to send?'",
+        options: ["QTC", "QRU", "QUM", "QTR"],
+        answer: "QTC",
+        explanation: "QTC is the Q-code for 'How many messages to send?'"
+    },
+    {
+        category: 'rules',
+        question: "What Q-code is used to ask 'Is the distress traffic over?'",
+        options: ["QUM", "QRT", "QTC", "QRV"],
+        answer: "QUM",
+        explanation: "QUM is the Q-code for 'Is the distress traffic over?'"
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'AA' stand for?",
+        options: ["All After", "Acknowledge All", "Anyone Answer", "Amateur Antenna"],
+        answer: "All After",
+        explanation: "'AA' is a pro-signal meaning 'All after' a specific word or phrase."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'AB' stand for?",
+        options: ["Always Before", "All Before", "Ask Back", "Answer Back"],
+        answer: "All Before",
+        explanation: "'AB' is a pro-signal meaning 'All before' a specific word or phrase."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'AR' indicate?",
+        options: ["All Received", "End of transmission / End of message", "Awaiting Reply", "Ask to Repeat"],
+        answer: "End of transmission / End of message",
+        explanation: "'AR' is sent at the end of a message or transmission."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'AS' stand for?",
+        options: ["Acknowledge Signal", "Antenna Switch", "Wait / Stand by", "All Sent"],
+        answer: "Wait / Stand by",
+        explanation: "'AS' is a pro-signal meaning 'Wait' or 'Stand by'."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'C' stand for?",
+        options: ["Call", "Confirm", "Yes / Correct", "Current"],
+        answer: "Yes / Correct",
+        explanation: "'C' is an abbreviation meaning 'Yes' or 'Correct'."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'CFM' stand for?",
+        options: ["Call Forwarding Message", "Confirm", "Current Frequency Monitored", "Call for Me"],
+        answer: "Confirm",
+        explanation: "'CFM' is an abbreviation meaning 'Confirm'."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'CL' stand for?",
+        options: ["Clear", "Close Loop", "Closing down station", "Call Later"],
+        answer: "Closing down station",
+        explanation: "'CL' is an abbreviation meaning 'Closing down station'."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'CQ' stand for?",
+        options: ["Confirmed Quality", "Calling any station", "Contact quickly", "Check Quality"],
+        answer: "Calling any station",
+        explanation: "'CQ' is a general call to any station."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'DE' stand for?",
+        options: ["Delta Echo", "Distress Emergency", "From (e.g., 'VU2XYZ DE VU3ABC')", "Do Exchange"],
+        answer: "From (e.g., 'VU2XYZ DE VU3ABC')",
+        explanation: "'DE' is used to separate the station being called from the station calling, meaning 'From'."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'K' stand for?",
+        options: ["Keep listening", "Keyed", "Go ahead and transmit (Over)", "Know"],
+        answer: "Go ahead and transmit (Over)",
+        explanation: "'K' is used to indicate 'Go ahead' or 'Over,' inviting the other station to transmit."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'NIL' stand for?",
+        options: ["Negative Interference Level", "Nothing", "Now I'm Listening", "No Information Lost"],
+        answer: "Nothing",
+        explanation: "'NIL' is an abbreviation meaning 'Nothing' or 'I have nothing for you'."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'OK' stand for?",
+        options: ["Only Keying", "Output Keyed", "Correct / Agreed", "Over Key"],
+        answer: "Correct / Agreed",
+        explanation: "'OK' is an abbreviation meaning 'Correct' or 'Agreed'."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'R' stand for?",
+        options: ["Ready", "Repeat", "Received (Roger)", "Report"],
+        answer: "Received (Roger)",
+        explanation: "'R' is an abbreviation meaning 'Received' or 'Roger'."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'TU' stand for?",
+        options: ["Transmit Unit", "Tune Up", "Thank You", "Time Unit"],
+        answer: "Thank You",
+        explanation: "'TU' is an abbreviation meaning 'Thank You'."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'VA' stand for?",
+        options: ["Volume Acknowledged", "Very Active", "End of work (Signing off - SK)", "Verify Antenna"],
+        answer: "End of work (Signing off - SK)",
+        explanation: "'VA' is a pro-signal used to signify the end of a contact or end of work, similar to SK (Silent Key)."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'WA' stand for?",
+        options: ["Word After", "Wait Again", "Wire Antenna", "Working All"],
+        answer: "Word after",
+        explanation: "'WA' is a pro-signal meaning 'Word after' (for clarification)."
+    },
+    {
+        category: 'prosigns',
+        question: "What does the procedural signal 'WB' stand for?",
+        options: ["Word Before", "Welcome Back", "Wire Break", "Whisper Back"],
+        answer: "Word before",
+        explanation: "'WB' is a pro-signal meaning 'Word before' (for clarification)."
+    },
+    // --- Appended NATO Phonetic Alphabet Questions Start Here (Category: prosigns) ---
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'A'?",
+        options: ["Alpha", "America", "Apple", "Answer"],
+        answer: "Alfa",
+        explanation: "The phonetic word for 'A' is Alfa."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'B'?",
+        options: ["Beta", "Bravo", "Bunker", "Balloon"],
+        answer: "Bravo",
+        explanation: "The phonetic word for 'B' is Bravo."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'C'?",
+        options: ["Clear", "Confirm", "Charlie", "Cobra"],
+        answer: "Charlie",
+        explanation: "The phonetic word for 'C' is Charlie."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'D'?",
+        options: ["Direct", "Digit", "Delta", "Dragon"],
+        answer: "Delta",
+        explanation: "The phonetic word for 'D' is Delta."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'E'?",
+        options: ["Echo", "Easy", "Eagle", "Enter"],
+        answer: "Echo",
+        explanation: "The phonetic word for 'E' is Echo."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'F'?",
+        options: ["Fast", "Foxtrot", "Final", "Fire"],
+        answer: "Foxtrot",
+        explanation: "The phonetic word for 'F' is Foxtrot."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'G'?",
+        options: ["General", "Golf", "Gator", "Ground"],
+        answer: "Golf",
+        explanation: "The phonetic word for 'G' is Golf."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'H'?",
+        options: ["Home", "Hotel", "Happy", "Hurry"],
+        answer: "Hotel",
+        explanation: "The phonetic word for 'H' is Hotel."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'I'?",
+        options: ["Item", "India", "Ice", "Idle"],
+        answer: "India",
+        explanation: "The phonetic word for 'I' is India."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'J'?",
+        options: ["Junction", "Juliett", "Jolly", "Jump"],
+        answer: "Juliett",
+        explanation: "The phonetic word for 'J' is Juliett."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'K'?",
+        options: ["Key", "Kilo", "King", "Known"],
+        answer: "Kilo",
+        explanation: "The phonetic word for 'K' is Kilo."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'L'?",
+        options: ["Local", "Lima", "Light", "Leader"],
+        answer: "Lima",
+        explanation: "The phonetic word for 'L' is Lima."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'M'?",
+        options: ["Mike", "Main", "Marker", "Measure"],
+        answer: "Mike",
+        explanation: "The phonetic word for 'M' is Mike."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'N'?",
+        options: ["Negative", "Number", "November", "Night"],
+        answer: "November",
+        explanation: "The phonetic word for 'N' is November."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'O'?",
+        options: ["Open", "Out", "Oscar", "Order"],
+        answer: "Oscar",
+        explanation: "The phonetic word for 'O' is Oscar."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'P'?",
+        options: ["Power", "Papa", "Pass", "Primary"],
+        answer: "Papa",
+        explanation: "The phonetic word for 'P' is Papa."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'Q'?",
+        options: ["Quick", "Quake", "Quebec", "Quasar"],
+        answer: "Quebec",
+        explanation: "The phonetic word for 'Q' is Quebec."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'R'?",
+        options: ["Received", "Report", "Romeo", "Roger"],
+        answer: "Romeo",
+        explanation: "The phonetic word for 'R' is Romeo."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'S'?",
+        options: ["Start", "Sierra", "Signal", "Stop"],
+        answer: "Sierra",
+        explanation: "The phonetic word for 'S' is Sierra."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'T'?",
+        options: ["Target", "Tango", "Total", "Time"],
+        answer: "Tango",
+        explanation: "The phonetic word for 'T' is Tango."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'U'?",
+        options: ["Unit", "Under", "Uniform", "Up"],
+        answer: "Uniform",
+        explanation: "The phonetic word for 'U' is Uniform."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'V'?",
+        options: ["Vector", "Verify", "Victor", "Viking"],
+        answer: "Victor",
+        explanation: "The phonetic word for 'V' is Victor."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'W'?",
+        options: ["Water", "Whiskey", "White", "Wind"],
+        answer: "Whiskey",
+        explanation: "The phonetic word for 'W' is Whiskey."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'X'?",
+        options: ["Xerox", "X-ray", "Xylo", "Examine"],
+        answer: "X-ray",
+        explanation: "The phonetic word for 'X' is X-ray."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'Y'?",
+        options: ["Yellow", "Yankee", "Yawn", "Yield"],
+        answer: "Yankee",
+        explanation: "The phonetic word for 'Y' is Yankee."
+    },
+    {
+        category: 'prosigns',
+        question: "What is the NATO phonetic word for the letter 'Z'?",
+        options: ["Zero", "Zebra", "Zulu", "Zone"],
+        answer: "Zulu",
+        explanation: "The phonetic word for 'Z' is Zulu."
+    },
 			// Chapter 1 (6 questions)
 {category:'electronics', chapter:1, question:"What is the unit of electrical resistance?", options:["Volt","Ohm","Ampere","Watt"], answer:"Ohm", explanation:"Resistance is measured in Ohms (Ω)."},
 {category:'electronics', chapter:1, question:"Which particle carries negative charge in an atom?", options:["Proton","Neutron","Electron","Photon"], answer:"Electron", explanation:"Electrons carry negative charge."},
@@ -1997,6 +2592,374 @@ const ELECTRONICS_CONTENT = [
         });
 
         })(); 
+    </script>
+<script>
+        // --- FIXED MORSE QUIZ LOGIC ---
+        (function() {
+            // --- Configuration & State ---
+            const QUIZ_TOTAL_QUESTIONS = 10;
+            let quizState = {
+                active: false,
+                mode: 'receive', // 'receive' or 'send'
+                groupLength: 1,
+                currentQuestionIndex: 0,
+                score: 0,
+                currentSequence: '', // The text target (e.g., "ABC")
+                currentMorse: '',    // The morse string (e.g., ".- -... -.-.")
+                userKeyingBuffer: '', // For send mode: what the user has typed so far
+                questions: []
+            };
+
+            // --- Audio Context for Quiz ---
+            let audioCtx = null;
+            let osc = null;
+            let gain = null;
+            const FREQ = 700;
+            const WPM = 12;
+            const UNIT = 1.2 / WPM; // Seconds per dot
+
+            // --- DOM Elements ---
+            const els = {
+                // Setup
+                lengthSelect: document.getElementById('morse-length'),
+                modeSelect: document.getElementById('morse-mode'),
+                startBtn: document.getElementById('start-morse-quiz-button'),
+                message: document.getElementById('morse-message'),
+                quizArea: document.getElementById('morse-quiz-area'),
+                quizContainer: document.getElementById('morse-quiz-container'),
+                
+                // Status
+                counter: document.getElementById('morse-quiz-counter'),
+                status: document.getElementById('morse-quiz-status'),
+                
+                // Receive Mode
+                rxControls: document.getElementById('receive-mode-controls'),
+                playBtn: document.getElementById('play-morse-button'),
+                input: document.getElementById('morse-input-text'),
+                submitBtn: document.getElementById('submit-morse-button'),
+                rxFeedback: document.getElementById('morse-receive-feedback'),
+                
+                // Send Mode
+                txControls: document.getElementById('send-mode-controls'),
+                targetText: document.getElementById('target-send-text'),
+                keyerBtn: document.getElementById('morse-keyer-button'),
+                txInputDisplay: document.getElementById('morse-send-input-display'),
+                txDecodedDisplay: document.getElementById('morse-send-decoded-output'),
+                txFeedback: document.getElementById('morse-send-feedback'),
+                nextBtn: document.getElementById('send-next-button'),
+                
+                // Results
+                endBtn: document.getElementById('end-morse-quiz-button'),
+                resultsContainer: document.getElementById('morse-results-container'),
+                scoreDisplay: document.getElementById('morse-score-display'),
+                scoreDetails: document.getElementById('morse-score-details'),
+                resultTitle: document.getElementById('morse-results-title')
+            };
+
+            // --- Dictionaries ---
+            const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const MORSE_LOOKUP = {
+                'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
+                'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+                'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
+                '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
+                '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----'
+            };
+            // Reverse Lookup for Keyer
+            const REVERSE_LOOKUP = Object.entries(MORSE_LOOKUP).reduce((acc, [char, code]) => {
+                acc[code] = char;
+                return acc;
+            }, {});
+
+            // --- Audio Functions ---
+            function initAudio() {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            }
+
+            function playTone(duration) {
+                return new Promise(resolve => {
+                    const t = audioCtx.currentTime;
+                    const osc = audioCtx.createOscillator();
+                    const gn = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = FREQ;
+                    osc.connect(gn);
+                    gn.connect(audioCtx.destination);
+                    gn.gain.setValueAtTime(1, t);
+                    gn.gain.exponentialRampToValueAtTime(0.01, t + duration);
+                    osc.start(t);
+                    osc.stop(t + duration);
+                    setTimeout(resolve, duration * 1000);
+                });
+            }
+
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            async function playSequence(text) {
+                initAudio();
+                els.playBtn.disabled = true;
+                els.playBtn.classList.add('opacity-50');
+                
+                for (let char of text) {
+                    const code = MORSE_LOOKUP[char];
+                    if (!code) continue;
+                    
+                    for (let symbol of code) {
+                        if (symbol === '.') await playTone(UNIT);
+                        else await playTone(UNIT * 3);
+                        await sleep(UNIT * 1000); // Inter-symbol space
+                    }
+                    await sleep(UNIT * 3 * 1000); // Inter-char space
+                }
+                els.playBtn.disabled = false;
+                els.playBtn.classList.remove('opacity-50');
+            }
+
+            // --- Quiz Core Logic ---
+
+            function generateQuestions() {
+                quizState.questions = [];
+                for(let i=0; i<QUIZ_TOTAL_QUESTIONS; i++) {
+                    let seq = "";
+                    for(let j=0; j<quizState.groupLength; j++) {
+                        seq += CHARS[Math.floor(Math.random() * CHARS.length)];
+                    }
+                    quizState.questions.push(seq);
+                }
+            }
+
+            function startQuiz() {
+                // Reset State
+                quizState.active = true;
+                quizState.score = 0;
+                quizState.currentQuestionIndex = 0;
+                quizState.mode = els.modeSelect.value;
+                quizState.groupLength = parseInt(els.lengthSelect.value);
+                
+                generateQuestions();
+
+                // UI Reset
+                els.quizContainer.classList.remove('hidden');
+                els.resultsContainer.classList.add('hidden');
+                els.startBtn.parentElement.parentElement.classList.add('hidden'); // Hide setup
+                els.message.classList.add('hidden');
+                
+                loadQuestion();
+            }
+
+            function loadQuestion() {
+                if(quizState.currentQuestionIndex >= QUIZ_TOTAL_QUESTIONS) {
+                    endQuiz();
+                    return;
+                }
+
+                // Update Header
+                els.counter.textContent = `Question ${quizState.currentQuestionIndex + 1} / ${QUIZ_TOTAL_QUESTIONS}`;
+                els.status.textContent = "Waiting for answer...";
+                els.status.className = "text-lg font-medium text-blue-400 mb-4";
+
+                // Load Data
+                quizState.currentSequence = quizState.questions[quizState.currentQuestionIndex];
+                
+                // Mode Specific Setup
+                if(quizState.mode === 'receive') {
+                    setupReceiveMode();
+                } else {
+                    setupSendMode();
+                }
+            }
+
+            // --- Receive Mode Implementation ---
+            function setupReceiveMode() {
+                els.rxControls.classList.remove('hidden');
+                els.txControls.classList.add('hidden');
+                
+                els.input.value = '';
+                els.input.disabled = false;
+                els.input.focus();
+                els.rxFeedback.textContent = '';
+                els.submitBtn.disabled = false;
+                els.submitBtn.textContent = "Submit";
+                els.endBtn.classList.add('hidden');
+
+                // Auto-play first time
+                setTimeout(() => playSequence(quizState.currentSequence), 500);
+            }
+
+            function submitReceiveAnswer() {
+                const val = els.input.value.toUpperCase().trim();
+                const correct = quizState.currentSequence;
+                
+                els.input.disabled = true;
+                els.submitBtn.disabled = true;
+
+                if(val === correct) {
+                    quizState.score++;
+                    els.rxFeedback.textContent = "Correct!";
+                    els.rxFeedback.className = "mt-4 text-xl font-bold text-green-400";
+                } else {
+                    els.rxFeedback.textContent = `Incorrect. It was: ${correct}`;
+                    els.rxFeedback.className = "mt-4 text-xl font-bold text-red-400";
+                }
+
+                setTimeout(() => {
+                    quizState.currentQuestionIndex++;
+                    loadQuestion();
+                }, 2000);
+            }
+
+            // --- Send Mode Implementation ---
+            let keyPressStart = 0;
+            let keyerTimeout = null;
+
+            function setupSendMode() {
+                els.rxControls.classList.add('hidden');
+                els.txControls.classList.remove('hidden');
+                els.endBtn.classList.remove('hidden'); // Allow bailing out
+
+                els.targetText.textContent = quizState.currentSequence;
+                els.txInputDisplay.textContent = '';
+                els.txDecodedDisplay.textContent = '';
+                els.txFeedback.textContent = '';
+                els.nextBtn.classList.add('hidden');
+                
+                quizState.userKeyingBuffer = '';
+                quizState.currentMorse = '';
+            }
+
+            // Keyer Logic for Send Mode
+            function handleKeyDown(e) {
+                if(e.repeat || !quizState.active || quizState.mode !== 'send') return;
+                initAudio();
+                
+                // Visuals
+                els.keyerBtn.classList.add('bg-sky-300'); // Highlight
+                
+                // Audio
+                osc = audioCtx.createOscillator();
+                gain = audioCtx.createGain();
+                osc.frequency.value = FREQ;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                
+                keyPressStart = Date.now();
+                
+                if(keyerTimeout) clearTimeout(keyerTimeout);
+            }
+
+            function handleKeyUp() {
+                if(!quizState.active || quizState.mode !== 'send') return;
+                
+                // Stop Audio
+                if(osc) {
+                    osc.stop();
+                    osc.disconnect();
+                    osc = null;
+                }
+                
+                // Visuals
+                els.keyerBtn.classList.remove('bg-sky-300');
+
+                // Decode Duration
+                const duration = Date.now() - keyPressStart;
+                const symbol = (duration < 200) ? '.' : '-'; // Simple threshold
+                
+                quizState.currentMorse += symbol;
+                els.txInputDisplay.textContent = quizState.currentMorse;
+
+                // Wait for character gap
+                keyerTimeout = setTimeout(processKeyerChar, 800);
+            }
+
+            function processKeyerChar() {
+                const char = REVERSE_LOOKUP[quizState.currentMorse];
+                
+                if(char) {
+                    quizState.userKeyingBuffer += char;
+                    els.txDecodedDisplay.textContent = quizState.userKeyingBuffer;
+                    
+                    // Check if complete
+                    if(quizState.userKeyingBuffer.length === quizState.currentSequence.length) {
+                        validateSendAnswer();
+                    }
+                } else {
+                    // Invalid character
+                    els.txDecodedDisplay.textContent = quizState.userKeyingBuffer + " (?)";
+                    // Reset symbol buffer but keep typing
+                }
+                quizState.currentMorse = '';
+                els.txInputDisplay.textContent = '_';
+            }
+
+            function validateSendAnswer() {
+                if(quizState.userKeyingBuffer === quizState.currentSequence) {
+                    quizState.score++;
+                    els.txFeedback.textContent = "Perfect Sending!";
+                    els.txFeedback.className = "mt-4 text-xl font-bold text-green-400";
+                } else {
+                    els.txFeedback.textContent = "Mismatch. Try the next one.";
+                    els.txFeedback.className = "mt-4 text-xl font-bold text-red-400";
+                }
+                
+                els.nextBtn.classList.remove('hidden');
+            }
+
+            // --- End Quiz ---
+            function endQuiz() {
+                quizState.active = false;
+                els.quizContainer.classList.add('hidden');
+                els.resultsContainer.classList.remove('hidden');
+                
+                const pct = (quizState.score / QUIZ_TOTAL_QUESTIONS) * 100;
+                els.scoreDisplay.textContent = `${quizState.score} / ${QUIZ_TOTAL_QUESTIONS} (${pct}%)`;
+                
+                if(pct >= 80) els.scoreDetails.textContent = "Excellent! You are exam ready.";
+                else if(pct >= 50) els.scoreDetails.textContent = "Good practice. Keep going.";
+                else els.scoreDetails.textContent = "Keep practicing your timing and codes.";
+
+                // Restore Setup
+                els.startBtn.parentElement.parentElement.classList.remove('hidden');
+            }
+
+            // --- Event Listeners ---
+            els.startBtn.addEventListener('click', startQuiz);
+            
+            // RX Listeners
+            els.playBtn.addEventListener('click', () => playSequence(quizState.currentSequence));
+            els.submitBtn.addEventListener('click', submitReceiveAnswer);
+            els.input.addEventListener('keyup', (e) => { if(e.key === 'Enter') submitReceiveAnswer(); });
+
+            // TX Listeners (Mouse/Touch)
+            els.keyerBtn.addEventListener('mousedown', handleKeyDown);
+            els.keyerBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyDown(e); });
+            window.addEventListener('mouseup', handleKeyUp);
+            window.addEventListener('touchend', handleKeyUp);
+            
+            // TX Listeners (Spacebar)
+            window.addEventListener('keydown', (e) => {
+                if(e.code === 'Space' && quizState.active && quizState.mode === 'send') {
+                    e.preventDefault();
+                    handleKeyDown(e);
+                }
+            });
+            window.addEventListener('keyup', (e) => {
+                if(e.code === 'Space' && quizState.active && quizState.mode === 'send') {
+                    handleKeyUp();
+                }
+            });
+
+            els.nextBtn.addEventListener('click', () => {
+                quizState.currentQuestionIndex++;
+                loadQuestion();
+            });
+            
+            els.endBtn.addEventListener('click', endQuiz);
+
+        })();
     </script>
 </body>
 </html>
