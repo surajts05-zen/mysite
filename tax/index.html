@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advance Tax Calculator (FY 2025-26)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+        .tax-card {
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Styling to hide print-irrelevant elements */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: white;
+            }
+            .tax-card {
+                box-shadow: none;
+            }
+        }
+        
+        .file:before {
+            content: 'Select CSV';
+        }
+
+        .file:hover:before {
+            background-color: #e0e7ff;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex items-center justify-center">
+
+    <div id="app" class="w-full max-w-5xl bg-white p-6 md:p-10 rounded-xl tax-card">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">🇮🇳 Advance Tax Estimator</h1>
+        <p class="text-sm text-gray-500 mb-6">Financial Year 2025-26 (Assessment Year 2026-27). For individuals (Non-Senior/Super Senior Citizen). All amounts in ₹.</p>
+
+        <!-- Regime Selection & Summary (no-print) -->
+        <div class="flex flex-col md:flex-row gap-4 mb-8 no-print">
+            <div id="newRegimePill" class="w-full md:w-1/2 p-4 border border-blue-200 bg-blue-50 rounded-lg transition-colors duration-200">
+                <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="radio" name="taxRegime" id="newRegime" value="new" class="form-radio text-blue-600 h-4 w-4" checked>
+                    <span class="text-sm font-semibold text-blue-700">New Tax Regime (u/s 115BAC) - FY 25-26 UPDATED SLABS</span>
+                </label>
+                <p class="text-xs text-gray-600 mt-1">Limited deductions (Std. Deduction). Lower slab rates.</p>
+            </div>
+            <div id="oldRegimePill" class="w-full md:w-1/2 p-4 border border-gray-200 bg-gray-50 rounded-lg transition-colors duration-200">
+                <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="radio" name="taxRegime" id="oldRegime" value="old" class="form-radio text-gray-600 h-4 w-4">
+                    <span class="text-sm font-semibold text-gray-700">Old Tax Regime</span>
+                </label>
+                <p class="text-xs text-gray-600 mt-1">Allows major deductions (80C, HRA, Sec 24, etc.).</p>
+            </div>
+        </div>
+
+        <!-- Section: Income (no-print) -->
+        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 no-print">1. Annual Income</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 no-print">
+            
+            <!-- Income Fields -->
+            <div>
+                <label for="incomeSalary" class="block text-sm font-medium text-gray-700 mb-1">Income from Salary</label>
+                <input type="number" id="incomeSalary" value="" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Gross Salary">
+            </div>
+            <div>
+                <label for="incomeDividend" class="block text-sm font-medium text-gray-700 mb-1">Dividend Income</label>
+                <input type="number" id="incomeDividend" value="" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 10000">
+            </div>
+            <div>
+                <label for="incomeInterest" class="block text-sm font-medium text-gray-700 mb-1">Interest Income</label>
+                <input type="number" id="incomeInterest" value="" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="FD, Savings Interest">
+            </div>
+            
+            <!-- STCG (Now Output) -->
+            <div>
+                <label for="incomeStcg" class="block text-sm font-medium text-gray-700 mb-1">Short Term Capital Gains (STCG)</label>
+                <input type="number" id="incomeStcg" value="0" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 font-semibold" readonly>
+                <p class="text-xs text-gray-500 mt-1">Calculated from transactions below (STCG Rate: 15%).</p>
+            </div>
+            
+            <!-- LTCG (Now Output) -->
+            <div>
+                <label for="incomeLtcg" class="block text-sm font-medium text-gray-700 mb-1">Long Term Capital Gains (LTCG)</label>
+                <input type="number" id="incomeLtcg" value="0" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 font-semibold" readonly>
+                <p class="text-xs text-gray-500 mt-1">Calculated from transactions below (LTCG Rate: 10% on gain > ₹1 Lakh).</p>
+            </div>
+            
+            <!-- Calculated Gross Income -->
+            <div class="md:col-span-2 lg:col-span-1 p-3 bg-indigo-100 rounded-lg border border-indigo-200 h-full flex flex-col justify-center">
+                <p class="text-sm font-medium text-indigo-700">Calculated Gross Annual Income:</p>
+                <p id="calculatedGrossIncome" class="text-xl font-bold text-indigo-800">₹ 0</p>
+            </div>
+        </div>
+
+        <!-- New Section: Capital Gains Transaction Manager (no-print) -->
+        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 no-print">2. Capital Gains Transaction Manager (Optional)</h2>
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 no-print">
+            <p class="text-sm text-gray-600 mb-3">Add your stock/MF transactions here to auto-calculate your STCG/LTCG. Holding period > 12 months for equity/equity MFs results in LTCG.</p>
+            
+            <!-- Input Row for New Transaction -->
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4 items-end">
+                <div>
+                    <label for="newPurchaseDate" class="block text-xs font-medium text-gray-500">Purchase Date</label>
+                    <input type="date" id="newPurchaseDate" class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                </div>
+                <div>
+                    <label for="newSaleDate" class="block text-xs font-medium text-gray-500">Sale Date</label>
+                    <input type="date" id="newSaleDate" class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                </div>
+                <div>
+                    <label for="newPurchaseValue" class="block text-xs font-medium text-gray-500">Purchase Cost (₹)</label>
+                    <input type="number" id="newPurchaseValue" class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Cost">
+                </div>
+                <div>
+                    <label for="newSaleValue" class="block text-xs font-medium text-gray-500">Sale Price (₹)</label>
+                    <input type="number" id="newSaleValue" class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Price">
+                </div>
+                <div>
+                    <label for="newExpenses" class="block text-xs font-medium text-gray-500">Expenses (₹)</label>
+                    <input type="number" id="newExpenses" value="0" class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Brokerage, STT, etc.">
+                </div>
+                <button id="addTransactionBtn" class="p-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-150 text-sm h-10">
+                    Add Transaction
+                </button>
+            </div>
+            
+            <!-- CSV Import Row -->
+            <div class="mt-4 pt-4 border-t border-gray-300 flex flex-col md:flex-row gap-3 items-center">
+                <div class="flex-grow w-full">
+                    <label for="csvFileInput" class="block text-xs font-medium text-gray-500 mb-1">Import from CSV (Expected format: Purchase Date, Sale Date, Cost, Sale Price, Expenses)</label>
+                    <input type="file" id="csvFileInput" accept=".csv" class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                </div>
+                <button id="importCsvBtn" class="p-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-150 text-sm h-12">
+                    Import & Add
+                </button>
+            </div>
+            
+            <!-- Download Sample CSV Link -->
+            <div class="mt-3 text-sm flex justify-start items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+                <a href="#" id="downloadSampleCsv" class="text-blue-600 hover:text-blue-800 font-medium">Download Sample CSV</a>
+                <span class="text-gray-500 text-xs">(File must be in YYYY-MM-DD format.)</span>
+            </div>
+
+            <!-- Transaction List Table -->
+            <div class="overflow-x-auto mt-6">
+                <table class="min-w-full divide-y divide-gray-300">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">P. Date</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">S. Date</th>
+                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500">P. Cost (₹)</th>
+                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500">Gain (₹)</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Type</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTableBody" class="bg-white divide-y divide-gray-200">
+                        <tr id="emptyTransactionRow"><td colspan="6" class="px-3 py-2 text-center text-sm text-gray-400">No transactions added yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+                 <button id="clearTransactionsBtn" class="px-4 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition duration-150">
+                    Clear All Transactions
+                </button>
+            </div>
+        </div>
+        <!-- End of Capital Gains Transaction Manager -->
+        
+        <!-- Section: Deductions & Exemptions (no-print) -->
+        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 no-print">3. Deductions & Exemptions (Regime Specific)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6 mb-6 no-print">
+            
+            <!-- Professional Tax (Now standard UI, conditionally shown) -->
+            <div id="profTaxWrapper" class="hidden col-span-1">
+                <label for="profTax" class="block text-sm font-medium text-gray-700 mb-1">Professional Tax (Sec 16(iii))</label>
+                <input type="number" id="profTax" value="" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Max 2400">
+                <p class="text-xs text-gray-500 mt-1">Allowed deduction for Professional Tax paid (Max ₹2,400).</p>
+            </div>
+            
+            <!-- Standard Deduction (New Regime Input) -->
+            <div id="newRegimeStdDeductionWrapper" class="col-span-1 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <label for="stdDeductionNew" class="block text-sm font-semibold text-blue-700 mb-1">Standard Deduction (New Regime)</label>
+                <input type="number" id="stdDeductionNew" value="75000" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 50000">
+                <p class="text-xs text-gray-500 mt-1">Editable deduction u/s 16(ia) for New Regime. Default: ₹75,000</p>
+            </div>
+            
+            <!-- Old Regime Deductions Container -->
+            <div id="oldRegimeDeductionsWrapper" class="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6 hidden">
+                
+                <!-- Standard Deduction (Old Regime Input) -->
+                <div>
+                    <label for="stdDeductionOld" class="block text-sm font-medium text-gray-700 mb-1">Standard Deduction (Old Regime)</label>
+                    <input type="number" id="stdDeductionOld" value="50000" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 50000">
+                    <p class="text-xs text-gray-500 mt-1">Editable deduction u/s 16(ia) for Old Regime. Default: ₹50,000</p>
+                </div>
+
+                <!-- 80C -->
+                <div>
+                    <label for="deductions80C" class="block text-sm font-medium text-gray-700 mb-1">Deductions (Section 80C)</label>
+                    <input type="number" id="deductions80C" value="" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Max 150000">
+                    <p class="text-xs text-gray-500 mt-1">PPF, ELSS, Life Insurance, etc. (Max ₹1,50,000).</p>
+                </div>
+
+                <!-- Other Deductions -->
+                <div>
+                    <label for="otherDeductions" class="block text-sm font-medium text-gray-700 mb-1">Other Deductions (80D, etc.)</label>
+                    <input type="number" id="otherDeductions" value="" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 50000">
+                    <p class="text-xs text-gray-500 mt-1">e.g., Medical Insurance (80D), Education Loan Interest (80E).</p>
+                </div>
+
+                <!-- HRA -->
+                <div>
+                    <label for="hraClaim" class="block text-sm font-medium text-gray-700 mb-1">HRA Exemption Claim (Sec 10(13A))</label>
+                    <input type="number" id="hraClaim" value="" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 100000">
+                    <p class="text-xs text-gray-500 mt-1">Amount you are claiming as House Rent Allowance exemption.</p>
+                </div>
+
+                <!-- Home Loan Interest -->
+                <div>
+                    <label for="homeLoanInterest" class="block text-sm font-medium text-gray-700 mb-1">Housing Loan Interest (Sec 24(b))</label>
+                    <input type="number" id="homeLoanInterest" value="" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Max 200000">
+                    <p class="text-xs text-gray-500 mt-1">Interest paid on housing loan (Max ₹2,00,000 for self-occupied).</p>
+                </div>
+            </div>
+            
+        </div>
+
+
+        <!-- Output Section -->
+        <div id="results" class="space-y-6">
+            <h2 class="text-xl font-bold text-blue-700 border-b pb-2">4. Estimated Tax Liability Summary</h2>
+            
+            <!-- Summary Grid -->
+            <div class="grid grid-cols-2 md:col-span-4 gap-4 items-end mb-6">
+                <!-- Row 1: Net Taxable Income -->
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Net Taxable <br>Income</p>
+                    <p id="netTaxableIncome" class="text-xl font-semibold text-gray-800">₹ 0</p>
+                </div>
+                
+                <!-- Row 2: Gross Tax Liability -->
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 font-medium">Gross Tax Liability (Before TDS)</p>
+                    <p id="grossTaxLiability" class="text-xl font-bold text-gray-800">₹ 0</p>
+                </div>
+
+                <!-- Row 3: TDS Paid (INPUT - UI Matched) -->
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <label for="tdsPaid" class="block text-sm text-gray-600 font-medium mb-1">TDS Paid / Expected</label>
+                    <input type="number" id="tdsPaid" value="" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-gray-500 focus:border-blue-500 text-lg text-gray-800" placeholder="Total tax deducted">
+                </div>
+                
+                <!-- Row 4: Net Tax Payable (Total) -->
+                <div class="bg-blue-100 p-4 rounded-lg border-2 border-blue-300">
+                    <p class="text-sm text-blue-700 font-medium">Net Tax Payable (Total Liability)</p>
+                    <p id="netTaxPayableTotal" class="text-2xl font-bold text-gray-8000">₹ 0</p>
+                </div>
+                
+                <!-- New Row: Tax Balance Remaining -->
+                <div class="col-span-2 md:col-span-4 bg-green-100 p-4 rounded-lg border-2 border-green-300 flex justify-between items-center">
+                    <p class="text-sm text-green-700 font-medium uppercase">Tax Balance Remaining (Yet to be paid)</p>
+                    <p id="taxBalanceRemaining" class="text-3xl font-extrabold text-green-700">₹ 0</p>
+                </div>
+            </div>
+            
+            <!-- Print and Payment Buttons -->
+            <div class="flex flex-col md:flex-row gap-4 pt-4 no-print">
+                <button onclick="window.print()" class="flex-1 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md">
+                    ⬇️ Download as PDF (Print)
+                </button>
+                <a href="https://eportal.incometax.gov.in/iec/foservices/#/login" target="_blank" class="flex-1 text-center px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition duration-150 shadow-md">
+                    ➡️ Pay Advance Tax Now (Official Portal)
+                </a>
+            </div>
+
+
+            <!-- Section: Tax Slab Calculation Details -->
+            <h2 class="text-xl font-bold text-gray-800 pt-8 border-b pb-2">5. Tax Slab Calculation Details</h2>
+            <div id="slabCalculationDetails" class="overflow-x-auto">
+                <!-- Tax breakdown table will be inserted here -->
+            </div>
+            
+            <!-- Advance Tax Installment Table -->
+            <h3 class="text-lg font-bold text-gray-800 pt-4 border-b pb-2">6. Advance Tax Installment Schedule</h3>
+            <div id="advanceTaxWarning" class="hidden p-4 bg-yellow-100 text-yellow-800 rounded-lg text-sm border-l-4 border-yellow-500" role="alert">
+                <p class="font-semibold">Note:</p>
+                <p>Advance Tax is only mandatory if your Tax Balance Remaining exceeds ₹10,000.</p>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                    <thead class="bg-blue-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date (On or before)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cumulative % of Tax</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Required Cumulative Payment</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Due in this Installment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="installmentTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Installment rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs text-gray-500 mt-4">*This calculation simplifies Capital Gains Tax and assumes a non-presumptive taxpayer.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. CONFIGURATION (FY 2025-26 / AY 2026-27) ---
+
+        // Tax Slabs for Individuals (Non-Senior/Super Senior)
+        const TAX_SLABS = {
+            old: [
+                { limit: 250000, rate: 0.00, baseTax: 0, prevLimit: 0 },
+                { limit: 500000, rate: 0.05, baseTax: 0, prevLimit: 250000 },
+                { limit: 1000000, rate: 0.20, baseTax: 12500, prevLimit: 500000 }, 
+                { limit: Infinity, rate: 0.30, baseTax: 112500, prevLimit: 1000000 }
+            ],
+            // UPDATED NEW REGIME SLABS (Based on latest info for FY 2025-26)
+            new: [
+                { limit: 400000, rate: 0.00, baseTax: 0, prevLimit: 0 },
+                { limit: 800000, rate: 0.05, baseTax: 0, prevLimit: 400000 },
+                { limit: 1200000, rate: 0.10, baseTax: 20000, prevLimit: 800000 }, 
+                { limit: 1600000, rate: 0.15, baseTax: 60000, prevLimit: 1200000 }, 
+                { limit: 2000000, rate: 0.20, baseTax: 120000, prevLimit: 1600000 },
+                { limit: 2400000, rate: 0.25, baseTax: 200000, prevLimit: 2000000 },
+                { limit: Infinity, rate: 0.30, baseTax: 300000, prevLimit: 2400000 }
+            ]
+        };
+
+        const CESS_RATE = 0.04; 
+        
+        // Rebate u/s 87A Limits
+        const REBATE_87A_LIMIT_OLD = 500000;
+        const REBATE_87A_LIMIT_NEW = 700000; 
+        const REBATE_87A_MAX_OLD = 12500;
+        const REBATE_87A_MAX_NEW = 25000; 
+        
+        // Max Deduction Limits
+        const MAX_80C = 150000;
+        const MAX_HOME_LOAN_INTEREST = 200000;
+        const MAX_PROF_TAX = 2400; 
+        
+        // Surcharge Slabs (Based on Gross Total Income)
+        const SURCHARGE_SLABS = [
+            { limit: 5000000, rate: 0.00 },
+            { limit: 10000000, rate: 0.10 },
+            { limit: 20000000, rate: 0.15 },
+            { limit: 50000000, rate: 0.25 },
+            { limit: Infinity, rate: 0.37 }
+        ];
+
+        // Advance Tax Installment Schedule
+        const ADVANCE_TAX_SCHEDULE = [
+            { date: "June 15", cumulative: 0.15 },
+            { date: "September 15", cumulative: 0.45 },
+            { date: "December 15", cumulative: 0.75 },
+            { date: "March 15", cumulative: 1.00 }
+        ];
+
+        // Sample CSV Content
+        const SAMPLE_CSV_CONTENT = `Purchase Date,Sale Date,Purchase Value,Sale Price,Expenses
+2024-01-01,2024-06-01,50000,60000,500
+2023-01-01,2024-02-01,120000,150000,1000
+2024-05-01,2024-07-01,80000,75000,200
+2023-05-01,2024-08-01,40000,85000,100
+`;
+        
+        // Global state for Capital Gains Transactions
+        let capitalGainsTransactions = [];
+        
+        // --- 2. HELPER FUNCTIONS ---
+
+        // Helper function to format currency
+        const formatRupees = (amount) => {
+            return Math.round(amount).toLocaleString('en-IN');
+        };
+
+        /**
+         * Calculates Income Tax based on the chosen slab regime (used for final liability).
+         */
+        function calculateIncomeTax(taxableIncome, regime) {
+            if (taxableIncome <= 0) return 0;
+            
+            const slabs = TAX_SLABS[regime];
+            let tax = 0;
+
+            for (const slab of slabs) {
+                const prevLimit = slab.prevLimit || 0; 
+
+                if (taxableIncome > prevLimit) {
+                    const incomeInSlab = Math.min(taxableIncome, slab.limit) - prevLimit;
+                    tax += incomeInSlab * slab.rate;
+                }
+                if (taxableIncome <= slab.limit) break;
+            }
+
+            return tax;
+        }
+
+        /**
+         * Generates the step-by-step tax breakdown for display.
+         */
+        function getTaxBreakdown(taxableIncome, regime) {
+            if (taxableIncome <= 0) return { breakdown: [], totalTax: 0 };
+            
+            const slabs = TAX_SLABS[regime];
+            let currentIncome = taxableIncome;
+            let breakdown = [];
+            let totalTaxFromSlabs = 0;
+
+            for (const slab of slabs) {
+                const prevLimit = slab.prevLimit;
+                const limit = slab.limit;
+
+                if (currentIncome > prevLimit) {
+                    
+                    // Income portion falling into this slab (up to the limit of the slab)
+                    const incomeInSlab = Math.min(currentIncome, limit) - prevLimit;
+                    
+                    if (incomeInSlab > 0) {
+                        const marginalTax = incomeInSlab * slab.rate;
+                        totalTaxFromSlabs += marginalTax;
+
+                        breakdown.push({
+                            range: `₹ ${formatRupees(prevLimit)} - ${limit === Infinity ? 'Above' : `₹ ${formatRupees(limit)}`}`,
+                            incomeApplied: incomeInSlab,
+                            rate: slab.rate * 100,
+                            marginalTax: marginalTax,
+                            description: slab.rate === 0 ? "Tax Exempt" : `Taxed at ${slab.rate * 100}%`
+                        });
+                    }
+                }
+                
+                // Stop if we've accounted for all of the taxable income
+                if (currentIncome <= limit) {
+                    break;
+                }
+            }
+            
+            return { breakdown, totalTax: totalTaxFromSlabs }; 
+        }
+
+        // Calculates Rebate u/s 87A
+        function calculateRebate(taxableIncome, incomeTax, regime) {
+            let rebateMax = 0;
+            let rebateLimit = 0;
+
+            if (regime === 'old') {
+                rebateMax = REBATE_87A_MAX_OLD;
+                rebateLimit = REBATE_87A_LIMIT_OLD;
+            } else { // new regime
+                rebateMax = REBATE_87A_MAX_NEW;
+                rebateLimit = REBATE_87A_LIMIT_NEW;
+            }
+
+            if (taxableIncome <= rebateLimit) {
+                return Math.min(incomeTax, rebateMax);
+            }
+            return 0;
+        }
+
+        // Calculates Surcharge
+        function calculateSurcharge(grossIncome, taxAfterRebate) {
+            if (grossIncome <= SURCHARGE_SLABS[0].limit) return 0;
+
+            // Surcharge is applied based on the highest slab the Gross Income falls into.
+            // We iterate from the highest surcharge bracket downwards.
+            for (let i = SURCHARGE_SLABS.length - 1; i >= 0; i--) {
+                if (grossIncome > SURCHARGE_SLABS[i].limit) {
+                    return taxAfterRebate * SURCHARGE_SLABS[i].rate;
+                }
+            }
+            return 0;
+        }
+
+        // Toggles the visibility of the deduction fields based on the selected regime
+        function updateUIBasedOnRegime(regime) {
+            const newStdDeductionWrapper = document.getElementById('newRegimeStdDeductionWrapper');
+            const oldDeductionsWrapper = document.getElementById('oldRegimeDeductionsWrapper');
+            const profTaxWrapper = document.getElementById('profTaxWrapper'); 
+            const newRegimePill = document.getElementById('newRegimePill');
+            const oldRegimePill = document.getElementById('oldRegimePill');
+            
+            // Highlight the selected regime pill
+            if (regime === 'new') {
+                newRegimePill.classList.remove('bg-gray-50', 'border-gray-200');
+                newRegimePill.classList.add('bg-blue-50', 'border-blue-200');
+                oldRegimePill.classList.remove('bg-blue-50', 'border-blue-200');
+                oldRegimePill.classList.add('bg-gray-50', 'border-gray-200');
+
+                newStdDeductionWrapper.classList.remove('hidden');
+                oldDeductionsWrapper.classList.add('hidden');
+                profTaxWrapper.classList.add('hidden'); // Hide prof tax in new regime
+            } else {
+                newRegimePill.classList.remove('bg-blue-50', 'border-blue-200');
+                newRegimePill.classList.add('bg-gray-50', 'border-gray-200');
+                oldRegimePill.classList.remove('bg-gray-50', 'border-blue-200');
+                oldRegimePill.classList.add('bg-blue-50', 'border-blue-200');
+                
+                newStdDeductionWrapper.classList.add('hidden');
+                oldDeductionsWrapper.classList.remove('hidden');
+                profTaxWrapper.classList.remove('hidden'); // Show prof tax in old regime
+            }
+        }
+        
+        /**
+         * Creates a downloadable file from a string.
+         */
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- 3. CAPITAL GAINS LOGIC ---
+
+        /**
+         * Calculates total STCG and LTCG from the global transaction list.
+         */
+        function computeCapitalGains() {
+            let totalStcg = 0;
+            let totalLtcg = 0;
+            
+            capitalGainsTransactions.forEach(t => {
+                // Net Gain = Sale Price - Purchase Cost - Expenses
+                const netGain = t.saleValue - t.purchaseValue - t.expenses;
+                
+                // Assuming equity/equity-oriented mutual funds for the 12-month rule
+                const dateA = new Date(t.purchaseDate);
+                const dateB = new Date(t.saleDate);
+                
+                // Check if the holding period is more than 12 months (LTCG)
+                // Add 1 day to purchase date + 12 months for calculation correctness
+                const oneYearLater = new Date(dateA);
+                oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+                
+                if (dateB >= oneYearLater) {
+                    // Long Term Capital Gain (LTCG)
+                    // Loss is adjusted against LTCG
+                    totalLtcg += netGain;
+                    t.type = netGain >= 0 ? 'LTCG (>12M)' : 'LTCL (>12M)';
+                } else {
+                    // Short Term Capital Gain (STCG)
+                    // Loss is adjusted against STCG
+                    totalStcg += netGain;
+                    t.type = netGain >= 0 ? 'STCG (<12M)' : 'STCL (<12M)';
+                }
+                t.netGain = netGain; // Store result back in the object for rendering
+            });
+
+            // Update the read-only income fields (only positive gains contribute to income fields)
+            document.getElementById('incomeStcg').value = Math.round(totalStcg); // Use total, including losses for calculation ease
+            document.getElementById('incomeLtcg').value = Math.round(totalLtcg);
+            
+            // Re-run the main tax calculation as income has changed
+            calculateAdvanceTax();
+        }
+
+        /**
+         * Renders the current list of transactions to the table.
+         */
+        function renderTransactionInputs() {
+            const tableBody = document.getElementById('transactionTableBody');
+            tableBody.innerHTML = '';
+            
+            // Re-compute before rendering to ensure all fields (netGain, type) are up-to-date
+            computeCapitalGains(); 
+            
+            if (capitalGainsTransactions.length === 0) {
+                tableBody.insertAdjacentHTML('beforeend', '<tr id="emptyTransactionRow"><td colspan="6" class="px-3 py-2 text-center text-sm text-gray-400">No transactions added yet.</td></tr>');
+                return;
+            }
+
+            capitalGainsTransactions.forEach((t, index) => {
+                const isLoss = t.netGain < 0;
+                const gainClass = isLoss ? 'text-red-600' : 'text-green-600';
+                const typeClass = isLoss ? 'text-red-500' : 'text-blue-600';
+                
+                const row = `
+                    <tr>
+                        <td class="px-3 py-2 text-left text-xs text-gray-700">${t.purchaseDate}</td>
+                        <td class="px-3 py-2 text-left text-xs text-gray-700">${t.saleDate}</td>
+                        <td class="px-3 py-2 text-right text-xs text-gray-700">${formatRupees(t.purchaseValue)}</td>
+                        <td class="px-3 py-2 text-right text-xs font-semibold ${gainClass}">${formatRupees(t.netGain)}</td>
+                        <td class="px-3 py-2 text-left text-xs ${typeClass} font-medium">${t.type}</td>
+                        <td class="px-3 py-2 text-left text-xs">
+                            <button onclick="deleteTransaction(${index})" class="text-red-500 hover:text-red-700 font-medium">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        /**
+         * Adds a new transaction from the input fields.
+         */
+        function addTransaction() {
+            const pDate = document.getElementById('newPurchaseDate').value;
+            const sDate = document.getElementById('newSaleDate').value;
+            // Use parseFloat with fallback to 0
+            const pValue = parseFloat(document.getElementById('newPurchaseValue').value) || 0;
+            const sValue = parseFloat(document.getElementById('newSaleValue').value) || 0;
+            const expenses = parseFloat(document.getElementById('newExpenses').value) || 0;
+            
+            if (!pDate || !sDate || pValue < 0 || sValue < 0) {
+                console.error("Please ensure Purchase Date, Sale Date, Purchase Value, and Sale Price are entered correctly.");
+                return;
+            }
+            if (new Date(pDate) >= new Date(sDate)) {
+                 console.error("Purchase Date must be before Sale Date.");
+                 return;
+            }
+
+            capitalGainsTransactions.push({
+                purchaseDate: pDate,
+                saleDate: sDate,
+                purchaseValue: pValue,
+                saleValue: sValue,
+                expenses: expenses,
+                netGain: 0, 
+                type: 'N/A'
+            });
+
+            // Clear input fields for next entry
+            document.getElementById('newPurchaseDate').value = '';
+            document.getElementById('newSaleDate').value = '';
+            document.getElementById('newPurchaseValue').value = '';
+            document.getElementById('newSaleValue').value = '';
+            document.getElementById('newExpenses').value = '0'; 
+
+            renderTransactionInputs();
+        }
+        
+        /**
+         * Deletes a transaction by index.
+         */
+        function deleteTransaction(index) {
+            capitalGainsTransactions.splice(index, 1);
+            renderTransactionInputs();
+        }
+        
+        /**
+         * Clears all transactions.
+         */
+        function clearAllTransactions() {
+            capitalGainsTransactions = [];
+            // Resetting these values will trigger a re-render and re-calculation
+            document.getElementById('incomeStcg').value = 0;
+            document.getElementById('incomeLtcg').value = 0;
+            renderTransactionInputs();
+            calculateAdvanceTax();
+        }
+        
+        /**
+         * Imports transactions from a selected CSV file.
+         */
+        function importFromCSV() {
+            const fileInput = document.getElementById('csvFileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                console.error("Please select a CSV file.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const csvText = e.target.result;
+                const lines = csvText.trim().split('\n');
+                
+                let newTransactions = [];
+                // Simple heuristic to skip header row: check if the first line contains 'date' or 'value'
+                const firstLine = lines[0].toLowerCase();
+                const dataLines = (firstLine.includes('date') || firstLine.includes('value') || firstLine.includes('cost')) ? lines.slice(1) : lines;
+
+                dataLines.forEach(line => {
+                    const columns = line.split(',').map(col => col.trim());
+                    // Expected order: PurchaseDate, SaleDate, PurchaseValue, SaleValue, Expenses
+                    if (columns.length >= 5) {
+                        const pDate = columns[0];
+                        const sDate = columns[1];
+                        // Clean up numbers by removing common currency symbols and commas
+                        const pValue = parseFloat(columns[2].replace(/[₹$,]/g, '')) || 0;
+                        const sValue = parseFloat(columns[3].replace(/[₹$,]/g, '')) || 0;
+                        const expenses = parseFloat(columns[4].replace(/[₹$,]/g, '')) || 0;
+                        
+                        const pDateObj = new Date(pDate);
+                        const sDateObj = new Date(sDate);
+
+                        // Basic validation: must have valid dates and purchase before sale
+                        if (pDateObj.toString() !== 'Invalid Date' && sDateObj.toString() !== 'Invalid Date' && pDateObj < sDateObj && pValue >= 0 && sValue >= 0) {
+                             newTransactions.push({
+                                purchaseDate: pDate,
+                                saleDate: sDate,
+                                purchaseValue: pValue,
+                                saleValue: sValue,
+                                expenses: expenses,
+                                netGain: 0, 
+                                type: 'N/A'
+                            });
+                        } else {
+                            console.warn(`Skipping invalid transaction line (Check Date format/order): ${line}`);
+                        }
+                    }
+                });
+
+                if (newTransactions.length > 0) {
+                    capitalGainsTransactions = capitalGainsTransactions.concat(newTransactions);
+                    renderTransactionInputs();
+                    // Clear file input after successful import
+                    fileInput.value = ''; 
+                    console.log(`${newTransactions.length} transactions imported successfully.`);
+                } else {
+                    console.error("No valid transactions found in the CSV file.");
+                }
+            };
+            reader.onerror = () => {
+                console.error("Error reading the file.");
+            };
+            reader.readAsText(file);
+        }
+
+
+        // --- 4. MAIN CALCULATION FUNCTION ---
+
+        function calculateAdvanceTax() {
+            // 1. Get Inputs
+            const regime = document.querySelector('input[name="taxRegime"]:checked').value;
+            
+            // Income
+            // Use || 0 to default to 0 if input is empty or NaN
+            const incomeSalary = parseFloat(document.getElementById('incomeSalary').value) || 0;
+            const incomeDividend = parseFloat(document.getElementById('incomeDividend').value) || 0;
+            const incomeInterest = parseFloat(document.getElementById('incomeInterest').value) || 0;
+            // STCG and LTCG are now read directly from the (read-only) input fields, which are updated by computeCapitalGains()
+            // Note: The total STCG/LTCG values *include* losses, which is correct for calculation.
+            const incomeStcg = parseFloat(document.getElementById('incomeStcg').value) || 0; 
+            const incomeLtcg = parseFloat(document.getElementById('incomeLtcg').value) || 0;
+            
+            // Tax/TDS
+            const tdsPaid = parseFloat(document.getElementById('tdsPaid').value) || 0;
+            
+            // Professional Tax (only used if old regime is active)
+            const profTaxInput = parseFloat(document.getElementById('profTax').value) || 0;
+            // The deduction is only applied if the old regime is selected
+            const profTax = (regime === 'old') ? Math.min(profTaxInput, MAX_PROF_TAX) : 0; 
+
+            // Standard Deduction (Now editable inputs)
+            const stdDeductionNew = parseFloat(document.getElementById('stdDeductionNew').value) || 0;
+            const stdDeductionOld = parseFloat(document.getElementById('stdDeductionOld').value) || 0;
+
+            // Old Regime Only Deductions
+            const deductions80C = parseFloat(document.getElementById('deductions80C').value) || 0;
+            const otherDeductions = parseFloat(document.getElementById('otherDeductions').value) || 0;
+            const hraClaim = parseFloat(document.getElementById('hraClaim').value) || 0;
+            const homeLoanInterest = parseFloat(document.getElementById('homeLoanInterest').value) || 0;
+
+            // Update UI based on selection (hides/shows deduction fields)
+            updateUIBasedOnRegime(regime);
+
+            // Calculate Gross Total Income (Sum of all income sources)
+            const grossIncome = incomeSalary + incomeDividend + incomeInterest + incomeStcg + incomeLtcg;
+            
+            // NOTE: Capital Gains: The calculation here simplifies CG tax rates (15% for STCG, 10% for LTCG > 1L)
+            // and treats them as normal income, which is sufficient for an estimator unless the user is in a low slab. 
+            // We use the computed incomeStcg and incomeLtcg values (which can be negative due to losses).
+
+            // --- 2. Calculate Exemptions & Deductions ---
+            
+            let totalDeductionsChapterVI_A = 0; 
+            let totalDeductionsSec16 = 0; 
+            let totalDeductionsSec24 = 0; 
+            let totalExemptionsSec10 = 0; 
+
+            // Step 1: Exemptions (HRA) - Only available in Old Regime
+            if (regime === 'old') {
+                totalExemptionsSec10 = hraClaim;
+            }
+            
+            // Adjust Salary Income after HRA Exemption 
+            const adjustedSalaryIncome = Math.max(0, incomeSalary - totalExemptionsSec10);
+            // Sum all income after HRA exemption
+            const totalIncomeAfterExemptions = adjustedSalaryIncome + incomeDividend + incomeInterest + incomeStcg + incomeLtcg;
+
+            // Step 2: Deductions under Section 16 (Standard Deduction & Professional Tax)
+            // Prof Tax only applicable if Old Regime is selected
+            if (regime === 'old') {
+                totalDeductionsSec16 += profTax; 
+            }
+            
+            if (regime === 'new' && adjustedSalaryIncome > 0) { // Std deduction only on salary income (adjusted for HRA)
+                 totalDeductionsSec16 += stdDeductionNew; 
+            } else if (regime === 'old' && adjustedSalaryIncome > 0) {
+                 totalDeductionsSec16 += stdDeductionOld;
+            }
+            
+            // Step 3: Deductions under Section 24 (Home Loan Interest) - Only available in Old Regime
+            if (regime === 'old') {
+                 totalDeductionsSec24 = Math.min(homeLoanInterest, MAX_HOME_LOAN_INTEREST);
+            }
+
+            // Step 4: Deductions under Chapter VI-A (80C, 80D, etc.) - Only available in Old Regime
+            if (regime === 'old') {
+                 totalDeductionsChapterVI_A += Math.min(deductions80C, MAX_80C) + otherDeductions;
+            }
+            
+            // 3. Calculate Net Taxable Income
+            const netTaxableIncome = Math.max(0, totalIncomeAfterExemptions - totalDeductionsSec24 - totalDeductionsChapterVI_A - totalDeductionsSec16);
+            
+            // 4. Calculate Income Tax (excluding Cess, Surcharge)
+            let incomeTax = calculateIncomeTax(netTaxableIncome, regime);
+
+            // 5. Calculate Rebate u/s 87A
+            const rebate = calculateRebate(netTaxableIncome, incomeTax, regime);
+            let taxAfterRebate = Math.max(0, incomeTax - rebate);
+
+            // 6. Calculate Surcharge (based on Gross Income)
+            const surcharge = calculateSurcharge(grossIncome, taxAfterRebate);
+            let taxAfterSurcharge = taxAfterRebate + surcharge;
+
+            // 7. Calculate Health & Education Cess
+            const cess = Math.round(taxAfterSurcharge * CESS_RATE); // Round Cess to nearest Rupee
+
+            // 8. Final Tax Liabilities
+            const grossTaxLiability = Math.round(taxAfterSurcharge + cess);
+            
+            // 9. Calculate Net Tax Payable (Total Tax Liability minus TDS)
+            const totalTaxRemaining = Math.max(0, grossTaxLiability - tdsPaid);
+
+            // --- 5. Display Results ---
+
+            document.getElementById('calculatedGrossIncome').textContent = `₹ ${formatRupees(grossIncome)}`;
+            document.getElementById('netTaxableIncome').textContent = `₹ ${formatRupees(netTaxableIncome)}`;
+            document.getElementById('grossTaxLiability').textContent = `₹ ${formatRupees(grossTaxLiability)}`;
+            document.getElementById('netTaxPayableTotal').textContent = `₹ ${formatRupees(totalTaxRemaining)}`;
+            document.getElementById('taxBalanceRemaining').textContent = `₹ ${formatRupees(totalTaxRemaining)}`;
+            
+            // Handle Advance Tax Warning
+            const warningElement = document.getElementById('advanceTaxWarning');
+            if (totalTaxRemaining > 10000) {
+                warningElement.classList.add('hidden');
+            } else {
+                warningElement.classList.remove('hidden');
+            }
+
+            // 6. Generate Slab Breakdown Table
+            const { breakdown } = getTaxBreakdown(netTaxableIncome, regime);
+            const breakdownContainer = document.getElementById('slabCalculationDetails');
+            
+            let cumulativeTaxForDisplay = 0;
+
+            let breakdownHTML = `
+                <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden border">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">TAX CALCULATION STEP</th>
+                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Income Applied (₹) / Rate</th>
+                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Tax on this Step (₹)</th>
+                            <th class="px-3 py-2 text-right text-xs font-medium text-blue-700 uppercase tracking-wider">Cumulative Tax (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+            `;
+            
+            if (breakdown.length === 0) {
+                breakdownHTML += `<tr><td colspan="4" class="px-3 py-4 text-center text-gray-500">Net Taxable Income is ₹0 or less. No Tax Liability.</td></tr>`;
+            } else {
+                // 1. SLAB CALCULATIONS
+                breakdown.forEach(step => {
+                    cumulativeTaxForDisplay += step.marginalTax;
+                    const taxRateDisplay = step.rate > 0 ? `${step.rate}% on ₹${formatRupees(step.incomeApplied)}` : 'Exempt';
+                    
+                    breakdownHTML += `
+                        <tr>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700">${step.range}</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right text-gray-700">${taxRateDisplay}</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-medium text-gray-800">${formatRupees(step.marginalTax)}</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-bold text-blue-700">${formatRupees(cumulativeTaxForDisplay)}</td>
+                        </tr>
+                    `;
+                });
+                
+                // 2. REBATE
+                if (rebate > 0) {
+                    cumulativeTaxForDisplay -= rebate;
+                    breakdownHTML += `
+                        <tr class="bg-green-50 border-y-2 border-green-200">
+                            <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-700">Less: Rebate u/s 87A (Max ₹${formatRupees(regime === 'new' ? REBATE_87A_MAX_NEW : REBATE_87A_MAX_OLD)})</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-semibold text-green-700">Taxable Income up to ₹${formatRupees(regime === 'new' ? REBATE_87A_LIMIT_NEW : REBATE_87A_LIMIT_OLD)}</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-semibold text-red-600">- ${formatRupees(rebate)}</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-bold text-blue-700">${formatRupees(cumulativeTaxForDisplay)}</td>
+                        </tr>
+                    `;
+                }
+
+                // 3. SURCHARGE
+                if (surcharge > 0) {
+                    cumulativeTaxForDisplay += surcharge;
+                    const surchargeRate = (surcharge / taxAfterRebate) * 100;
+                    breakdownHTML += `
+                        <tr class="bg-red-50 border-y-2 border-red-200">
+                            <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-red-700">Add: Surcharge (Gross Income > ₹50 Lakh)</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-semibold text-red-700">${surchargeRate.toFixed(1)}%</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-semibold text-red-700">+ ${formatRupees(surcharge)}</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-bold text-blue-700">${formatRupees(cumulativeTaxForDisplay)}</td>
+                        </tr>
+                    `;
+                }
+                
+                // 4. CESS
+                if (grossTaxLiability > 0) { // Only calculate Cess if there's any tax remaining
+                    const taxBaseForCess = taxAfterSurcharge; // Tax after Surcharge is the base for Cess
+                    cumulativeTaxForDisplay = grossTaxLiability; // Set to the final rounded gross tax liability
+                    breakdownHTML += `
+                        <tr class="bg-yellow-50 border-y-2 border-yellow-200">
+                            <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-yellow-700">Add: Health & Education Cess (4%)</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-semibold text-yellow-700">${CESS_RATE * 100}% on ₹${formatRupees(taxBaseForCess)}</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-semibold text-yellow-700">+ ${formatRupees(cess)}</td>
+                            <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-extrabold text-indigo-700">${formatRupees(cumulativeTaxForDisplay)}</td>
+                        </tr>
+                    `;
+                }
+                
+                // FINAL GROSS LIABILITY ROW
+                 breakdownHTML += `
+                    <tr class="bg-blue-100 border-t-4 border-blue-400">
+                        <td colspan="3" class="px-3 py-3 whitespace-nowrap text-base font-extrabold text-blue-800 text-right">TOTAL GROSS TAX LIABILITY</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-base text-right font-extrabold text-blue-800">₹ ${formatRupees(grossTaxLiability)}</td>
+                    </tr>
+                `;
+            }
+
+            breakdownHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            breakdownContainer.innerHTML = breakdownHTML;
+
+            // 7. Generate Installment Schedule
+            const tableBody = document.getElementById('installmentTableBody');
+            tableBody.innerHTML = '';
+            
+            let previousCumulativePayment = 0;
+
+            ADVANCE_TAX_SCHEDULE.forEach(installment => {
+                // Required cumulative payment based on percentage of the Total Tax Remaining
+                const requiredCumulativePayment = Math.round(totalTaxRemaining * installment.cumulative);
+                
+                // Payment due in this installment is the difference between cumulative payments
+                const currentInstallmentDue = Math.max(0, requiredCumulativePayment - previousCumulativePayment);
+                
+                previousCumulativePayment = requiredCumulativePayment; // Update for the next iteration
+
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${installment.date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${Math.round(installment.cumulative * 100)}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹ ${formatRupees(requiredCumulativePayment)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-base font-semibold text-blue-600">₹ ${formatRupees(currentInstallmentDue)}</td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        // --- 6. INITIALIZATION AND EVENT LISTENERS ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const inputs = [
+                document.getElementById('incomeSalary'),
+                document.getElementById('incomeDividend'),
+                document.getElementById('incomeInterest'),
+                document.getElementById('tdsPaid'),
+                document.getElementById('profTax'),
+                document.getElementById('stdDeductionNew'),
+                document.getElementById('stdDeductionOld'),
+                document.getElementById('deductions80C'),
+                document.getElementById('otherDeductions'),
+                document.getElementById('hraClaim'),
+                document.getElementById('homeLoanInterest'),
+                document.getElementById('newRegime'),
+                document.getElementById('oldRegime')
+            ];
+
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateAdvanceTax);
+                if (input.type === 'radio') {
+                    input.addEventListener('change', calculateAdvanceTax);
+                }
+            });
+            
+            // --- Capital Gains Event Listeners ---
+            document.getElementById('addTransactionBtn').addEventListener('click', addTransaction);
+            document.getElementById('clearTransactionsBtn').addEventListener('click', clearAllTransactions);
+            document.getElementById('importCsvBtn').addEventListener('click', importFromCSV);
+            
+            // Download Sample CSV Listener
+            document.getElementById('downloadSampleCsv').addEventListener('click', (e) => {
+                e.preventDefault();
+                downloadFile(SAMPLE_CSV_CONTENT, 'sample_capital_gains.csv', 'text/csv');
+            });
+
+
+            // Set initial values (Standard Deduction defaults)
+            document.getElementById('stdDeductionNew').value = 75000;
+            document.getElementById('stdDeductionOld').value = 50000;
+            
+            // Run initial calculation and render transactions on load (defaults to New Regime)
+            renderTransactionInputs();
+            calculateAdvanceTax();
+        });
+        
+        // Expose function globally for button actions in the table
+        window.deleteTransaction = deleteTransaction;
+    </script>
+</body>
+</html>
