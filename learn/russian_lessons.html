@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Russian Learning Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* General styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        /* Progress Bar Styles */
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 1rem;
+            height: 24px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #3b82f6); /* Indigo to Blue */
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.5rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* Achievement Styles */
+        .achievements-panel {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); /* Purple Gradient */
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        .achievement-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .achievement-badge.unlocked {
+            background: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .achievement-badge:hover {
+            transform: scale(1.05);
+        }
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+        .achievement-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Celebration Animation */
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .celebrating {
+            animation: celebrate 0.6s ease;
+        }
+
+        /* Context Image Styles */
+        .word-context {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .context-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 0.75rem;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .mnemonic-hint {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #92400e;
+            width: 100%;
+            text-align: left;
+        }
+
+        /* Difficulty Indicator */
+        .difficulty-stars {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+        .difficulty-star {
+            color: #fbbf24;
+            font-size: 1.2rem;
+        }
+        .difficulty-star.empty {
+            color: #d1d5db;
+        }
+
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); /* Blue Gradient */
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            color: white;
+        }
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* Main Container & Typography */
+        .main-container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+            text-align: center;
+        }
+        h3 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #5a67d8;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #4a5568;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        ul, ol {
+            list-style: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        li {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        /* Quiz Elements */
+        .item-display {
+            font-size: 3.5rem; /* Larger for Russian text */
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 1rem;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        .pronounce-button {
+            background-color: #6366f1;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+        .pronounce-button:hover {
+            background-color: #4f46e5;
+        }
+        .answer-button {
+            background-color: #cbd5e0;
+            color: #2d3748;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+        .answer-button:hover {
+            background-color: #a0aec0;
+            transform: translateY(-2px);
+        }
+        .answer-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #e2e8f0;
+        }
+        .correct {
+            background-color: #48bb78 !important;
+            color: white !important;
+        }
+        .incorrect {
+            background-color: #f56565 !important;
+            color: white !important;
+        }
+        .feedback {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .score-display {
+            font-size: 1.25rem;
+            font-weight: medium;
+            color: #4a5568;
+            text-align: center;
+        }
+        .nav-button {
+            background-color: #3182ce;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            text-align: center;
+        }
+        .nav-button:hover {
+            background-color: #2c5282;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* Lookup Table */
+        .lookup-sheet-container {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .lookup-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        .lookup-table th, .lookup-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .lookup-table th {
+            background-color: #edf2f7;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .lookup-table tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        .lookup-table td:first-child {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        .lookup-pronounce-button {
+            background-color: #6366f1;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.3rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            margin-left: 0.5rem;
+        }
+        .lookup-pronounce-button:hover {
+            background-color: #4f46e5;
+        }
+
+        /* Grammar Guide Specifics */
+        .grammar-example {
+            background-color: #f7fafc;
+            border-left: 4px solid #63b3ed;
+            padding: 1rem 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+            color: #2d3748;
+        }
+        .russian-text {
+            font-weight: 600;
+            color: #3182ce;
+        }
+        .transliteration {
+            font-style: italic;
+            color: #4c51bf;
+        }
+        .translation {
+            color: #2d3748;
+        }
+        .lookup-button {
+            background-color: #805ad5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            margin-bottom: 1rem;
+        }
+        .lookup-button:hover {
+            background-color: #6b46c1;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 id="mainTitle">Comprehensive Russian Learning Tool</h1>
+
+        <div class="flex justify-center gap-2 mb-4">
+            <button class="nav-button" id="navCyrillic">Cyrillic</button>
+            <button class="nav-button" id="navWords">Words</button>
+            <button class="nav-button" id="navSentences">Sentences</button>
+            <button class="nav-button" id="navGrammar">Grammar</button>
+        </div>
+
+        <div id="startScreen" class="module-section active">
+            <h2>Welcome to the Russian Learning Tool!</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalWordsLearned">0</div>
+                    <div class="stat-label">Items Mastered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Day Streak 🔥</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCorrect">0</div>
+                    <div class="stat-label">Total Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="overallAccuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+
+            <div class="achievements-panel">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">🏆 Achievements</h3>
+                <div class="achievement-grid" id="achievementGrid">
+                    </div>
+            </div>
+
+            <p>This interactive tool will help you learn the Russian Cyrillic script, common words, basic sentences, and fundamental grammar concepts.</p>
+            <p>Navigate using the buttons above to choose your learning module. Click "Cyrillic" to start learning the alphabet!</p>
+        </div>
+
+        <div id="russianCyrillicModule" class="module-section hidden">
+            <h2 class="text-center">Cyrillic Alphabet Quiz</h2>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="cyrillicProgressBar" style="width: 0%">
+                    <span id="cyrillicProgressText">0/0</span>
+                </div>
+            </div>
+
+            <button class="lookup-button" id="toggleCyrillicLookupButton">Show Alphabet Lookup</button>
+
+            <div id="cyrillicQuizSection">
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="cyrillicChar"></div>
+                    <button class="pronounce-button" id="cyrillicPronounceButton">Listen</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="cyrillicAnswerButtons">
+                    </div>
+                <div class="feedback" id="cyrillicFeedback"></div>
+                <p class="score-display">Score: <span id="cyrillicScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="cyrillicNextButton">Next Character</button>
+                <button class="nav-button hidden" id="cyrillicRestartButton">Restart Quiz</button>
+            </div>
+
+            <div class="lookup-sheet-container hidden" id="cyrillicLookupSheet">
+                <h3 class="text-center">Cyrillic Alphabet Lookup</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Russian</th>
+                            <th>Pronunciation/Name</th>
+                            <th>Listen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cyrillicLookupTableBody">
+                        </tbody>
+                </table>
+                <button class="lookup-button" id="hideCyrillicLookupButton">Hide Lookup Sheet</button>
+            </div>
+        </div>
+
+        <div id="russianWordsModule" class="module-section hidden">
+            <h2 class="text-center">Russian Words Quiz</h2>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="wordProgressBar" style="width: 0%">
+                    <span id="wordProgressText">0/0</span>
+                </div>
+            </div>
+
+            <button class="lookup-button" id="toggleWordLookupButton">Show Words Lookup</button>
+
+            <div id="wordQuizSection">
+                <div class="difficulty-stars" id="wordDifficulty"></div>
+
+                <div class="word-context" id="wordContext">
+                    <div class="mnemonic-hint" id="wordMnemonic" style="display: none;"></div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="wordDisplay"></div>
+                    <button class="pronounce-button" id="wordPronounceButton">Listen</button>
+                    <div class="text-lg font-medium text-gray-500" id="wordTransliteration"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4" id="wordAnswerButtons">
+                    </div>
+                <div class="feedback" id="wordFeedback"></div>
+                <p class="score-display">Score: <span id="wordScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="wordNextButton">Next Word</button>
+                <button class="nav-button hidden" id="wordRestartButton">Restart Quiz</button>
+            </div>
+
+            <div class="lookup-sheet-container hidden" id="wordLookupSheet">
+                <h3 class="text-center">Russian Words Lookup</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Russian Word</th>
+                            <th>Transliteration</th>
+                            <th>English Meaning</th>
+                            <th>Listen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wordLookupTableBody">
+                        </tbody>
+                </table>
+                <button class="lookup-button" id="hideWordLookupButton">Hide Lookup Sheet</button>
+            </div>
+        </div>
+
+        <div id="russianSentencesModule" class="module-section hidden">
+            <h2 class="text-center">Russian Sentences Quiz</h2>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="sentenceProgressBar" style="width: 0%">
+                    <span id="sentenceProgressText">0/0</span>
+                </div>
+            </div>
+
+            <button class="lookup-button" id="toggleSentenceLookupButton">Show Sentences Lookup</button>
+
+            <div id="sentenceQuizSection">
+                <div class="difficulty-stars" id="sentenceDifficulty"></div>
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="sentenceDisplay"></div>
+                    <button class="pronounce-button" id="sentencePronounceButton">Listen</button>
+                    <div class="text-lg font-medium text-gray-500" id="sentenceTransliteration"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4" id="sentenceAnswerButtons">
+                    </div>
+                <div class="feedback" id="sentenceFeedback"></div>
+                <p class="score-display">Score: <span id="sentenceScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="sentenceNextButton">Next Sentence</button>
+                <button class="nav-button hidden" id="sentenceRestartButton">Restart Quiz</button>
+            </div>
+
+            <div class="lookup-sheet-container hidden" id="sentenceLookupSheet">
+                <h3 class="text-center">Russian Sentences Lookup</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Russian Sentence</th>
+                            <th>Transliteration</th>
+                            <th>English Meaning</th>
+                            <th>Listen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sentenceLookupTableBody">
+                        </tbody>
+                </table>
+                <button class="lookup-button" id="hideSentenceLookupButton">Hide Lookup Sheet</button>
+            </div>
+        </div>
+
+        <div id="russianGrammarModule" class="module-section hidden">
+            <h2 class="text-center">Russian Grammar Guide: A Conversational Approach</h2>
+            <div id="grammarContent" class="grammar-section-content">
+                </div>
+            <div class="flex justify-center gap-4 mt-6">
+                <button id="grammarPrevButton" class="nav-button" disabled>Previous</button>
+                <button id="grammarNextButton" class="nav-button">Next</button>
+            </div>
+        </div>
+
+    </div>
+	<script>
+        // --- Global Learning Data Management ---
+        const learningData = {
+            stats: {
+                totalWordsLearned: 0,
+                currentStreak: 0,
+                lastStudyDate: null,
+                totalCorrect: 0,
+                totalAttempts: 0
+            },
+            wordMastery: {}, // Track difficulty for each item (id: mastery_level)
+            achievements: {
+                firstStep: false,
+                tenCorrect: false,
+                perfectScore: false,
+                weekStreak: false,
+                hundredWords: false,
+                speedster: false,
+                persistent: false,
+                polyglot: false
+            },
+
+            // Load from memory (would use localStorage in production)
+            load() {
+                // Using a global window object for data persistence within this session/page load
+                const stored = window.russianLearningData;
+                if (stored) {
+                    Object.assign(this.stats, stored.stats || {});
+                    Object.assign(this.wordMastery, stored.wordMastery || {});
+                    Object.assign(this.achievements, stored.achievements || {});
+                }
+                this.updateStreak();
+            },
+
+            // Save to memory
+            save() {
+                window.russianLearningData = {
+                    stats: {...this.stats},
+                    wordMastery: {...this.wordMastery},
+                    achievements: {...this.achievements}
+                };
+            },
+
+            // Update streak based on last study date
+            updateStreak() {
+                const today = new Date().toDateString();
+                const lastStudy = this.stats.lastStudyDate;
+
+                if (!lastStudy) {
+                    this.stats.currentStreak = 0;
+                } else {
+                    const lastDate = new Date(lastStudy);
+                    const todayDate = new Date(today);
+                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+
+                    if (diffDays === 0) {
+                        // Same day, keep streak
+                    } else if (diffDays === 1) {
+                        // Next day, increment streak
+                        this.stats.currentStreak++;
+                    } else {
+                        // Missed days, reset streak
+                        this.stats.currentStreak = 1;
+                    }
+                }
+                this.stats.lastStudyDate = today;
+                this.checkAchievements();
+                this.save();
+            },
+
+            // Record answer attempt
+            recordAttempt(itemId, correct) {
+                this.stats.totalAttempts++;
+                if (correct) {
+                    this.stats.totalCorrect++;
+                    // Check if this item is being mastered for the first time
+                    if (!this.wordMastery[itemId] || this.wordMastery[itemId] < 1) {
+                        this.stats.totalWordsLearned++;
+                    }
+                    this.wordMastery[itemId] = (this.wordMastery[itemId] || 0) + 1;
+                } else {
+                    this.wordMastery[itemId] = Math.max(0, (this.wordMastery[itemId] || 0) - 1);
+                }
+                this.checkAchievements();
+                this.save();
+                this.updateDashboard();
+            },
+
+            // Get item difficulty (for spaced repetition) - returns 1 (Easy) to 3 (Hard)
+            getDifficulty(itemId) {
+                const mastery = this.wordMastery[itemId] || 0;
+                if (mastery >= 5) return 1; // Easy
+                if (mastery >= 2) return 2; // Medium
+                return 3; // Hard
+            },
+
+            // Check and unlock achievements
+            checkAchievements() {
+                const prev = {...this.achievements};
+
+                if (this.stats.totalCorrect >= 1) this.achievements.firstStep = true;
+                if (this.stats.totalCorrect >= 10) this.achievements.tenCorrect = true;
+                if (this.stats.totalWordsLearned >= 50) this.achievements.hundredWords = true; // Lowered for demo
+                if (this.stats.currentStreak >= 7) this.achievements.weekStreak = true;
+
+                // Check for new achievements and display notification
+                Object.keys(this.achievements).forEach(key => {
+                    if (!prev[key] && this.achievements[key]) {
+                        showAchievementUnlock(key);
+                    }
+                });
+
+                this.save();
+                updateAchievementsDisplay();
+            },
+
+            // Update dashboard stats
+            updateDashboard() {
+                document.getElementById('totalWordsLearned').textContent = this.stats.totalWordsLearned;
+                document.getElementById('currentStreak').textContent = this.stats.currentStreak;
+                document.getElementById('totalCorrect').textContent = this.stats.totalCorrect;
+                const accuracy = this.stats.totalAttempts > 0
+                    ? Math.round((this.stats.totalCorrect / this.stats.totalAttempts) * 100)
+                    : 0;
+                document.getElementById('overallAccuracy').textContent = accuracy + '%';
+            }
+        };
+
+        // Achievement definitions
+        const achievementDefs = {
+            firstStep: { icon: '🎯', name: 'Первый Шаг', desc: 'Получите первый правильный ответ' },
+            tenCorrect: { icon: '⭐', name: 'Звездный Ученик', desc: 'Получите 10 правильных ответов' },
+            perfectScore: { icon: '💯', name: 'Идеально!', desc: 'Завершите викторину на 100%' },
+            weekStreak: { icon: '🔥', name: 'Недельный Воин', desc: 'Учитесь 7 дней подряд' },
+            hundredWords: { icon: '📚', name: 'Словарный Мастер', desc: 'Освойте 50 слов/символов' },
+            speedster: { icon: '⚡', name: 'Скороход', desc: 'Ответьте правильно на 10 вопросов подряд быстро' },
+            persistent: { icon: '💪', name: 'Настойчивый', desc: 'Завершите 50 викторин' },
+            polyglot: { icon: '🌟', name: 'Полиглот', desc: 'Освойте все модули' }
+        };
+
+        // Show achievement unlock notification
+        function showAchievementUnlock(achievementKey) {
+            const achievement = achievementDefs[achievementKey];
+            if (!achievement) return;
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+                color: white;
+                padding: 2rem;
+                border-radius: 1rem;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                animation: celebrate 0.6s ease;
+            `;
+            notification.innerHTML = `
+                <div style="font-size: 4rem; margin-bottom: 1rem;">${achievement.icon}</div>
+                <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Достижение Разблокировано!</div>
+                <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">${achievement.name}</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">${achievement.desc}</div>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.transition = 'opacity 0.5s';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Update achievements display
+        function updateAchievementsDisplay() {
+            const grid = document.getElementById('achievementGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            Object.keys(achievementDefs).forEach(key => {
+                const achievement = achievementDefs[key];
+                const unlocked = learningData.achievements[key];
+                const badge = document.createElement('div');
+                badge.className = `achievement-badge ${unlocked ? 'unlocked' : ''}`;
+                badge.title = achievement.desc;
+                badge.innerHTML = `
+                    <div class="achievement-icon" style="filter: ${unlocked ? 'none' : 'grayscale(100%) opacity(0.3)'}">
+                        ${achievement.icon}
+                    </div>
+                    <div class="achievement-name" style="opacity: ${unlocked ? '1' : '0.5'}">
+                        ${achievement.name}
+                    </div>
+                `;
+                grid.appendChild(badge);
+            });
+        }
+
+        // Update progress bar
+        function updateProgressBar(modulePrefix, current, total) {
+            const progressBar = document.getElementById(`${modulePrefix}ProgressBar`);
+            const progressText = document.getElementById(`${modulePrefix}ProgressText`);
+            if (progressBar && progressText) {
+                const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+                progressBar.style.width = percentage + '%';
+                progressText.textContent = `${current}/${total}`;
+            }
+        }
+
+        // Display difficulty stars
+        function displayDifficulty(containerId, difficulty) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 1; i <= 3; i++) {
+                const star = document.createElement('span');
+                star.className = `difficulty-star ${i <= difficulty ? '' : 'empty'}`;
+                star.textContent = '★';
+                container.appendChild(star);
+            }
+        }
+
+        // Enhanced word data with context/mnemonics
+        const wordContextData = {
+            'Спасибо': { mnemonic: 'Think "spas-EE-bo" - it sounds like an urgent "спаси бог" (save God) when you are very grateful.' },
+            'Привет': { mnemonic: 'Sounds like "privyet." Imagine two private investigators saying hello: "Privet!"' },
+            'Извините': { mnemonic: 'This long word starts like "is v" - remember it means "excuse me" when asking for permission.' },
+            'Пожалуйста': { mnemonic: 'Sounds like "po-ZHA-lusta." It’s used for "please" and "you\'re welcome" — a multi-use word!' }
+        };
+
+        // Show word context
+        function showWordContext(word) {
+            const context = wordContextData[word];
+            const mnemonicEl = document.getElementById('wordMnemonic');
+            if (context && mnemonicEl) {
+                if (context.mnemonic) {
+                    mnemonicEl.textContent = '💡 Подсказка: ' + context.mnemonic;
+                    mnemonicEl.style.display = 'block';
+                } else {
+                    mnemonicEl.style.display = 'none';
+                }
+            } else if (mnemonicEl) {
+                mnemonicEl.style.display = 'none';
+            }
+        }
+
+        // --- Global Utility Functions ---
+        function speakRussian(text) {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Web Speech API not supported in this browser.');
+                return;
+            }
+            const synth = window.speechSynthesis;
+            function getRussianVoice() {
+                const voices = synth.getVoices();
+                return voices.find(v => v.lang.toLowerCase().includes('ru')) || null;
+            }
+
+            function doSpeak() {
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'ru-RU'; // Set to Russian
+                const russianVoice = getRussianVoice();
+                if (russianVoice) {
+                    utter.voice = russianVoice;
+                } else {
+                    console.warn('Russian voice not found. Using default.');
+                }
+                synth.cancel();
+                setTimeout(() => synth.speak(utter), 150);
+            }
+
+            // If voices aren't loaded yet, wait for them
+            if (synth.getVoices().length === 0) {
+                synth.onvoiceschanged = doSpeak;
+            } else {
+                doSpeak();
+            }
+        }
+
+        // Listener to ensure voices are loaded before attempting to use them
+        window.speechSynthesis.onvoiceschanged = () => {
+            console.log("SpeechSynthesis voices changed/loaded.");
+        };
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // --- Main Module Navigation ---
+        const moduleSections = document.querySelectorAll('.module-section');
+        const navButtons = {
+            cyrillic: document.getElementById('navCyrillic'),
+            words: document.getElementById('navWords'),
+            sentences: document.getElementById('navSentences'),
+            grammar: document.getElementById('navGrammar')
+        };
+        let activeModuleId = 'startScreen'; // Initial active module
+
+        function showModule(moduleId) {
+            moduleSections.forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('active');
+            });
+            document.getElementById(moduleId).classList.remove('hidden');
+            document.getElementById(moduleId).classList.add('active');
+            activeModuleId = moduleId;
+
+            // Re-initialize specific quiz/grammar module when activated
+            if (moduleId === 'russianCyrillicModule') {
+                cyrillicQuiz.restartQuiz();
+            } else if (moduleId === 'russianWordsModule') {
+                wordQuiz.restartQuiz();
+            } else if (moduleId === 'russianSentencesModule') {
+                sentenceQuiz.restartQuiz();
+            } else if (moduleId === 'russianGrammarModule') {
+                grammarGuide.init();
+            }
+        }
+
+        navButtons.cyrillic.addEventListener('click', () => showModule('russianCyrillicModule'));
+        navButtons.words.addEventListener('click', () => showModule('russianWordsModule'));
+        navButtons.sentences.addEventListener('click', () => showModule('russianSentencesModule'));
+        navButtons.grammar.addEventListener('click', () => showModule('russianGrammarModule'));
+
+        // --- Module Data ---
+
+        const russianAlphabetsData = [
+            { char: 'А', correct: 'A (as in car)' },
+            { char: 'Б', correct: 'B' },
+            { char: 'В', correct: 'V' },
+            { char: 'Г', correct: 'G' },
+            { char: 'Д', correct: 'D' },
+            { char: 'Е', correct: 'Ye/Je (as in yes)' },
+            { char: 'Ж', correct: 'Zh (as in leisure)' },
+            { char: 'З', correct: 'Z' },
+            { char: 'И', correct: 'I (as in machine)' },
+            { char: 'Й', correct: 'Y (short i, as in boy)' },
+            { char: 'К', correct: 'K' },
+            { char: 'Л', correct: 'L' },
+            { char: 'М', correct: 'M' },
+            { char: 'Н', correct: 'N' },
+            { char: 'О', correct: 'O (as in or)' },
+            { char: 'П', correct: 'P' },
+            { char: 'Р', correct: 'R (rolled)' },
+            { char: 'С', correct: 'S' },
+            { char: 'Т', correct: 'T' },
+            { char: 'У', correct: 'U (as in boot)' },
+            { char: 'Ф', correct: 'F' },
+            { char: 'Х', correct: 'Kh (as in loch)' },
+            { char: 'Ц', correct: 'Ts (as in cats)' },
+            { char: 'Ч', correct: 'Ch (as in church)' },
+            { char: 'Ш', correct: 'Sh (as in shoe)' },
+            { char: 'Щ', correct: 'Shch (long sh sound)' },
+            { char: 'Ъ', correct: 'Hard Sign (separation)' },
+            { char: 'Ы', correct: 'Y (hard i)' },
+            { char: 'Ь', correct: 'Soft Sign (palatalization)' },
+            { char: 'Э', correct: 'E (as in met)' },
+            { char: 'Ю', correct: 'Yu (as in use)' },
+            { char: 'Я', correct: 'Ya (as in yacht)' }
+        ];
+
+        // Process alphabet data for quiz (generate options)
+        const russianAlphabets = russianAlphabetsData.map(item => {
+            const incorrectOptions = russianAlphabetsData.map(d => d.correct).filter(opt => opt !== item.correct);
+            const shuffledIncorrect = shuffleArray(incorrectOptions).slice(0, 3);
+            return {
+                char: item.char,
+                correct: item.correct,
+                // Ensure options are shuffled and limited to 4
+                options: shuffleArray([item.correct, ...shuffledIncorrect.slice(0, 3)])
+            };
+        });
+
+        const russianWordsData = [
+            { russian: "Да", english: "Yes", transliteration: "Da", id: "w_1" },
+            { russian: "Нет", english: "No", transliteration: "Net", id: "w_2" },
+            { russian: "Спасибо", english: "Thank you", transliteration: "Spasibo", id: "w_3" },
+            { russian: "Привет", english: "Hi / Hello (informal)", transliteration: "Privet", id: "w_4" },
+            { russian: "Извините", english: "Excuse me / Sorry", transliteration: "Izvinite", id: "w_5" },
+            { russian: "Пожалуйста", english: "Please / You're welcome", transliteration: "Pozhaluysta", id: "w_6" },
+            { russian: "Как", english: "How", transliteration: "Kak", id: "w_7" },
+            { russian: "Дом", english: "House / Home", transliteration: "Dom", id: "w_8" },
+            { russian: "Книга", english: "Book", transliteration: "Kniga", id: "w_9" },
+            { russian: "Вода", english: "Water", transliteration: "Voda", id: "w_10" }
+        ];
+
+        const russianSentencesData = [
+            { russian: "Как дела?", english: "How are you? (informal)", transliteration: "Kak dela?", id: "s_1" },
+            { russian: "Меня зовут...", english: "My name is...", transliteration: "Menya zovut...", id: "s_2" },
+            { russian: "Где туалет?", english: "Where is the toilet?", transliteration: "Gde tualet?", id: "s_3" },
+            { russian: "Я не понимаю.", english: "I don't understand.", transliteration: "Ya ne ponimayu.", id: "s_4" },
+            { russian: "Сколько это стоит?", english: "How much does this cost?", transliteration: "Skol'ko eto stoit?", id: "s_5" }
+        ];
+
+        const grammarSectionsContent = [
+            {
+                title: "1. The Cyrillic Alphabet",
+                content: `
+                    <p>Russian uses the Cyrillic alphabet, which has 33 letters. Many letters look familiar but have different sounds. Mastering the alphabet is the first and most crucial step in learning Russian!</p>
+                    <h3>Key Differences (False Friends)</h3>
+                    <ul>
+                        <li><span class="russian-text">В</span> is 'V', not 'B'. (e.g., <span class="russian-text">Вода</span> - Voda)</li>
+                        <li><span class="russian-text">Н</span> is 'N', not 'H'. (e.g., <span class="russian-text">Ночь</span> - Noch)</li>
+                        <li><span class="russian-text">Р</span> is 'R' (rolled), not 'P'. (e.g., <span class="russian-text">Ресторан</span> - Restoran)</li>
+                        <li><span class="russian-text">С</span> is 'S', not 'C'. (e.g., <span class="russian-text">Спасибо</span> - Spasibo)</li>
+                        <li><span class="russian-text">У</span> is 'U', not 'Y'. (e.g., <span class="russian-text">Утро</span> - Utro)</li>
+                    </ul>
+                    <div class="grammar-example">
+                        <strong>Example:</strong> <span class="russian-text">Ресторан</span> (<span class="transliteration">Restoran</span>) means "Restaurant".
+                    </div>
+                `
+            },
+            {
+                title: "2. Nouns and Gender",
+                content: `
+                    <p>All Russian nouns have one of three genders: masculine, feminine, or neuter. This affects adjective agreement and case endings.</p>
+                    <h3>Identifying Gender by Ending</h3>
+                    <ul>
+                        <li><strong>Masculine:</strong> Usually ends in a consonant or <span class="russian-text">-й</span>. (e.g., <span class="russian-text">дом</span> - home, <span class="russian-text">музей</span> - museum)</li>
+                        <li><strong>Feminine:</strong> Usually ends in <span class="russian-text">-а</span> or <span class="russian-text">-я</span>. (e.g., <span class="russian-text">вода</span> - water, <span class="russian-text">семья</span> - family)</li>
+                        <li><strong>Neuter:</strong> Usually ends in <span class="russian-text">-о</span> or <span class="russian-text">-е</span>. (e.g., <span class="russian-text">окно</span> - window, <span class="russian-text">море</span> - sea)</li>
+                        <li>*Note: Some nouns ending in <span class="russian-text">-ь</span> (soft sign) can be either gender.</li>
+                    </ul>
+                    <div class="grammar-example">
+                        <strong>Example:</strong> <span class="russian-text">Книга</span> (<span class="transliteration">Kniga</span> - Book) is feminine (ends in -а).
+                    </div>
+                `
+            },
+            {
+                title: "3. Basic Verb 'To Be'",
+                content: `
+                    <p>The present tense form of the verb 'to be' (<span class="russian-text">быть</span> - byt') is typically omitted in Russian. You simply state the subject and the predicate.</p>
+                    <h3>Structure: Subject + Predicate (No 'is/am/are')</h3>
+                    <ul>
+                        <li><span class="russian-text">Я студент.</span> (<span class="transliteration">Ya student.</span>) - I (am a) student.</li>
+                        <li><span class="russian-text">Он дома.</span> (<span class="transliteration">On doma.</span>) - He (is) home.</li>
+                        <li><span class="russian-text">Это хорошо.</span> (<span class="transliteration">Eto horosho.</span>) - This (is) good.</li>
+                    </ul>
+                    <p>The verb *is* used for emphasis or in the past/future tenses (e.g., <span class="russian-text">Я был студент.</span> - I was a student).</p>
+                `
+            }
+        ];
+
+
+        // --- Generic Quiz Logic (IIFE Factory) ---
+        function createQuizModule(data, prefix) {
+            let currentItemIndex = 0;
+            let currentScore = 0;
+            let shuffledItems = [];
+            let totalQuizAttempts = 0;
+            let totalQuizCorrect = 0;
+
+            const charDisplay = document.getElementById(`${prefix}Char`) || document.getElementById(`${prefix}Display`);
+            const transliterationDisplay = document.getElementById(`${prefix}Transliteration`);
+            const pronounceButton = document.getElementById(`${prefix}PronounceButton`);
+            const answerButtonsContainer = document.getElementById(`${prefix}AnswerButtons`);
+            const feedbackDisplay = document.getElementById(`${prefix}Feedback`);
+            const scoreDisplay = document.getElementById(`${prefix}ScoreDisplay`);
+            const nextButton = document.getElementById(`${prefix}NextButton`);
+            const restartButton = document.getElementById(`${prefix}RestartButton`);
+            const quizSection = document.getElementById(`${prefix}QuizSection`);
+            const lookupSheet = document.getElementById(`${prefix}LookupSheet`);
+            const lookupTableBody = document.getElementById(`${prefix}LookupTableBody`);
+            const difficultyContainer = document.getElementById(`${prefix}Difficulty`);
+
+
+            function resetQuizState() {
+                currentItemIndex = 0;
+                currentScore = 0;
+                totalQuizAttempts = 0;
+                totalQuizCorrect = 0;
+                scoreDisplay.textContent = currentScore;
+                shuffledItems = shuffleArray(data);
+                feedbackDisplay.textContent = '';
+                nextButton.classList.add('hidden');
+                restartButton.classList.add('hidden');
+                quizSection.classList.remove('hidden');
+                if (lookupSheet) lookupSheet.classList.add('hidden');
+            }
+
+            function loadQuestion() {
+                if (currentItemIndex >= shuffledItems.length) {
+                    endQuiz();
+                    return;
+                }
+
+                // Hide previous feedback/buttons
+                feedbackDisplay.textContent = '';
+                nextButton.classList.add('hidden');
+                answerButtonsContainer.innerHTML = '';
+                answerButtonsContainer.querySelectorAll('button').forEach(btn => btn.disabled = false);
+
+                const currentItem = shuffledItems[currentItemIndex];
+                const displayItem = currentItem.char || currentItem.russian;
+                const correct = currentItem.correct || currentItem.english;
+                const options = currentItem.options || generateOptions(correct);
+                const itemId = currentItem.id || displayItem; // Use id for mastery tracking
+
+                // Display main text
+                charDisplay.textContent = displayItem;
+
+                // Display transliteration/context if applicable
+                if (transliterationDisplay) {
+                    transliterationDisplay.textContent = currentItem.transliteration || '';
+                }
+                if (prefix === 'word' && showWordContext) {
+                    showWordContext(displayItem);
+                }
+
+                // Display difficulty
+                if (difficultyContainer) {
+                    const difficulty = learningData.getDifficulty(itemId);
+                    displayDifficulty(difficultyContainer.id, difficulty);
+                }
+
+                // Create answer buttons
+                shuffleArray(options).forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'answer-button';
+                    button.textContent = option;
+                    button.dataset.answer = option;
+                    button.addEventListener('click', () => checkAnswer(button, correct, itemId));
+                    answerButtonsContainer.appendChild(button);
+                });
+
+                // Update progress bar
+                updateProgressBar(prefix, currentItemIndex, shuffledItems.length);
+            }
+
+            function generateOptions(correctAnswer) {
+                // For Words/Sentences, this generates 4 random wrong answers from the other items' answers.
+                const allAnswers = data.map(item => item.english);
+                const incorrectOptions = allAnswers.filter(ans => ans !== correctAnswer);
+
+                // Ensure unique and limit to 3 incorrect options
+                const uniqueIncorrect = [...new Set(incorrectOptions)];
+                const selectedIncorrect = shuffleArray(uniqueIncorrect).slice(0, 3);
+
+                // Combine and shuffle
+                return shuffleArray([correctAnswer, ...selectedIncorrect]);
+            }
+
+            function checkAnswer(selectedButton, correctAnswer, itemId) {
+                // Disable all buttons immediately
+                answerButtonsContainer.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                nextButton.classList.remove('hidden');
+
+                const isCorrect = selectedButton.dataset.answer === correctAnswer;
+
+                if (isCorrect) {
+                    selectedButton.classList.add('correct');
+                    feedbackDisplay.textContent = 'Правильно! (Correct!)';
+                    currentScore++;
+                    totalQuizCorrect++;
+                } else {
+                    selectedButton.classList.add('incorrect');
+                    feedbackDisplay.textContent = 'Неправильно. Правильный ответ: ' + correctAnswer;
+                    // Highlight the correct answer
+                    answerButtonsContainer.querySelectorAll('button').forEach(btn => {
+                        if (btn.dataset.answer === correctAnswer) {
+                            btn.classList.add('correct');
+                        }
+                    });
+                }
+
+                totalQuizAttempts++;
+                scoreDisplay.textContent = currentScore;
+                learningData.recordAttempt(itemId, isCorrect);
+            }
+
+            function nextQuestion() {
+                currentItemIndex++;
+                loadQuestion();
+            }
+
+            function endQuiz() {
+                let finalMessage = `Викторина завершена! Ваш счет: ${currentScore} из ${shuffledItems.length}.`;
+                const percentage = (totalQuizCorrect / totalQuizAttempts) * 100;
+
+                if (currentScore === shuffledItems.length && shuffledItems.length > 0) {
+                    finalMessage += ' Идеально! 💯';
+                    if (!learningData.achievements.perfectScore) {
+                        learningData.achievements.perfectScore = true;
+                        showAchievementUnlock('perfectScore');
+                    }
+                } else if (percentage >= 70) {
+                    finalMessage += ' Отличный результат!';
+                } else {
+                    finalMessage += ' Продолжайте практиковаться!';
+                }
+
+                charDisplay.textContent = finalMessage;
+                answerButtonsContainer.innerHTML = '';
+                feedbackDisplay.textContent = '';
+                nextButton.classList.add('hidden');
+                restartButton.classList.remove('hidden');
+                updateProgressBar(prefix, shuffledItems.length, shuffledItems.length);
+
+                if (transliterationDisplay) transliterationDisplay.textContent = '';
+                if (difficultyContainer) difficultyContainer.innerHTML = '';
+            }
+
+            // Lookup sheet population
+            function populateLookupTable() {
+                lookupTableBody.innerHTML = '';
+                const displayData = (prefix === 'cyrillic') ? russianAlphabetsData : [...russianWordsData, ...russianSentencesData].filter(item => {
+                    return prefix === 'word' ? !item.russian.includes(' ') : item.russian.includes(' ');
+                });
+
+                displayData.forEach(item => {
+                    const row = document.createElement('tr');
+
+                    // 1. Russian Text Cell
+                    const russianCell = document.createElement('td');
+                    russianCell.textContent = item.char || item.russian;
+                    row.appendChild(russianCell);
+
+                    // 2. English Meaning/Pronunciation Cell
+                    const meaningCell = document.createElement('td');
+                    if (item.correct) { // For Cyrillic
+                         meaningCell.textContent = item.correct;
+                    } else { // For Words/Sentences
+                         meaningCell.innerHTML = `<span class="transliteration">${item.transliteration}</span><br>${item.english}`;
+                    }
+                    row.appendChild(meaningCell);
+
+                    // 3. Listen Button Cell
+                    const listenCell = document.createElement('td');
+                    const listenButton = document.createElement('button');
+                    listenButton.className = 'lookup-pronounce-button';
+                    listenButton.textContent = '🔊';
+                    listenButton.addEventListener('click', () => speakRussian(item.char || item.russian));
+                    listenCell.appendChild(listenButton);
+                    row.appendChild(listenCell);
+
+                    lookupTableBody.appendChild(row);
+                });
+            }
+
+            // Function to toggle lookup sheet visibility
+            function toggleLookupSheet() {
+                if (lookupSheet) {
+                    lookupSheet.classList.toggle('hidden');
+                    quizSection.classList.toggle('hidden');
+                    document.getElementById(`toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`).textContent = lookupSheet.classList.contains('hidden') ? `Show ${prefix.charAt(0).toUpperCase() + prefix.slice(1)} Lookup` : 'Hide Lookup Sheet';
+                    if (!lookupSheet.classList.contains('hidden')) {
+                        populateLookupTable();
+                    }
+                }
+            }
+
+
+            // Initialization
+            function init() {
+                resetQuizState();
+                loadQuestion();
+
+                // Add main event listeners only once
+                if (nextButton && !nextButton.listenerAdded) {
+                    nextButton.addEventListener('click', nextQuestion);
+                    nextButton.listenerAdded = true;
+                }
+                if (restartButton && !restartButton.listenerAdded) {
+                    restartButton.addEventListener('click', restartQuiz);
+                    restartButton.listenerAdded = true;
+                }
+                if (pronounceButton && !pronounceButton.listenerAdded) {
+                    pronounceButton.addEventListener('click', () => speakRussian(charDisplay.textContent));
+                    pronounceButton.listenerAdded = true;
+                }
+                if (document.getElementById(`toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`) && !document.getElementById(`toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`).listenerAdded) {
+                    document.getElementById(`toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`).addEventListener('click', toggleLookupSheet);
+                    document.getElementById(`toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`).listenerAdded = true;
+                }
+                if (document.getElementById(`hide${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`) && !document.getElementById(`hide${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`).listenerAdded) {
+                    document.getElementById(`hide${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`).addEventListener('click', toggleLookupSheet);
+                    document.getElementById(`hide${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`).listenerAdded = true;
+                }
+            }
+
+            function restartQuiz() {
+                init();
+            }
+
+            return { init, restartQuiz };
+        }
+
+        // Initialize Quiz Modules
+        const cyrillicQuiz = createQuizModule(russianAlphabets, 'cyrillic');
+        const wordQuiz = createQuizModule(russianWordsData, 'word');
+        const sentenceQuiz = createQuizModule(russianSentencesData, 'sentence');
+
+
+        // --- Module 4: Russian Grammar Guide Logic (IIFE) ---
+        const grammarGuide = (function() {
+            let currentGrammarSectionIndex = 0;
+            const contentContainer = document.getElementById('grammarContent');
+            const grammarNextButton = document.getElementById('grammarNextButton');
+            const grammarPrevButton = document.getElementById('grammarPrevButton');
+
+            function loadGrammarSection(index) {
+                if (index < 0 || index >= grammarSectionsContent.length) return;
+
+                const section = grammarSectionsContent[index];
+                contentContainer.innerHTML = `
+                    <h2>${section.title}</h2>
+                    <div class="grammar-section-content">${section.content}</div>
+                `;
+
+                // Update navigation buttons
+                grammarPrevButton.disabled = (index === 0);
+                grammarNextButton.disabled = (index === grammarSectionsContent.length - 1);
+                if (currentGrammarSectionIndex === grammarSectionsContent.length - 1) {
+                    grammarNextButton.textContent = "Конец Руководства";
+                } else {
+                    grammarNextButton.textContent = "Next";
+                }
+            }
+
+            grammarNextButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex < grammarSectionsContent.length - 1) {
+                    currentGrammarSectionIndex++;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                }
+            });
+
+            grammarPrevButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex > 0) {
+                    currentGrammarSectionIndex--;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                }
+            });
+
+            function init() {
+                currentGrammarSectionIndex = 0; // Reset to first section on init
+                loadGrammarSection(currentGrammarSectionIndex);
+            }
+
+            return { init };
+        })();
+
+
+        // Initialize the tool to the start screen
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load learning data
+            learningData.load();
+            learningData.updateDashboard();
+            updateAchievementsDisplay();
+
+            showModule('startScreen');
+        });
+    </script>
+</body>
+</html>
