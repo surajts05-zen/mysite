@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive German Learning Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* General styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        /* Progress Bar Styles */
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 1rem;
+            height: 24px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            /* German theme colors: Red, Black, Gold (Yellow) */
+            background: linear-gradient(90deg, #ffc72c, #e30a17); /* Gold to Red */
+            transition: width 0.5s ease;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.5rem;
+            color: #1a202c; /* Dark text for contrast */
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* Achievement Styles */
+        .achievements-panel {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); /* Gold/Orange Gradient */
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        .achievement-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .achievement-badge.unlocked {
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .achievement-badge:hover {
+            transform: scale(1.05);
+        }
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+        .achievement-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Celebration Animation */
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .celebrating {
+            animation: celebrate 0.6s ease;
+        }
+
+        /* Context/Hint Styles */
+        .word-context {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .mnemonic-hint {
+            background: #ffe6e6; /* Light red */
+            border-left: 4px solid #e30a17; /* German Red */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #991b1b;
+            width: 100%;
+            text-align: left;
+        }
+
+        /* Difficulty Indicator */
+        .difficulty-stars {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+        .difficulty-star {
+            color: #000000; /* Black star for German flag */
+            font-size: 1.2rem;
+        }
+        .difficulty-star.empty {
+            color: #d1d5db;
+        }
+
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #000000 0%, #1a202c 100%); /* Black/Dark Gray Gradient */
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            color: white;
+        }
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* Main Container & Typography */
+        .main-container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+            text-align: center;
+        }
+        h3 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #e30a17; /* German Red */
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #4a5568;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        ul, ol {
+            list-style: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        li {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        /* Quiz Elements */
+        .item-display {
+            font-size: 3rem; /* Larger for German text */
+            font-weight: bold;
+            color: #000000; /* Black */
+            margin-bottom: 1rem;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        .pronounce-button {
+            background-color: #ffc72c; /* Gold */
+            color: #000000;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+            font-weight: 600;
+        }
+        .pronounce-button:hover {
+            background-color: #d4a727;
+        }
+        .answer-button {
+            background-color: #cbd5e0;
+            color: #2d3748;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+        .answer-button:hover {
+            background-color: #a0aec0;
+            transform: translateY(-2px);
+        }
+        .answer-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #e2e8f0;
+        }
+        .correct {
+            background-color: #48bb78 !important; /* Green for success */
+            color: white !important;
+        }
+        .incorrect {
+            background-color: #e30a17 !important; /* Red for incorrect */
+            color: white !important;
+        }
+        .feedback {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .score-display {
+            font-size: 1.25rem;
+            font-weight: medium;
+            color: #4a5568;
+            text-align: center;
+        }
+        .nav-button {
+            background-color: #e30a17; /* German Red */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            text-align: center;
+        }
+        .nav-button:hover {
+            background-color: #b80812;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* Lookup Table */
+        .lookup-sheet-container {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .lookup-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        .lookup-table th, .lookup-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .lookup-table th {
+            background-color: #edf2f7;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .lookup-table tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        .lookup-table td:first-child {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        .lookup-pronounce-button {
+            background-color: #000000; /* Black */
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.3rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            margin-left: 0.5rem;
+        }
+        .lookup-pronounce-button:hover {
+            background-color: #333333;
+        }
+
+        /* Grammar Guide Specifics */
+        .grammar-example {
+            background-color: #f7fafc;
+            border-left: 4px solid #ffc72c; /* Gold */
+            padding: 1rem 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+            color: #2d3748;
+        }
+        .german-text {
+            font-weight: 600;
+            color: #e30a17; /* Red */
+        }
+        .gloss {
+            font-style: italic;
+            color: #4c51bf;
+        }
+        .translation {
+            color: #2d3748;
+        }
+        .lookup-button {
+            background-color: #000000;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            margin-bottom: 1rem;
+        }
+        .lookup-button:hover {
+            background-color: #333333;
+        }
+        .image-placeholder {
+            min-height: 200px;
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a5568;
+            font-style: italic;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        /* Verb Conjugation Specifics */
+        .conjugation-quiz-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .conjugation-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #cbd5e0;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #000000;
+        }
+        .conjugation-prompt {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #2d3748;
+        }
+        .conjugation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .conjugation-table th, .conjugation-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem;
+        }
+        .conjugation-table th {
+            background-color: #f7fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 id="mainTitle">Umfassendes Deutsches Lerntool (German Learning Tool)</h1>
+
+        <div class="flex justify-center gap-2 mb-4">
+            <button class="nav-button" id="navWords">Wortschatz (Vocabulary)</button>
+            <button class="nav-button" id="navPhrases">Sätze & Phrasen</button>
+            <button class="nav-button" id="navConjugation">Konjugation</button>
+            <button class="nav-button" id="navGrammar">Grammatik</button>
+        </div>
+
+        <div id="startScreen" class="module-section active">
+            <h2>Willkommen! (Welcome!)</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalWordsLearned">0</div>
+                    <div class="stat-label">Elemente gemeistert</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Tage in Folge 🔥</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCorrect">0</div>
+                    <div class="stat-label">Gesamt Korrekt</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="overallAccuracy">0%</div>
+                    <div class="stat-label">Genauigkeit</div>
+                </div>
+            </div>
+
+            <div class="achievements-panel">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem; color: white;">🏆 Erfolge (Achievements)</h3>
+                <div class="achievement-grid" id="achievementGrid">
+                    </div>
+            </div>
+
+            <p>Dieses interaktive Tool hilft Ihnen beim Erlernen des deutschen Wortschatzes, grundlegender Sätze und der wichtigsten Grammatikregeln.</p>
+            <p>Wählen Sie oben Ihr Lernmodul aus. Beginnen Sie mit "Wortschatz"!</p>
+        </div>
+
+        <!-- Vocabulary/Words Module -->
+        <div id="germanWordsModule" class="module-section hidden">
+            <h2 class="text-center">Deutscher Wortschatz (Vocabulary Quiz)</h2>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="wordProgressBar" style="width: 0%">
+                    <span id="wordProgressText">0/0</span>
+                </div>
+            </div>
+
+            <button class="lookup-button" id="toggleWordLookupButton">Wortschatz-Übersicht anzeigen</button>
+
+            <div id="wordQuizSection">
+                <div class="difficulty-stars" id="wordDifficulty"></div>
+
+                <div class="word-context" id="wordContext">
+                    <div class="image-placeholder" id="wordImagePlaceholder">
+                        [Image of an apple]
+                    </div>
+                    <div class="mnemonic-hint" id="wordMnemonic" style="display: none;"></div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="wordDisplay"></div>
+                    <button class="pronounce-button" id="wordPronounceButton">🔊 Anhören</button>
+                    <div class="text-lg font-medium text-gray-500" id="wordGender"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4" id="wordAnswerButtons">
+                    </div>
+                <div class="feedback" id="wordFeedback"></div>
+                <p class="score-display">Punkte: <span id="wordScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="wordNextButton">Nächstes Wort</button>
+                <button class="nav-button hidden" id="wordRestartButton">Quiz neu starten</button>
+            </div>
+
+            <div class="lookup-sheet-container hidden" id="wordLookupSheet">
+                <h3 class="text-center">Wortschatz-Übersicht</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Deutsches Wort</th>
+                            <th>Geschlecht</th>
+                            <th>Englische Bedeutung</th>
+                            <th>Anhören</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wordLookupTableBody">
+                        </tbody>
+                </table>
+                <button class="lookup-button" id="hideWordLookupButton">Übersicht ausblenden</button>
+            </div>
+        </div>
+
+        <!-- Sentences/Phrases Module -->
+        <div id="germanPhrasesModule" class="module-section hidden">
+            <h2 class="text-center">Deutsche Sätze & Phrasen (Phrases Quiz)</h2>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="phraseProgressBar" style="width: 0%">
+                    <span id="phraseProgressText">0/0</span>
+                </div>
+            </div>
+
+            <button class="lookup-button" id="togglePhraseLookupButton">Phrasen-Übersicht anzeigen</button>
+
+            <div id="phraseQuizSection">
+                <div class="difficulty-stars" id="phraseDifficulty"></div>
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <div class="item-display" id="phraseDisplay"></div>
+                    <button class="pronounce-button" id="phrasePronounceButton">🔊 Anhören</button>
+                    <div class="text-lg font-medium text-gray-500" id="phraseLiteral"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-4" id="phraseAnswerButtons">
+                    </div>
+                <div class="feedback" id="phraseFeedback"></div>
+                <p class="score-display">Punkte: <span id="phraseScoreDisplay">0</span></p>
+                <button class="nav-button hidden" id="phraseNextButton">Nächste Phrase</button>
+                <button class="nav-button hidden" id="phraseRestartButton">Quiz neu starten</button>
+            </div>
+
+            <div class="lookup-sheet-container hidden" id="phraseLookupSheet">
+                <h3 class="text-center">Sätze & Phrasen Übersicht</h3>
+                <table class="lookup-table">
+                    <thead>
+                        <tr>
+                            <th>Deutsche Phrase</th>
+                            <th>Wörtliche Übersetzung</th>
+                            <th>Englische Bedeutung</th>
+                            <th>Anhören</th>
+                        </tr>
+                    </thead>
+                    <tbody id="phraseLookupTableBody">
+                        </tbody>
+                </table>
+                <button class="lookup-button" id="hidePhraseLookupButton">Übersicht ausblenden</button>
+            </div>
+        </div>
+        
+        <!-- Conjugation Module (New) -->
+        <div id="germanConjugationModule" class="module-section hidden">
+            <h2 class="text-center">Konjugations-Training (Verb Conjugation)</h2>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="conjugationProgressBar" style="width: 0%">
+                    <span id="conjugationProgressText">0/0</span>
+                </div>
+            </div>
+
+            <div id="conjugationQuizSection">
+                <p class="conjugation-prompt">Konjugiere das Verb: <strong id="conjugationVerbDisplay" class="german-text"></strong> (<span id="conjugationVerbMeaning"></span>)</p>
+                <p class="conjugation-prompt">Für das Pronomen: <strong id="conjugationPronounDisplay" class="german-text"></strong></p>
+                
+                <div class="flex flex-col items-center justify-center gap-2 mb-4">
+                    <input type="text" id="conjugationInput" class="conjugation-input" placeholder="Geben Sie die konjugierte Form ein">
+                    <button class="nav-button" id="conjugationSubmitButton">Überprüfen</button>
+                </div>
+
+                <div class="feedback" id="conjugationFeedback"></div>
+                <p class="score-display">Punkte: <span id="conjugationScoreDisplay">0</span></p>
+                
+                <div id="conjugationAnswerHint" class="hidden">
+                    <h3>Korrekte Konjugation</h3>
+                    <table class="conjugation-table" id="fullConjugationTable">
+                        <thead>
+                            <tr><th>Pronomen</th><th>Präsens</th></tr>
+                        </thead>
+                        <tbody>
+                            <!-- Table rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <button class="nav-button hidden" id="conjugationNextButton">Nächstes Verb</button>
+                <button class="nav-button hidden" id="conjugationRestartButton">Quiz neu starten</button>
+            </div>
+        </div>
+
+        <!-- Grammar Module -->
+        <div id="germanGrammarModule" class="module-section hidden">
+            <h2 class="text-center">Deutsche Grammatik: Ein Leitfaden</h2>
+            <div id="grammarContent" class="grammar-section-content">
+                </div>
+            <div class="flex justify-center gap-4 mt-6">
+                <button id="grammarPrevButton" class="nav-button" disabled>Zurück</button>
+                <button id="grammarNextButton" class="nav-button">Weiter</button>
+            </div>
+        </div>
+
+    </div>
+	<script>
+        // --- Global Learning Data Management ---
+        const learningData = {
+            stats: {
+                totalWordsLearned: 0,
+                currentStreak: 0,
+                lastStudyDate: null,
+                totalCorrect: 0,
+                totalAttempts: 0
+            },
+            wordMastery: {}, // Track difficulty for each item (id: mastery_level)
+            achievements: {
+                firstStep: false,
+                tenCorrect: false,
+                perfectScore: false,
+                weekStreak: false,
+                hundredItems: false,
+                speedster: false,
+                persistent: false,
+                polyglot: false,
+                verbMaster: false, // New achievement
+            },
+
+            // Load from memory (using window object for session persistence)
+            load() {
+                const stored = window.germanLearningData;
+                if (stored) {
+                    Object.assign(this.stats, stored.stats || {});
+                    Object.assign(this.wordMastery, stored.wordMastery || {});
+                    Object.assign(this.achievements, stored.achievements || {});
+                }
+                this.updateStreak();
+            },
+
+            // Save to memory
+            save() {
+                window.germanLearningData = {
+                    stats: {...this.stats},
+                    wordMastery: {...this.wordMastery},
+                    achievements: {...this.achievements}
+                };
+            },
+
+            // Update streak based on last study date
+            updateStreak() {
+                const today = new Date().toDateString();
+                const lastStudy = this.stats.lastStudyDate;
+
+                if (!lastStudy) {
+                    this.stats.currentStreak = 0;
+                } else {
+                    const lastDate = new Date(lastStudy);
+                    const todayDate = new Date(today);
+                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+
+                    if (diffDays === 0) {
+                        // Same day, keep streak
+                    } else if (diffDays === 1) {
+                        // Next day, increment streak
+                        this.stats.currentStreak++;
+                    } else {
+                        // Missed days, reset streak
+                        this.stats.currentStreak = 1;
+                    }
+                }
+                this.stats.lastStudyDate = today;
+                this.checkAchievements();
+                this.save();
+            },
+
+            // Record answer attempt
+            recordAttempt(itemId, correct) {
+                this.stats.totalAttempts++;
+                if (correct) {
+                    this.stats.totalCorrect++;
+                    // Check if this item is being mastered for the first time
+                    if (!this.wordMastery[itemId] || this.wordMastery[itemId] < 1) {
+                        this.stats.totalWordsLearned++;
+                    }
+                    this.wordMastery[itemId] = (this.wordMastery[itemId] || 0) + 1;
+                } else {
+                    this.wordMastery[itemId] = Math.max(0, (this.wordMastery[itemId] || 0) - 1);
+                }
+                this.checkAchievements();
+                this.save();
+                this.updateDashboard();
+            },
+
+            // Get item difficulty (for spaced repetition) - returns 1 (Easy) to 3 (Hard)
+            getDifficulty(itemId) {
+                const mastery = this.wordMastery[itemId] || 0;
+                if (mastery >= 5) return 1; // Easy
+                if (mastery >= 2) return 2; // Medium
+                return 3; // Hard
+            },
+
+            // Check and unlock achievements
+            checkAchievements() {
+                const prev = {...this.achievements};
+
+                if (this.stats.totalCorrect >= 1) this.achievements.firstStep = true;
+                if (this.stats.totalCorrect >= 10) this.achievements.tenCorrect = true;
+                if (this.stats.totalWordsLearned >= 20) this.achievements.hundredItems = true; // Lowered for demo
+                if (this.stats.currentStreak >= 7) this.achievements.weekStreak = true;
+                
+                // Example check for new verb master achievement (5 correct conjugations)
+                if (this.wordMastery['verb_haben_conjugation'] >= 5 && this.wordMastery['verb_sein_conjugation'] >= 5) {
+                    this.achievements.verbMaster = true;
+                }
+
+                // Check for new achievements and display notification
+                Object.keys(this.achievements).forEach(key => {
+                    if (!prev[key] && this.achievements[key]) {
+                        showAchievementUnlock(key);
+                    }
+                });
+
+                this.save();
+                updateAchievementsDisplay();
+            },
+
+            // Update dashboard stats
+            updateDashboard() {
+                document.getElementById('totalWordsLearned').textContent = this.stats.totalWordsLearned;
+                document.getElementById('currentStreak').textContent = this.stats.currentStreak;
+                document.getElementById('totalCorrect').textContent = this.stats.totalCorrect;
+                const accuracy = this.stats.totalAttempts > 0
+                    ? Math.round((this.stats.totalCorrect / this.stats.totalAttempts) * 100)
+                    : 0;
+                document.getElementById('overallAccuracy').textContent = accuracy + '%';
+            }
+        };
+
+        // Achievement definitions
+        const achievementDefs = {
+            firstStep: { icon: '🎯', name: 'Erster Schritt', desc: 'Holen Sie sich die erste richtige Antwort' },
+            tenCorrect: { icon: '⭐', name: 'Sternschüler', desc: 'Holen Sie sich 10 richtige Antworten' },
+            perfectScore: { icon: '💯', name: 'Perfekt!', desc: 'Schließe ein Quiz mit 100 % ab' },
+            weekStreak: { icon: '🔥', name: 'Wochenkrieger', desc: 'Lernen Sie 7 Tage hintereinander' },
+            hundredItems: { icon: '📚', name: 'Vokabelmeister', desc: 'Meistern Sie 20 Elemente' },
+            speedster: { icon: '⚡', name: 'Sprinter', desc: 'Beantworten Sie 10 Fragen schnell und richtig' },
+            persistent: { icon: '💪', name: 'Hartnäckig', desc: 'Schließe 50 Quizze ab' },
+            polyglot: { icon: '🌟', name: 'Polyglott', desc: 'Meistern Sie alle Module' },
+            verbMaster: { icon: '⚙️', name: 'Verben-Profi', desc: 'Konjugiere 10 Verben fehlerfrei' }
+        };
+
+        // Show achievement unlock notification
+        function showAchievementUnlock(achievementKey) {
+            const achievement = achievementDefs[achievementKey];
+            if (!achievement) return;
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #000000 0%, #333333 100%);
+                color: white;
+                padding: 2rem;
+                border-radius: 1rem;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                animation: celebrate 0.6s ease;
+            `;
+            notification.innerHTML = `
+                <div style="font-size: 4rem; margin-bottom: 1rem;">${achievement.icon}</div>
+                <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Erfolg Freigeschaltet!</div>
+                <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">${achievement.name}</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">${achievement.desc}</div>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.transition = 'opacity 0.5s';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Update achievements display
+        function updateAchievementsDisplay() {
+            const grid = document.getElementById('achievementGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            Object.keys(achievementDefs).forEach(key => {
+                const achievement = achievementDefs[key];
+                const unlocked = learningData.achievements[key];
+                const badge = document.createElement('div');
+                badge.className = `achievement-badge ${unlocked ? 'unlocked' : ''}`;
+                badge.title = achievement.desc;
+                badge.innerHTML = `
+                    <div class="achievement-icon" style="filter: ${unlocked ? 'none' : 'grayscale(100%) opacity(0.3)'}">
+                        ${achievement.icon}
+                    </div>
+                    <div class="achievement-name" style="opacity: ${unlocked ? '1' : '0.5'}">
+                        ${achievement.name}
+                    </div>
+                `;
+                grid.appendChild(badge);
+            });
+        }
+
+        // Update progress bar
+        function updateProgressBar(modulePrefix, current, total) {
+            const progressBar = document.getElementById(`${modulePrefix}ProgressBar`);
+            const progressText = document.getElementById(`${modulePrefix}ProgressText`);
+            if (progressBar && progressText) {
+                const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+                progressBar.style.width = percentage + '%';
+                progressText.textContent = `${current}/${total}`;
+            }
+        }
+
+        // Display difficulty stars
+        function displayDifficulty(containerId, difficulty) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 1; i <= 3; i++) {
+                const star = document.createElement('span');
+                star.className = `difficulty-star ${i <= difficulty ? '' : 'empty'}`;
+                star.textContent = '★';
+                container.appendChild(star);
+            }
+        }
+
+        // Context data for mnemonics and images (Updated)
+        const wordContextData = {
+            'Hallo': { mnemonic: 'Sounds just like "Hello"!' },
+            'Tschüss': { mnemonic: 'Pronounced "chooss" - rhymes with "loose" but with a soft "ch".' },
+            'Apfel': { mnemonic: 'Very similar to "Apple" - easy to remember!', image: '[Image of an apple with a bite]' },
+            'Hund': { mnemonic: 'Sounds like "hoond" - imagine hunting (Hundting) for a dog.', image: '[Image of a friendly German Shepherd dog]' },
+            'Wasser': { mnemonic: 'Sounds like "Vah-sah". The "W" is a "V" sound.', image: '[Image of a glass of cold water]' }
+        };
+
+        // Show word context (Updated to include image)
+        function showWordContext(word) {
+            const context = wordContextData[word];
+            const mnemonicEl = document.getElementById('wordMnemonic');
+            const imageEl = document.getElementById('wordImagePlaceholder');
+
+            if (context) {
+                // Mnemonic
+                if (context.mnemonic && mnemonicEl) {
+                    mnemonicEl.textContent = '💡 Tipp: ' + context.mnemonic;
+                    mnemonicEl.style.display = 'block';
+                } else if (mnemonicEl) {
+                    mnemonicEl.style.display = 'none';
+                }
+
+                // Image
+                if (context.image && imageEl) {
+                    imageEl.innerHTML = context.image;
+                    imageEl.classList.remove('hidden');
+                } else if (imageEl) {
+                    imageEl.innerHTML = 'Kein Bild verfügbar.';
+                    imageEl.classList.add('hidden');
+                }
+            } else {
+                if (mnemonicEl) mnemonicEl.style.display = 'none';
+                if (imageEl) imageEl.classList.add('hidden');
+            }
+        }
+
+        // --- Global Utility Functions ---
+        function speakGerman(text) {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Web Speech API not supported in this browser.');
+                return;
+            }
+            const synth = window.speechSynthesis;
+            function getGermanVoice() {
+                const voices = synth.getVoices();
+                // Prioritize 'de-DE' voices
+                return voices.find(v => v.lang.toLowerCase().includes('de')) || null;
+            }
+
+            function doSpeak() {
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'de-DE'; // Set to German
+                const germanVoice = getGermanVoice();
+                if (germanVoice) {
+                    utter.voice = germanVoice;
+                } else {
+                    console.warn('German voice not found. Using default.');
+                }
+                synth.cancel();
+                // Little delay to ensure cancellation finishes before speaking
+                setTimeout(() => synth.speak(utter), 150);
+            }
+
+            // If voices aren't loaded yet, wait for them
+            if (synth.getVoices().length === 0) {
+                synth.onvoiceschanged = doSpeak;
+            } else {
+                doSpeak();
+            }
+        }
+
+        window.speechSynthesis.onvoiceschanged = () => {
+            console.log("SpeechSynthesis voices changed/loaded.");
+        };
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // --- Main Module Navigation ---
+        const moduleSections = document.querySelectorAll('.module-section');
+        const navButtons = {
+            words: document.getElementById('navWords'),
+            phrases: document.getElementById('navPhrases'),
+            conjugation: document.getElementById('navConjugation'), // New button
+            grammar: document.getElementById('navGrammar')
+        };
+        let activeModuleId = 'startScreen'; // Initial active module
+
+        function showModule(moduleId) {
+            moduleSections.forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('active');
+            });
+            document.getElementById(moduleId).classList.remove('hidden');
+            document.getElementById(moduleId).classList.add('active');
+            activeModuleId = moduleId;
+
+            // Re-initialize specific quiz/grammar module when activated
+            if (moduleId === 'germanWordsModule') {
+                wordQuiz.restartQuiz();
+            } else if (moduleId === 'germanPhrasesModule') {
+                phraseQuiz.restartQuiz();
+            } else if (moduleId === 'germanConjugationModule') {
+                conjugationQuiz.restartQuiz(); // New init
+            } else if (moduleId === 'germanGrammarModule') {
+                grammarGuide.init();
+            }
+        }
+
+        navButtons.words.addEventListener('click', () => showModule('germanWordsModule'));
+        navButtons.phrases.addEventListener('click', () => showModule('germanPhrasesModule'));
+        navButtons.conjugation.addEventListener('click', () => showModule('germanConjugationModule')); // New event listener
+        navButtons.grammar.addEventListener('click', () => showModule('germanGrammarModule'));
+
+        // --- Module Data ---
+
+        const germanWordsData = [
+            { german: "Hallo", english: "Hello", gender: "n/a", id: "w_1" },
+            { german: "Tschüss", english: "Bye", gender: "n/a", id: "w_2" },
+            { german: "Ja", english: "Yes", gender: "n/a", id: "w_3" },
+            { german: "Nein", english: "No", gender: "n/a", id: "w_4" },
+            { german: "Danke", english: "Thank you", gender: "n/a", id: "w_5" },
+            { german: "Bitte", english: "Please / You're welcome", gender: "n/a", id: "w_6" },
+            { german: "Wasser", english: "Water", gender: "das (Neuter)", id: "w_7" },
+            { german: "Brot", english: "Bread", gender: "das (Neuter)", id: "w_8" },
+            { german: "Hund", english: "Dog", gender: "der (Masculine)", id: "w_9" },
+            { german: "Katze", english: "Cat", gender: "die (Feminine)", id: "w_10" },
+            { german: "Apfel", english: "Apple", gender: "der (Masculine)", id: "w_11" },
+            { german: "Milch", english: "Milk", gender: "die (Feminine)", id: "w_12" }
+        ];
+
+        const germanPhrasesData = [
+            { german: "Wie geht es Ihnen?", english: "How are you? (formal)", literal: "How goes it to you?", id: "p_1" },
+            { german: "Ich bin...", english: "I am...", literal: "I am...", id: "p_2" },
+            { german: "Sprechen Sie Englisch?", english: "Do you speak English?", literal: "Speak you English?", id: "p_3" },
+            { german: "Wo ist die Toilette?", english: "Where is the restroom?", literal: "Where is the toilet?", id: "p_4" },
+            { german: "Das ist gut.", english: "That is good.", literal: "That is good.", id: "p_5" }
+        ];
+        
+        // New Conjugation Data
+        const germanConjugationData = [
+            {
+                verb: "sein",
+                meaning: "to be",
+                id: "verb_sein_conjugation",
+                conjugations: {
+                    "ich": "bin", "du": "bist", "er/sie/es": "ist",
+                    "wir": "sind", "ihr": "seid", "sie/Sie": "sind"
+                }
+            },
+            {
+                verb: "haben",
+                meaning: "to have",
+                id: "verb_haben_conjugation",
+                conjugations: {
+                    "ich": "habe", "du": "hast", "er/sie/es": "hat",
+                    "wir": "haben", "ihr": "habt", "sie/Sie": "haben"
+                }
+            },
+            {
+                verb: "gehen",
+                meaning: "to go",
+                id: "verb_gehen_conjugation",
+                conjugations: {
+                    "ich": "gehe", "du": "gehst", "er/sie/es": "geht",
+                    "wir": "gehen", "ihr": "geht", "sie/Sie": "gehen"
+                }
+            }
+        ];
+        
+        // Helper list of German pronouns for conjugation quiz
+        const germanPronouns = ["ich", "du", "er/sie/es", "wir", "ihr", "sie/Sie"];
+
+
+        const grammarSectionsContent = [
+            {
+                title: "1. The Four Cases: Nominative, Accusative, Dative, Genitive",
+                image: "",
+                content: `
+                    <p>German has four cases that affect the articles (der/die/das) and noun endings. This is the cornerstone of German grammar.</p>
+                    ${''}
+                    <h3>The Cases and Their Functions</h3>
+                    <ul>
+                        <li><strong>Nominative (Nom):</strong> The subject of the sentence (who/what is doing the action).</li>
+                        <li><strong>Accusative (Akk):</strong> The direct object (who/what receives the action).</li>
+                        <li><strong>Dative (Dat):</strong> The indirect object (to/for whom/what). Often follows prepositions like <span class="german-text">mit</span> (with) or <span class="german-text">zu</span> (to).</li>
+                        <li><strong>Genitive (Gen):</strong> Possession (whose/of whom). Often replaced by <span class="german-text">von</span> (of/from) in spoken German.</li>
+                    </ul>
+                    <div class="grammar-example">
+                        <strong>Example:</strong> <span class="german-text">Der Mann</span> (Nom) sieht <span class="german-text">den Hund</span> (Akk).<br>
+                        <span class="gloss">The man</span> sees <span class="gloss">the dog</span>.
+                    </div>
+                `
+            },
+            {
+                title: "2. Noun Gender and Articles",
+                image: "[Image showing examples of German Nouns with Articles: Der, Die, Das]",
+                content: `
+                    <p>Every German noun has a gender: masculine (der), feminine (die), or neuter (das). You must learn the gender with the noun! [Image showing examples of German Nouns with Articles: Der, Die, Das]</p>
+                    <h3>The Definite Articles (Nominative)</h3>
+                    <ul>
+                        <li><strong>Masculine:</strong> <span class="german-text">der</span> (e.g., <span class="german-text">der Mann</span> - the man)</li>
+                        <li><strong>Feminine:</strong> <span class="german-text">die</span> (e.g., <span class="german-text">die Frau</span> - the woman)</li>
+                        <li><strong>Neuter:</strong> <span class="german-text">das</span> (e.g., <span class="german-text">das Kind</span> - the child)</li>
+                        <li><strong>Plural (All Genders):</strong> <span class="german-text">die</span> (e.g., <span class="german-text">die Kinder</span> - the children)</li>
+                    </ul>
+                    <p>Gender is often unpredictable, but endings like <span class="german-text">-ung</span> and <span class="german-text">-keit</span> are almost always feminine (die).</p>
+                    <div class="grammar-example">
+                        <strong>Example:</strong> <span class="german-text">Die</span> Universität (Feminine)
+                    </div>
+                `
+            },
+            {
+                title: "3. Verb Placement (V2 Rule)",
+                image: "[Diagram illustrating German V2 word order in a main clause]",
+                content: `
+                    <p>In standard German main clauses, the conjugated verb must always be the second element in the sentence (V2 rule). [Diagram illustrating German V2 word order in a main clause]</p>
+                    <h3>V2 Rule Examples</h3>
+                    <ul>
+                        <li><span class="german-text">Ich</span> <span class="german-text">spiele</span> Fußball. (I play soccer.) - Verb is 2nd.</li>
+                        <li><span class="german-text">Heute</span> <span class="german-text">spiele</span> ich Fußball. (Today I play soccer.) - Time phrase is 1st, verb is 2nd.</li>
+                        <li><span class="german-text">Mit meinem Freund</span> <span class="german-text">gehe</span> ich ins Kino. (With my friend I go to the cinema.) - Prepositional phrase is 1st, verb is 2nd.</li>
+                    </ul>
+                    <p>This rule ensures the verb is central, regardless of what begins the sentence.</p>
+                `
+            }
+        ];
+
+
+        // --- Generic Quiz Logic (IIFE Factory) ---
+        function createQuizModule(data, prefix) {
+            let currentItemIndex = 0;
+            let currentScore = 0;
+            let shuffledItems = [];
+            let totalQuizAttempts = 0;
+            let totalQuizCorrect = 0;
+
+            const displayEl = document.getElementById(`${prefix}Display`);
+            const secondaryDisplayEl = document.getElementById(`${prefix}Gender`) || document.getElementById(`${prefix}Literal`);
+            const pronounceButton = document.getElementById(`${prefix}PronounceButton`);
+            const answerButtonsContainer = document.getElementById(`${prefix}AnswerButtons`);
+            const feedbackDisplay = document.getElementById(`${prefix}Feedback`);
+            const scoreDisplay = document.getElementById(`${prefix}ScoreDisplay`);
+            const nextButton = document.getElementById(`${prefix}NextButton`);
+            const restartButton = document.getElementById(`${prefix}RestartButton`);
+            const quizSection = document.getElementById(`${prefix}QuizSection`);
+            const lookupSheet = document.getElementById(`${prefix}LookupSheet`);
+            const lookupTableBody = document.getElementById(`${prefix}LookupTableBody`);
+            const difficultyContainer = document.getElementById(`${prefix}Difficulty`);
+            
+            // Vocab Image Placeholder (only for word quiz)
+            const imagePlaceholder = document.getElementById('wordImagePlaceholder');
+
+            function resetQuizState() {
+                currentItemIndex = 0;
+                currentScore = 0;
+                totalQuizAttempts = 0;
+                totalQuizCorrect = 0;
+                scoreDisplay.textContent = currentScore;
+                shuffledItems = shuffleArray(data);
+                feedbackDisplay.textContent = '';
+                nextButton.classList.add('hidden');
+                restartButton.classList.add('hidden');
+                quizSection.classList.remove('hidden');
+                if (lookupSheet) lookupSheet.classList.add('hidden');
+            }
+
+            function loadQuestion() {
+                if (currentItemIndex >= shuffledItems.length) {
+                    endQuiz();
+                    return;
+                }
+
+                // Hide previous feedback/buttons
+                feedbackDisplay.textContent = '';
+                nextButton.classList.add('hidden');
+                answerButtonsContainer.innerHTML = '';
+                answerButtonsContainer.querySelectorAll('button').forEach(btn => btn.disabled = false);
+
+                const currentItem = shuffledItems[currentItemIndex];
+                const displayItem = currentItem.german;
+                const correct = currentItem.english;
+                const options = generateOptions(correct);
+                const itemId = currentItem.id || displayItem; // Use id for mastery tracking
+
+                // Display main text
+                displayEl.textContent = displayItem;
+
+                // Display gender/literal translation
+                if (secondaryDisplayEl) {
+                    secondaryDisplayEl.textContent = currentItem.gender || currentItem.literal || '';
+                }
+                if (prefix === 'word' && showWordContext) {
+                    showWordContext(displayItem);
+                }
+
+                // Display difficulty
+                if (difficultyContainer) {
+                    const difficulty = learningData.getDifficulty(itemId);
+                    displayDifficulty(difficultyContainer.id, difficulty);
+                }
+                
+                // Show/hide image for word quiz
+                if (prefix === 'word' && imagePlaceholder) {
+                    if (wordContextData[displayItem]?.image) {
+                        imagePlaceholder.classList.remove('hidden');
+                    } else {
+                        imagePlaceholder.classList.add('hidden');
+                    }
+                }
+
+                // Create answer buttons
+                shuffleArray(options).forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'answer-button';
+                    button.textContent = option;
+                    button.dataset.answer = option;
+                    button.addEventListener('click', () => checkAnswer(button, correct, itemId));
+                    answerButtonsContainer.appendChild(button);
+                });
+
+                // Update progress bar
+                updateProgressBar(prefix, currentItemIndex, shuffledItems.length);
+            }
+
+            function generateOptions(correctAnswer) {
+                // Generates 4 random wrong answers from the other items' answers.
+                const allAnswers = data.map(item => item.english);
+                const incorrectOptions = allAnswers.filter(ans => ans !== correctAnswer);
+
+                // Ensure unique and limit to 3 incorrect options
+                const uniqueIncorrect = [...new Set(incorrectOptions)];
+                const selectedIncorrect = shuffleArray(uniqueIncorrect).slice(0, 3);
+
+                // Combine and shuffle
+                return shuffleArray([correctAnswer, ...selectedIncorrect]);
+            }
+
+            function checkAnswer(selectedButton, correctAnswer, itemId) {
+                // Disable all buttons immediately
+                answerButtonsContainer.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                nextButton.classList.remove('hidden');
+
+                const isCorrect = selectedButton.dataset.answer === correctAnswer;
+
+                if (isCorrect) {
+                    selectedButton.classList.add('correct');
+                    feedbackDisplay.textContent = 'Richtig! (Correct!)';
+                    currentScore++;
+                    totalQuizCorrect++;
+                } else {
+                    selectedButton.classList.add('incorrect');
+                    feedbackDisplay.textContent = 'Falsch. Die richtige Antwort ist: ' + correctAnswer;
+                    // Highlight the correct answer
+                    answerButtonsContainer.querySelectorAll('button').forEach(btn => {
+                        if (btn.dataset.answer === correctAnswer) {
+                            btn.classList.add('correct');
+                        }
+                    });
+                }
+
+                totalQuizAttempts++;
+                scoreDisplay.textContent = currentScore;
+                learningData.recordAttempt(itemId, isCorrect);
+            }
+
+            function nextQuestion() {
+                currentItemIndex++;
+                loadQuestion();
+            }
+
+            function endQuiz() {
+                let finalMessage = `Quiz beendet! Ihre Punktzahl: ${currentScore} von ${shuffledItems.length}.`;
+                const percentage = (totalQuizCorrect / totalQuizAttempts) * 100;
+
+                if (currentScore === shuffledItems.length && shuffledItems.length > 0) {
+                    finalMessage += ' Perfekt! 💯';
+                    if (!learningData.achievements.perfectScore) {
+                        learningData.achievements.perfectScore = true;
+                        showAchievementUnlock('perfectScore');
+                    }
+                } else if (percentage >= 70) {
+                    finalMessage += ' Ausgezeichnetes Ergebnis!';
+                } else {
+                    finalMessage += ' Bitte üben Sie weiter!';
+                }
+
+                displayEl.textContent = finalMessage;
+                answerButtonsContainer.innerHTML = '';
+                feedbackDisplay.textContent = '';
+                nextButton.classList.add('hidden');
+                restartButton.classList.remove('hidden');
+                updateProgressBar(prefix, shuffledItems.length, shuffledItems.length);
+
+                if (secondaryDisplayEl) secondaryDisplayEl.textContent = '';
+                if (difficultyContainer) difficultyContainer.innerHTML = '';
+                if (imagePlaceholder) imagePlaceholder.classList.add('hidden');
+            }
+
+            // Lookup sheet population
+            function populateLookupTable() {
+                lookupTableBody.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+
+                    const germanCell = document.createElement('td');
+                    germanCell.textContent = item.german;
+                    row.appendChild(germanCell);
+
+                    const secondaryCell = document.createElement('td');
+                    secondaryCell.textContent = item.gender || item.literal || '-';
+                    row.appendChild(secondaryCell);
+
+                    const meaningCell = document.createElement('td');
+                    meaningCell.textContent = item.english;
+                    row.appendChild(meaningCell);
+
+                    const listenCell = document.createElement('td');
+                    const listenButton = document.createElement('button');
+                    listenButton.className = 'lookup-pronounce-button';
+                    listenButton.textContent = '🔊';
+                    listenButton.addEventListener('click', () => speakGerman(item.german));
+                    listenCell.appendChild(listenButton);
+                    row.appendChild(listenCell);
+
+                    lookupTableBody.appendChild(row);
+                });
+            }
+
+            // Function to toggle lookup sheet visibility
+            function toggleLookupSheet() {
+                if (lookupSheet) {
+                    lookupSheet.classList.toggle('hidden');
+                    quizSection.classList.toggle('hidden');
+                    const toggleButton = document.getElementById(`toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`);
+                    toggleButton.textContent = lookupSheet.classList.contains('hidden') ? `${prefix.charAt(0).toUpperCase() + prefix.slice(1)}-Übersicht anzeigen` : 'Übersicht ausblenden';
+
+                    if (!lookupSheet.classList.contains('hidden')) {
+                        populateLookupTable();
+                    }
+                }
+            }
+
+
+            // Initialization
+            function init() {
+                resetQuizState();
+                loadQuestion();
+
+                // Add main event listeners only once
+                if (nextButton && !nextButton.listenerAdded) {
+                    nextButton.addEventListener('click', nextQuestion);
+                    nextButton.listenerAdded = true;
+                }
+                if (restartButton && !restartButton.listenerAdded) {
+                    restartButton.addEventListener('click', restartQuiz);
+                    restartButton.listenerAdded = true;
+                }
+                if (pronounceButton && !pronounceButton.listenerAdded) {
+                    pronounceButton.addEventListener('click', () => speakGerman(displayEl.textContent));
+                    pronounceButton.listenerAdded = true;
+                }
+                if (lookupSheet) {
+                    const toggleButtonId = `toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`;
+                    const hideButtonId = `hide${prefix.charAt(0).toUpperCase() + prefix.slice(1)}LookupButton`;
+
+                    if (document.getElementById(toggleButtonId) && !document.getElementById(toggleButtonId).listenerAdded) {
+                        document.getElementById(toggleButtonId).addEventListener('click', toggleLookupSheet);
+                        document.getElementById(toggleButtonId).listenerAdded = true;
+                    }
+                    if (document.getElementById(hideButtonId) && !document.getElementById(hideButtonId).listenerAdded) {
+                        document.getElementById(hideButtonId).addEventListener('click', toggleLookupSheet);
+                        document.getElementById(hideButtonId).listenerAdded = true;
+                    }
+                }
+            }
+
+            function restartQuiz() {
+                init();
+            }
+
+            return { init, restartQuiz };
+        }
+        
+        // --- Conjugation Quiz Logic (New Module) ---
+        const conjugationQuiz = (function() {
+            let currentItemIndex = 0;
+            let currentScore = 0;
+            let shuffledVerbs = [];
+            let currentVerbData = null;
+            let currentPronoun = null;
+
+            const verbDisplay = document.getElementById('conjugationVerbDisplay');
+            const meaningDisplay = document.getElementById('conjugationVerbMeaning');
+            const pronounDisplay = document.getElementById('conjugationPronounDisplay');
+            const inputEl = document.getElementById('conjugationInput');
+            const submitButton = document.getElementById('conjugationSubmitButton');
+            const feedbackDisplay = document.getElementById('conjugationFeedback');
+            const scoreDisplay = document.getElementById('conjugationScoreDisplay');
+            const nextButton = document.getElementById('conjugationNextButton');
+            const restartButton = document.getElementById('conjugationRestartButton');
+            const tableBody = document.querySelector('#fullConjugationTable tbody');
+            const hintContainer = document.getElementById('conjugationAnswerHint');
+            const progressBar = document.getElementById('conjugationProgressBar');
+            const progressText = document.getElementById('conjugationProgressText');
+
+            function resetQuizState() {
+                currentItemIndex = 0;
+                currentScore = 0;
+                shuffledVerbs = shuffleArray(germanConjugationData);
+                scoreDisplay.textContent = currentScore;
+                feedbackDisplay.textContent = '';
+                nextButton.classList.add('hidden');
+                restartButton.classList.add('hidden');
+                inputEl.disabled = false;
+                submitButton.classList.remove('hidden');
+                hintContainer.classList.add('hidden');
+                inputEl.value = '';
+            }
+            
+            function loadQuestion() {
+                if (currentItemIndex >= shuffledVerbs.length * germanPronouns.length) {
+                    endQuiz();
+                    return;
+                }
+                
+                // Determine current verb and pronoun based on itemIndex
+                const verbIndex = Math.floor(currentItemIndex / germanPronouns.length) % shuffledVerbs.length;
+                const pronounIndex = currentItemIndex % germanPronouns.length;
+                
+                currentVerbData = shuffledVerbs[verbIndex];
+                currentPronoun = germanPronouns[pronounIndex];
+                
+                // Reset UI elements
+                feedbackDisplay.textContent = '';
+                nextButton.classList.add('hidden');
+                hintContainer.classList.add('hidden');
+                inputEl.value = '';
+                inputEl.disabled = false;
+                submitButton.classList.remove('hidden');
+
+                // Update displays
+                verbDisplay.textContent = currentVerbData.verb;
+                meaningDisplay.textContent = currentVerbData.meaning;
+                pronounDisplay.textContent = currentPronoun;
+
+                updateProgressBar('conjugation', currentItemIndex, shuffledVerbs.length * germanPronouns.length);
+            }
+            
+            function checkAnswer() {
+                const userAnswer = inputEl.value.trim().toLowerCase();
+                const correctAnswer = currentVerbData.conjugations[currentPronoun].toLowerCase();
+                const itemId = currentVerbData.id;
+                
+                // Disable input and submit
+                inputEl.disabled = true;
+                submitButton.classList.add('hidden');
+                nextButton.classList.remove('hidden');
+
+                const isCorrect = userAnswer === correctAnswer;
+
+                if (isCorrect) {
+                    feedbackDisplay.textContent = 'Richtig! Ausgezeichnet! (Correct! Excellent!)';
+                    feedbackDisplay.classList.remove('incorrect');
+                    feedbackDisplay.classList.add('correct');
+                    currentScore++;
+                } else {
+                    feedbackDisplay.textContent = `Falsch. Sie haben "${userAnswer}" eingegeben.`;
+                    feedbackDisplay.classList.remove('correct');
+                    feedbackDisplay.classList.add('incorrect');
+                    showCorrectConjugation();
+                }
+
+                scoreDisplay.textContent = currentScore;
+                learningData.recordAttempt(itemId, isCorrect);
+            }
+            
+            function showCorrectConjugation() {
+                hintContainer.classList.remove('hidden');
+                tableBody.innerHTML = '';
+                
+                germanPronouns.forEach(pronoun => {
+                    const row = tableBody.insertRow();
+                    const pronounCell = row.insertCell();
+                    const formCell = row.insertCell();
+                    
+                    pronounCell.textContent = pronoun;
+                    formCell.textContent = currentVerbData.conjugations[pronoun];
+                    
+                    if (pronoun === currentPronoun) {
+                        row.style.fontWeight = 'bold';
+                        row.style.backgroundColor = '#fef3c7'; /* Light gold highlight */
+                    }
+                });
+            }
+
+            function nextQuestion() {
+                currentItemIndex++;
+                loadQuestion();
+            }
+
+            function endQuiz() {
+                const totalQuestions = shuffledVerbs.length * germanPronouns.length;
+                let finalMessage = `Konjugations-Quiz beendet! Ihre Punktzahl: ${currentScore} von ${totalQuestions}.`;
+                
+                if (currentScore === totalQuestions && totalQuestions > 0) {
+                    finalMessage += ' Perfekt konjugiert! 💯';
+                } else {
+                    finalMessage += ' Wiederholen Sie die wichtigsten Verben.';
+                }
+
+                verbDisplay.textContent = finalMessage;
+                meaningDisplay.textContent = '';
+                pronounDisplay.textContent = '';
+                feedbackDisplay.textContent = '';
+                nextButton.classList.add('hidden');
+                restartButton.classList.remove('hidden');
+                updateProgressBar('conjugation', totalQuestions, totalQuestions);
+                inputEl.classList.add('hidden');
+            }
+
+            // Initialization
+            function init() {
+                resetQuizState();
+                loadQuestion();
+
+                if (!submitButton.listenerAdded) {
+                    submitButton.addEventListener('click', checkAnswer);
+                    submitButton.listenerAdded = true;
+                }
+                if (!nextButton.listenerAdded) {
+                    nextButton.addEventListener('click', nextQuestion);
+                    nextButton.listenerAdded = true;
+                }
+                if (!restartButton.listenerAdded) {
+                    restartButton.addEventListener('click', restartQuiz);
+                    restartButton.listenerAdded = true;
+                }
+                if (!inputEl.listenerAdded) {
+                    inputEl.addEventListener('keyup', (e) => {
+                        if (e.key === 'Enter' && !inputEl.disabled) {
+                            checkAnswer();
+                        }
+                    });
+                    inputEl.listenerAdded = true;
+                }
+                inputEl.classList.remove('hidden');
+            }
+
+            function restartQuiz() {
+                init();
+            }
+            
+            return { init, restartQuiz };
+        })();
+        
+
+
+        // Initialize Quiz Modules
+        const wordQuiz = createQuizModule(germanWordsData, 'word');
+        const phraseQuiz = createQuizModule(germanPhrasesData, 'phrase');
+
+
+        // --- Grammar Guide Logic (IIFE) ---
+        const grammarGuide = (function() {
+            let currentGrammarSectionIndex = 0;
+            const contentContainer = document.getElementById('grammarContent');
+            const grammarNextButton = document.getElementById('grammarNextButton');
+            const grammarPrevButton = document.getElementById('grammarPrevButton');
+
+            function loadGrammarSection(index) {
+                if (index < 0 || index >= grammarSectionsContent.length) return;
+
+                const section = grammarSectionsContent[index];
+                contentContainer.innerHTML = `
+                    <h2>${section.title}</h2>
+                    ${section.content}
+                `;
+
+                // Update navigation buttons
+                grammarPrevButton.disabled = (index === 0);
+                grammarNextButton.disabled = (index === grammarSectionsContent.length - 1);
+                if (currentGrammarSectionIndex === grammarSectionsContent.length - 1) {
+                    grammarNextButton.textContent = "Ende des Leitfadens";
+                } else {
+                    grammarNextButton.textContent = "Weiter";
+                }
+            }
+
+            grammarNextButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex < grammarSectionsContent.length - 1) {
+                    currentGrammarSectionIndex++;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                }
+            });
+
+            grammarPrevButton.addEventListener('click', () => {
+                if (currentGrammarSectionIndex > 0) {
+                    currentGrammarSectionIndex--;
+                    loadGrammarSection(currentGrammarSectionIndex);
+                }
+            });
+
+            function init() {
+                currentGrammarSectionIndex = 0; // Reset to first section on init
+                loadGrammarSection(currentGrammarSectionIndex);
+            }
+
+            return { init };
+        })();
+
+
+        // Initialize the tool to the start screen
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load learning data
+            learningData.load();
+            learningData.updateDashboard();
+            updateAchievementsDisplay();
+
+            showModule('startScreen');
+        });
+    </script>
+</body>
+</html>
