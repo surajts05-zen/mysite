@@ -172,6 +172,11 @@
         <div class="card p-6 rounded-xl order-1">
             <h2 class="text-3xl font-bold mb-4 border-b pb-2 border-amber-300">1. Transmission Practice (Keyer)</h2>
             <p class="text-sm text-gray-300 mb-4">Click the keyer button or hold the <span class="font-bold text-amber-300">SPACEBAR</span> to send dots and dashes.</p>
+			
+			<div class="flex items-center space-x-4 mb-4">
+				<label for="wordSpeedSlider" class="text-sm font-medium text-gray-300 w-28">Word Speed (<span id="wordSpeedValue">20</span> WPM):</label>
+				<input type="range" id="wordSpeedSlider" min="5" max="40" value="20" class="flex-grow h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+			</div>
             
             <div class="flex flex-col items-center">
                 <button id="keyerButton" class="keyer-button w-full rounded-2xl text-2xl font-bold shadow-xl">
@@ -462,6 +467,8 @@
                     <option value="2">2 Characters (Double)</option>
                     <option value="3">3 Characters (Triple)</option>
                     <option value="4">4 Characters</option>
+					<option value="998">5 Whole Words</option>
+					<option value="999">6 Full Sentences</option>
                 </select>
             </div>
             <div>
@@ -2446,15 +2453,20 @@ const ELECTRONICS_CONTENT = [
         let checkTimeout = null;
         let keysPressed = {};
 
-        function decodeCurrentSequence() {
-            let char = REVERSE_MORSE[currentMorseSequence] || '';
-            if (char) {
-                decodedMessage += char;
-                decodedOutput.textContent = decodedMessage;
-                currentMorseSequence = '';
-            }
-            inputMorseDisplay.textContent = currentMorseSequence || '_';
-        }
+function decodeCurrentSequence() {
+    let char = REVERSE_MORSE[currentMorseSequence] || '';
+    
+    if (char) {
+        decodedMessage += char;
+        decodedOutput.textContent = decodedMessage;
+    }
+    
+    // THE FIX: Reset the sequence after the character break timeout 
+    // This prevents the next element from concatenating with a failed partial sequence.
+    currentMorseSequence = '';
+    
+    inputMorseDisplay.textContent = currentMorseSequence || '_';
+}
         
         function handleKeyDown() {
             if (isKeying) return;
@@ -2658,6 +2670,101 @@ const ELECTRONICS_CONTENT = [
 
             // --- Dictionaries ---
             const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+			
+			// **NEW:** Separate lists for Words and Sentences
+			
+			const QUIZ_WORDS = [
+				  "CQ",
+				  "DE",
+				  "HAM",
+				  "RADIO",
+				  "WAVES",
+				  "EXAM",
+				  "PREP",
+				  "TEST",
+				  "SEVEN",
+				  "THREE",
+				  "HELLO",
+				  "CODE",
+				  "GOOD",
+				  "CQ",
+				  "DE",
+				  "HAM",
+				  "QRL",
+				  "QRM",
+				  "QRN",
+				  "QRO",
+				  "QRQ",
+				  "QRS",
+				  "QRT",
+				  "QRV",
+				  "QRZ",
+				  "QSB",
+				  "QSL",
+				  "QSY",
+				  "QTH",
+				  "QTR",
+				  "QTX",
+				  "CUL",
+				  "SK",
+				  "AR",
+				  "K",
+				  "RIG",
+				  "WATT",
+				  "COAX",
+				  "SWR",
+				  "AMPLIFIER",
+				  "ANTENNA",
+				  "POWER",
+				  "TOWER",
+				  "KEYER",
+				  "DAH",
+				  "DIT",
+				  "BREAK",
+				  "FINAL",
+				  "TEST",
+				  "MORSE",
+				  "RADIO",
+				  "CONTACT",
+				  "SIGNAL",
+				  "NOISE",
+				  "DIPOLE",
+				  "CW",
+				  "73"
+				  // Add more short, common words here
+				];
+
+				const QUIZ_SENTENCES = [
+				  "CQ DE HAM",
+				  "KNOW YOUR LIMITS",
+				  "RADIO WAVES ARE FAST",
+				  "GOOD LUCK WITH THE TEST",
+				  "QTH IS DELHI INDIA",
+				  "THE QUICK BROWN FOX JUMPS",
+				  "SEND MORE CODE",
+				  "WELCOME ABOARD THE SHIP",
+				  "QRL IS THIS FREQUENCY BUSY",
+				  "QTH IS NEW YORK CITY",
+				  "THANKS FOR THE QSL CARD",
+				  "QRZ IS ANYONE CALLING ME",
+				  "KICK BACK AND COPY",
+				  "GOOD MORNING TO YOU",
+				  "BEST WISHES AND 73",
+				  "HOPE TO WORK YOU SOON",
+				  "NICE TO MEET YOU ON AIR",
+				  "YOUR SIGNAL IS FIVE NINE",
+				  "QRM IS TOO HIGH HERE",
+				  "PLEASE QSY UP TEN KHZ",
+				  "THE SWR IS TWO POINT ZERO",
+				  "CHECK YOUR ANTENNA SYSTEM",
+				  "MY RIG IS ONE HUNDRED WATTS",
+				  "THE QUICK BROWN FOX JUMPS OVER",
+				  "LISTEN AND LEARN THE CODE",
+				  "PRACTICE MAKES PERFECT",
+				  "AMATEUR RADIO IS FUN",
+				  "KNOW YOUR LIMITS"
+				  // Add more longer phrases or sentences here
+				];
             const MORSE_LOOKUP = {
                 'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
                 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
@@ -2720,7 +2827,7 @@ const ELECTRONICS_CONTENT = [
 
             // --- Quiz Core Logic ---
 
-            function generateQuestions() {
+          /*  function generateQuestions() {
                 quizState.questions = [];
                 for(let i=0; i<QUIZ_TOTAL_QUESTIONS; i++) {
                     let seq = "";
@@ -2729,7 +2836,36 @@ const ELECTRONICS_CONTENT = [
                     }
                     quizState.questions.push(seq);
                 }
-            }
+            } */
+			
+			function generateQuestions() {
+  quizState.questions = [];
+  const selectedLength = parseInt(quizState.groupLength);
+
+  if (selectedLength === 998) {
+    // Mode: Whole Words
+    for (let i = 0; i < QUIZ_TOTAL_QUESTIONS; i++) {
+      const randomIndex = Math.floor(Math.random() * QUIZ_WORDS.length);
+      quizState.questions.push(QUIZ_WORDS[randomIndex]);
+    }
+  } else if (selectedLength === 999) {
+    // Mode: Full Sentences
+    for (let i = 0; i < QUIZ_TOTAL_QUESTIONS; i++) {
+      const randomIndex = Math.floor(Math.random() * QUIZ_SENTENCES.length);
+      quizState.questions.push(QUIZ_SENTENCES[randomIndex]);
+    }
+  } else {
+    // Original Mode: Generating random characters (1, 2, 3, or 4 characters)
+    for (let i = 0; i < QUIZ_TOTAL_QUESTIONS; i++) {
+      let seq = "";
+      // Use the selected number as the loop limit
+      for (let j = 0; j < selectedLength; j++) {
+        seq += CHARS[Math.floor(Math.random() * CHARS.length)];
+      }
+      quizState.questions.push(seq);
+    }
+  }
+}
 
             function startQuiz() {
                 // Reset State
