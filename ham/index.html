@@ -174,8 +174,15 @@
             <p class="text-sm text-gray-300 mb-4">Click the keyer button or hold the <span class="font-bold text-amber-300">SPACEBAR</span> to send dots and dashes.</p>
 			
 			<div class="flex items-center space-x-4 mb-4">
-				<label for="wordSpeedSlider" class="text-sm font-medium text-gray-300 w-28">Word Speed (<span id="wordSpeedValue">20</span> WPM):</label>
-				<input type="range" id="wordSpeedSlider" min="5" max="40" value="20" class="flex-grow h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+			
+				<label for="wordSpeedSlider" class="text-sm font-medium text-gray-300 w-28">
+				Speed :	<span id="wpmValue" class="text-amber-300 font-bold text-lg">8</span>
+				</label>
+				<div class="flex items-center space-x-3">
+				<span class="text-sm text-gray-400">4 WPM</span>
+				<input type="range" id="wordSpeedSlider" min="4" max="40" value="8" class="flex-grow h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+				<span class="text-sm text-gray-400">40 WPM</span>
+				</div>
 			</div>
             
             <div class="flex flex-col items-center">
@@ -227,7 +234,7 @@
                     </label>
                     <div class="flex items-center space-x-3">
                         <span class="text-sm text-gray-400">4 WPM</span>
-                        <input type="range" id="wpmRange" min="4" max="40" value="10" step="1" class="flex-grow h-2 bg-gray-700 rounded-lg cursor-pointer">
+                        <input type="range" id="wpmRange" min="4" max="40" value="8" step="1" class="flex-grow h-2 bg-gray-700 rounded-lg cursor-pointer">
                         <span class="text-sm text-gray-400">40 WPM</span>
                     </div>
                 </div>
@@ -458,6 +465,18 @@
     <!-- Content for New Morse Quiz -->
     <div class="card p-6 rounded-xl">
         <h2 class="text-2xl font-semibold mb-4 text-white">Morse Code Group Quiz</h2>
+		
+				<div class="mb-4">
+			<label for="wpm-slider" class="block text-sm font-medium text-gray-300 mb-3">
+				Speed: <span id="wpm-value" class="text-amber-300 font-bold text-lg">12</span> WPM
+			</label>
+			<input type="range" id="wpm-slider" min="5" max="30" value="8" step="1"
+				   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-1">
+			<div class="flex justify-between text-xs text-gray-500 mt-1">
+				<span>5 WPM</span>
+				<span>30 WPM</span>
+			</div>
+		</div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end">
             <div>
@@ -2468,49 +2487,47 @@ function decodeCurrentSequence() {
     inputMorseDisplay.textContent = currentMorseSequence || '_';
 }
         
-        function handleKeyDown() {
-            if (isKeying) return;
-            
-            initAudioContext();
-            
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
+function handleKeyDown(e) {
+    if (e.repeat || !quizState.active || quizState.mode !== 'send' || els.nextBtn.classList.contains('hidden') === false) return;
+    initAudio();
+
+    const currentTime = Date.now();
+
+    if (lastKeyReleaseTime > 0) {
+        const durationSinceLastRelease = currentTime - lastKeyReleaseTime;
+
+        if (interElementTimeout) clearTimeout(interElementTimeout);
+        interElementTimeout = null;
+
+        // 1. If enough time passed for a word break (7T), process a space
+        if (durationSinceLastRelease >= WORD_BREAK_MS) {
+            // ONLY process a space if the last processed input was NOT already a space (i.e., we processed a character).
+            // We check the last character in the buffer to prevent redundant spaces.
+            if (quizState.userKeyingBuffer[quizState.userKeyingBuffer.length - 1] !== ' ') {
+                processKeyerChar(' '); // Process explicit space
             }
-
-            if (audioContext && !keyerOscillator) {
-                keyerOscillator = audioContext.createOscillator();
-                keyerGainNode = audioContext.createGain();
-
-                keyerOscillator.connect(keyerGainNode);
-                keyerGainNode.connect(audioContext.destination);
-
-                keyerOscillator.type = 'sine';
-                keyerOscillator.frequency.setValueAtTime(FREQUENCY, audioContext.currentTime);
-                keyerGainNode.gain.setValueAtTime(1, audioContext.currentTime);
-                keyerOscillator.start(0);
-            }
-
-            const currentTime = Date.now();
-            const waitDuration = currentTime - lastReleaseTime;
-
-            if (lastReleaseTime > 0) {
-                if (waitDuration >= WORD_BREAK_MS) {
-                    decodeCurrentSequence();
-                    decodedMessage += ' ';
-                    decodedOutput.textContent = decodedMessage;
-                    currentMorseSequence = '';
-                } else if (waitDuration >= CHAR_BREAK_MS) {
-                    decodeCurrentSequence();
-                }
-            }
-
-            if (checkTimeout) clearTimeout(checkTimeout);
-            checkTimeout = null;
-
-            isKeying = true;
-            pressStartTime = currentTime;
-            keyerButton.classList.add('bg-sky-500', 'ring-8', 'ring-sky-300');
+        
+        // 2. If enough time passed for a character break (3T), process the accumulated morse
+        } else if (durationSinceLastRelease >= CHAR_BREAK_MS && quizState.currentMorse) {
+            processKeyerChar(quizState.currentMorse);
         }
+    }
+
+    // Visuals
+    els.keyerBtn.classList.add('bg-sky-300');
+
+    // Audio
+    if (!osc) {
+        osc = audioCtx.createOscillator();
+        gain = audioCtx.createGain();
+        osc.frequency.value = FREQ;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+    }
+
+    keyPressStart = currentTime;
+}
 
         function handleKeyUp() {
             if (!isKeying) return;
@@ -2606,496 +2623,511 @@ function decodeCurrentSequence() {
         })(); 
     </script>
 <script>
-        // --- FIXED MORSE QUIZ LOGIC ---
-        (function() {
-            // --- Configuration & State ---
-            const QUIZ_TOTAL_QUESTIONS = 10;
-            let quizState = {
-                active: false,
-                mode: 'receive', // 'receive' or 'send'
-                groupLength: 1,
-                currentQuestionIndex: 0,
-                score: 0,
-                currentSequence: '', // The text target (e.g., "ABC")
-                currentMorse: '',    // The morse string (e.g., ".- -... -.-.")
-                userKeyingBuffer: '', // For send mode: what the user has typed so far
-                questions: []
-            };
+    // --- FINAL FIXED MORSE QUIZ LOGIC (WPM Slider Integrated & Display Space Fixed) ---
+    (function() {
+        // --- Configuration & State ---
+        const QUIZ_TOTAL_QUESTIONS = 10;
+        let quizState = {
+            active: false,
+            mode: 'receive', // 'receive' or 'send'
+            groupLength: 1,
+            currentQuestionIndex: 0,
+            score: 0,
+            currentSequence: '', // The text target (e.g., "BEST WISHES AND 73")
+            currentMorse: '',    // The morse string (e.g., "-... . ... - / .-- .. ... .... . ... / .- -. -.. / --... ...--")
+            userKeyingBuffer: '', // For send mode: what the user has typed so far
+            questions: []
+        };
 
-            // --- Audio Context for Quiz ---
-            let audioCtx = null;
-            let osc = null;
-            let gain = null;
-            const FREQ = 700;
-            const WPM = 12;
-            const UNIT = 1.2 / WPM; // Seconds per dot
+        // --- DYNAMIC Timing Variables for Quiz Keyer ---
+        let WPM_QUIZ = 12; // Base WPM (will be set by slider default)
+        let UNIT_QUIZ;     // Seconds per dot (T)
+        let DOT_MS;        // Time duration of one dot
+        let DASH_THRESHOLD_MS; // Threshold for dot vs dash
+        let CHAR_BREAK_MS; // Inter-character gap is 3 units
+        let WORD_BREAK_MS; // Inter-word gap is 7 units
 
-            // --- DOM Elements ---
-            const els = {
-                // Setup
-                lengthSelect: document.getElementById('morse-length'),
-                modeSelect: document.getElementById('morse-mode'),
-                startBtn: document.getElementById('start-morse-quiz-button'),
-                message: document.getElementById('morse-message'),
-                quizArea: document.getElementById('morse-quiz-area'),
-                quizContainer: document.getElementById('morse-quiz-container'),
+        // --- Audio Context for Quiz ---
+        let audioCtx = null;
+        let osc = null;
+        let gain = null;
+        let lastKeyReleaseTime = 0; // Time when key was released
+        let keyPressStart = 0; // Time when key was pressed
+        let interElementTimeout = null; // For char/word break detection
+
+        const FREQ = 700;
+
+        // --- DOM Elements (Updated with WPM Slider IDs) ---
+        const els = {
+            lengthSelect: document.getElementById('morse-length'),
+            modeSelect: document.getElementById('morse-mode'),
+            startBtn: document.getElementById('start-morse-quiz-button'),
+            message: document.getElementById('morse-message'),
+            quizContainer: document.getElementById('morse-quiz-container'),
+            counter: document.getElementById('morse-quiz-counter'),
+            status: document.getElementById('morse-quiz-status'),
+            rxControls: document.getElementById('receive-mode-controls'),
+            playBtn: document.getElementById('play-morse-button'),
+            input: document.getElementById('morse-input-text'),
+            submitBtn: document.getElementById('submit-morse-button'),
+            rxFeedback: document.getElementById('morse-receive-feedback'),
+            txControls: document.getElementById('send-mode-controls'),
+            targetText: document.getElementById('target-send-text'),
+            keyerBtn: document.getElementById('morse-keyer-button'),
+            txInputDisplay: document.getElementById('morse-send-input-display'),
+            txDecodedDisplay: document.getElementById('morse-send-decoded-output'),
+            txFeedback: document.getElementById('morse-send-feedback'),
+            nextBtn: document.getElementById('send-next-button'),
+            endBtn: document.getElementById('end-morse-quiz-button'),
+            resultsContainer: document.getElementById('morse-results-container'),
+            scoreDisplay: document.getElementById('morse-score-display'),
+            scoreDetails: document.getElementById('morse-score-details'),
+            resultTitle: document.getElementById('morse-results-title'),
+            // NEW WPM Slider Elements
+            wpmSlider: document.getElementById('wpm-slider'),
+            wpmValueSpan: document.getElementById('wpm-value')
+        };
+
+        // --- Dictionaries (Unchanged) ---
+        const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        
+        const QUIZ_WORDS = [
+            "CQ", "DE", "HAM", "RADIO", "WAVES", "EXAM", "PREP", "TEST", "SEVEN", "THREE", "HELLO", "CODE", "GOOD",
+            "QRL", "QRM", "QRN", "QRO", "QRQ", "QRS", "QRT", "QRV", "QRZ", "QSB", "QSL", "QSY", "QTH", "QTR",
+            "CUL", "SK", "AR", "K", "RIG", "WATT", "COAX", "SWR", "AMPLIFIER", "ANTENNA", "POWER", "TOWER", "KEYER",
+            "DAH", "DIT", "BREAK", "FINAL", "MORSE", "CONTACT", "SIGNAL", "NOISE", "DIPOLE", "CW", "73"
+        ];
+
+        const QUIZ_SENTENCES = [
+            "CQ DE HAM", "KNOW YOUR LIMITS", "RADIO WAVES ARE FAST", "GOOD LUCK WITH THE TEST", "QTH IS DELHI INDIA",
+            "THE QUICK BROWN FOX JUMPS", "SEND MORE CODE", "WELCOME ABOARD THE SHIP", "QRL IS THIS FREQUENCY BUSY",
+            "QTH IS NEW YORK CITY", "THANKS FOR THE QSL CARD", "QRZ IS ANYONE CALLING ME", "KICK BACK AND COPY",
+            "GOOD MORNING TO YOU", "BEST WISHES AND 73", "HOPE TO WORK YOU SOON", "NICE TO MEET YOU ON AIR",
+            "YOUR SIGNAL IS FIVE NINE", "QRM IS TOO HIGH HERE", "PLEASE QSY UP TEN KHZ", "THE SWR IS TWO POINT ZERO",
+            "CHECK YOUR ANTENNA SYSTEM", "MY RIG IS ONE HUNDRED WATTS", "LISTEN AND LEARN THE CODE",
+            "PRACTICE MAKES PERFECT", "AMATEUR RADIO IS FUN"
+        ];
+        const MORSE_LOOKUP = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
+            'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+            'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
+            '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
+            '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
+            ' ': ' '
+        };
+        // Reverse Lookup for Keyer
+        const REVERSE_LOOKUP = Object.entries(MORSE_LOOKUP).reduce((acc, [char, code]) => {
+            acc[code] = char;
+            return acc;
+        }, {});
+
+
+        // --- DYNAMIC TIMING FUNCTION ---
+
+        function recalculateTiming(wpm) {
+            WPM_QUIZ = parseInt(wpm);
+            if (els.wpmValueSpan) els.wpmValueSpan.textContent = WPM_QUIZ;
+
+            // Paris standard: Time for one dot (T) in seconds
+            UNIT_QUIZ = 1.2 / WPM_QUIZ; 
+            DOT_MS = UNIT_QUIZ * 1000;
+            
+            // Timing constants in milliseconds
+            DASH_THRESHOLD_MS = DOT_MS * 2.5; // Threshold for dot vs dash
+            CHAR_BREAK_MS = DOT_MS * 3;     // Inter-character gap is 3 units
+            WORD_BREAK_MS = DOT_MS * 7;     // Inter-word gap is 7 units
+        }
+
+
+        // --- Audio Functions ---
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playTone(duration) {
+            return new Promise(resolve => {
+                const t = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gn = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = FREQ;
+                osc.connect(gn);
+                gn.connect(audioCtx.destination);
+                gn.gain.setValueAtTime(1, t);
+                gn.gain.exponentialRampToValueAtTime(0.01, t + duration);
+                osc.start(t);
+                osc.stop(t + duration);
+                setTimeout(resolve, duration * 1000);
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function playSequence(text) {
+            initAudio();
+            els.playBtn.disabled = true;
+            els.playBtn.classList.add('opacity-50');
+            
+            for (let char of text) {
+                const code = MORSE_LOOKUP[char];
+                if (!code) continue;
                 
-                // Status
-                counter: document.getElementById('morse-quiz-counter'),
-                status: document.getElementById('morse-quiz-status'),
-                
-                // Receive Mode
-                rxControls: document.getElementById('receive-mode-controls'),
-                playBtn: document.getElementById('play-morse-button'),
-                input: document.getElementById('morse-input-text'),
-                submitBtn: document.getElementById('submit-morse-button'),
-                rxFeedback: document.getElementById('morse-receive-feedback'),
-                
-                // Send Mode
-                txControls: document.getElementById('send-mode-controls'),
-                targetText: document.getElementById('target-send-text'),
-                keyerBtn: document.getElementById('morse-keyer-button'),
-                txInputDisplay: document.getElementById('morse-send-input-display'),
-                txDecodedDisplay: document.getElementById('morse-send-decoded-output'),
-                txFeedback: document.getElementById('morse-send-feedback'),
-                nextBtn: document.getElementById('send-next-button'),
-                
-                // Results
-                endBtn: document.getElementById('end-morse-quiz-button'),
-                resultsContainer: document.getElementById('morse-results-container'),
-                scoreDisplay: document.getElementById('morse-score-display'),
-                scoreDetails: document.getElementById('morse-score-details'),
-                resultTitle: document.getElementById('morse-results-title')
-            };
-
-            // --- Dictionaries ---
-            const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-			
-			// **NEW:** Separate lists for Words and Sentences
-			
-			const QUIZ_WORDS = [
-				  "CQ",
-				  "DE",
-				  "HAM",
-				  "RADIO",
-				  "WAVES",
-				  "EXAM",
-				  "PREP",
-				  "TEST",
-				  "SEVEN",
-				  "THREE",
-				  "HELLO",
-				  "CODE",
-				  "GOOD",
-				  "CQ",
-				  "DE",
-				  "HAM",
-				  "QRL",
-				  "QRM",
-				  "QRN",
-				  "QRO",
-				  "QRQ",
-				  "QRS",
-				  "QRT",
-				  "QRV",
-				  "QRZ",
-				  "QSB",
-				  "QSL",
-				  "QSY",
-				  "QTH",
-				  "QTR",
-				  "QTX",
-				  "CUL",
-				  "SK",
-				  "AR",
-				  "K",
-				  "RIG",
-				  "WATT",
-				  "COAX",
-				  "SWR",
-				  "AMPLIFIER",
-				  "ANTENNA",
-				  "POWER",
-				  "TOWER",
-				  "KEYER",
-				  "DAH",
-				  "DIT",
-				  "BREAK",
-				  "FINAL",
-				  "TEST",
-				  "MORSE",
-				  "RADIO",
-				  "CONTACT",
-				  "SIGNAL",
-				  "NOISE",
-				  "DIPOLE",
-				  "CW",
-				  "73"
-				  // Add more short, common words here
-				];
-
-				const QUIZ_SENTENCES = [
-				  "CQ DE HAM",
-				  "KNOW YOUR LIMITS",
-				  "RADIO WAVES ARE FAST",
-				  "GOOD LUCK WITH THE TEST",
-				  "QTH IS DELHI INDIA",
-				  "THE QUICK BROWN FOX JUMPS",
-				  "SEND MORE CODE",
-				  "WELCOME ABOARD THE SHIP",
-				  "QRL IS THIS FREQUENCY BUSY",
-				  "QTH IS NEW YORK CITY",
-				  "THANKS FOR THE QSL CARD",
-				  "QRZ IS ANYONE CALLING ME",
-				  "KICK BACK AND COPY",
-				  "GOOD MORNING TO YOU",
-				  "BEST WISHES AND 73",
-				  "HOPE TO WORK YOU SOON",
-				  "NICE TO MEET YOU ON AIR",
-				  "YOUR SIGNAL IS FIVE NINE",
-				  "QRM IS TOO HIGH HERE",
-				  "PLEASE QSY UP TEN KHZ",
-				  "THE SWR IS TWO POINT ZERO",
-				  "CHECK YOUR ANTENNA SYSTEM",
-				  "MY RIG IS ONE HUNDRED WATTS",
-				  "THE QUICK BROWN FOX JUMPS OVER",
-				  "LISTEN AND LEARN THE CODE",
-				  "PRACTICE MAKES PERFECT",
-				  "AMATEUR RADIO IS FUN",
-				  "KNOW YOUR LIMITS"
-				  // Add more longer phrases or sentences here
-				];
-            const MORSE_LOOKUP = {
-                'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
-                'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
-                'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
-                '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
-                '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----'
-            };
-            // Reverse Lookup for Keyer
-            const REVERSE_LOOKUP = Object.entries(MORSE_LOOKUP).reduce((acc, [char, code]) => {
-                acc[code] = char;
-                return acc;
-            }, {});
-
-            // --- Audio Functions ---
-            function initAudio() {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-            }
-
-            function playTone(duration) {
-                return new Promise(resolve => {
-                    const t = audioCtx.currentTime;
-                    const osc = audioCtx.createOscillator();
-                    const gn = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = FREQ;
-                    osc.connect(gn);
-                    gn.connect(audioCtx.destination);
-                    gn.gain.setValueAtTime(1, t);
-                    gn.gain.exponentialRampToValueAtTime(0.01, t + duration);
-                    osc.start(t);
-                    osc.stop(t + duration);
-                    setTimeout(resolve, duration * 1000);
-                });
-            }
-
-            function sleep(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-            }
-
-            async function playSequence(text) {
-                initAudio();
-                els.playBtn.disabled = true;
-                els.playBtn.classList.add('opacity-50');
-                
-                for (let char of text) {
-                    const code = MORSE_LOOKUP[char];
-                    if (!code) continue;
-                    
-                    for (let symbol of code) {
-                        if (symbol === '.') await playTone(UNIT);
-                        else await playTone(UNIT * 3);
-                        await sleep(UNIT * 1000); // Inter-symbol space
-                    }
-                    await sleep(UNIT * 3 * 1000); // Inter-char space
+                if (char === ' ') {
+                    // Word break (7 units total - 3 units from previous char + 4 more)
+                    await sleep(UNIT_QUIZ * 4 * 1000);
+                    continue;
                 }
-                els.playBtn.disabled = false;
-                els.playBtn.classList.remove('opacity-50');
+                
+                for (let symbol of code) {
+                    if (symbol === '.') await playTone(UNIT_QUIZ);
+                    else await playTone(UNIT_QUIZ * 3);
+                    await sleep(UNIT_QUIZ * 1000); // Inter-symbol space (1 unit)
+                }
+                await sleep(UNIT_QUIZ * 3 * 1000); // Inter-char space (3 units)
             }
+            els.playBtn.disabled = false;
+            els.playBtn.classList.remove('opacity-50');
+        }
 
-            // --- Quiz Core Logic ---
+        // --- Quiz Core Logic (Unchanged) ---
+        function generateQuestions() {
+            quizState.questions = [];
+            const selectedLength = parseInt(els.lengthSelect.value);
 
-          /*  function generateQuestions() {
-                quizState.questions = [];
-                for(let i=0; i<QUIZ_TOTAL_QUESTIONS; i++) {
+            if (selectedLength === 998) {
+                for (let i = 0; i < QUIZ_TOTAL_QUESTIONS; i++) {
+                    const randomIndex = Math.floor(Math.random() * QUIZ_WORDS.length);
+                    quizState.questions.push(QUIZ_WORDS[randomIndex]);
+                }
+            } else if (selectedLength === 999) {
+                for (let i = 0; i < QUIZ_TOTAL_QUESTIONS; i++) {
+                    const randomIndex = Math.floor(Math.random() * QUIZ_SENTENCES.length);
+                    quizState.questions.push(QUIZ_SENTENCES[randomIndex]);
+                }
+            } else {
+                for (let i = 0; i < QUIZ_TOTAL_QUESTIONS; i++) {
                     let seq = "";
-                    for(let j=0; j<quizState.groupLength; j++) {
+                    for (let j = 0; j < selectedLength; j++) {
                         seq += CHARS[Math.floor(Math.random() * CHARS.length)];
                     }
                     quizState.questions.push(seq);
                 }
-            } */
-			
-			function generateQuestions() {
-  quizState.questions = [];
-  const selectedLength = parseInt(quizState.groupLength);
+            }
+        }
 
-  if (selectedLength === 998) {
-    // Mode: Whole Words
-    for (let i = 0; i < QUIZ_TOTAL_QUESTIONS; i++) {
-      const randomIndex = Math.floor(Math.random() * QUIZ_WORDS.length);
-      quizState.questions.push(QUIZ_WORDS[randomIndex]);
-    }
-  } else if (selectedLength === 999) {
-    // Mode: Full Sentences
-    for (let i = 0; i < QUIZ_TOTAL_QUESTIONS; i++) {
-      const randomIndex = Math.floor(Math.random() * QUIZ_SENTENCES.length);
-      quizState.questions.push(QUIZ_SENTENCES[randomIndex]);
-    }
-  } else {
-    // Original Mode: Generating random characters (1, 2, 3, or 4 characters)
-    for (let i = 0; i < QUIZ_TOTAL_QUESTIONS; i++) {
-      let seq = "";
-      // Use the selected number as the loop limit
-      for (let j = 0; j < selectedLength; j++) {
-        seq += CHARS[Math.floor(Math.random() * CHARS.length)];
-      }
-      quizState.questions.push(seq);
-    }
-  }
-}
+        function startQuiz() {
+            quizState.active = true;
+            quizState.score = 0;
+            quizState.currentQuestionIndex = 0;
+            quizState.mode = els.modeSelect.value;
+            quizState.groupLength = els.lengthSelect.value; 
 
-            function startQuiz() {
-                // Reset State
-                quizState.active = true;
-                quizState.score = 0;
-                quizState.currentQuestionIndex = 0;
-                quizState.mode = els.modeSelect.value;
-                quizState.groupLength = parseInt(els.lengthSelect.value);
-                
-                generateQuestions();
+            generateQuestions();
 
-                // UI Reset
-                els.quizContainer.classList.remove('hidden');
-                els.resultsContainer.classList.add('hidden');
-                els.startBtn.parentElement.parentElement.classList.add('hidden'); // Hide setup
-                els.message.classList.add('hidden');
-                
+            els.quizContainer.classList.remove('hidden');
+            els.resultsContainer.classList.add('hidden');
+            els.startBtn.parentElement.parentElement.classList.add('hidden');
+            els.message.classList.add('hidden');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if(quizState.currentQuestionIndex >= QUIZ_TOTAL_QUESTIONS) {
+                endQuiz();
+                return;
+            }
+
+            els.counter.textContent = `Question ${quizState.currentQuestionIndex + 1} / ${QUIZ_TOTAL_QUESTIONS}`;
+            els.status.textContent = "Waiting for answer...";
+            els.status.className = "text-lg font-medium text-blue-400 mb-4";
+
+            quizState.currentSequence = quizState.questions[quizState.currentQuestionIndex];
+            
+            if(quizState.mode === 'receive') {
+                setupReceiveMode();
+            } else {
+                setupSendMode();
+            }
+        }
+
+        // --- Receive Mode Implementation (Unchanged) ---
+        function setupReceiveMode() {
+            els.rxControls.classList.remove('hidden');
+            els.txControls.classList.add('hidden');
+            
+            if (parseInt(quizState.groupLength) >= 998) {
+                els.input.maxLength = quizState.currentSequence.length;
+                els.input.classList.remove('max-w-sm');
+                els.input.classList.add('max-w-full');
+            } else {
+                els.input.maxLength = quizState.currentSequence.length;
+                els.input.classList.add('max-w-sm');
+                els.input.classList.remove('max-w-full');
+            }
+
+            els.input.value = '';
+            els.input.disabled = false;
+            els.input.focus();
+            els.rxFeedback.textContent = '';
+            els.submitBtn.disabled = false;
+            els.submitBtn.textContent = "Submit";
+            els.endBtn.classList.add('hidden');
+
+            setTimeout(() => playSequence(quizState.currentSequence), 500);
+        }
+
+        function submitReceiveAnswer() {
+            const val = els.input.value.toUpperCase().trim();
+            const correct = quizState.currentSequence;
+            
+            els.input.disabled = true;
+            els.submitBtn.disabled = true;
+
+            if(val === correct) {
+                quizState.score++;
+                els.rxFeedback.textContent = "Correct!";
+                els.rxFeedback.className = "mt-4 text-xl font-bold text-green-400";
+            } else {
+                els.rxFeedback.textContent = `Incorrect. It was: ${correct}`;
+                els.rxFeedback.className = "mt-4 text-xl font-bold text-red-400";
+            }
+
+            setTimeout(() => {
+                quizState.currentQuestionIndex++;
                 loadQuestion();
-            }
+            }, 2000);
+        }
 
-            function loadQuestion() {
-                if(quizState.currentQuestionIndex >= QUIZ_TOTAL_QUESTIONS) {
-                    endQuiz();
-                    return;
+        // --- Send Mode Implementation (Unchanged Setup) ---
+        function setupSendMode() {
+            els.rxControls.classList.add('hidden');
+            els.txControls.classList.remove('hidden');
+            els.endBtn.classList.remove('hidden');
+
+            els.targetText.textContent = quizState.currentSequence;
+            els.txInputDisplay.textContent = '_';
+            els.txDecodedDisplay.textContent = '_';
+            els.txFeedback.textContent = '';
+            els.nextBtn.classList.add('hidden');
+            
+            quizState.userKeyingBuffer = '';
+            quizState.currentMorse = '';
+            lastKeyReleaseTime = 0;
+            if(interElementTimeout) clearTimeout(interElementTimeout);
+            interElementTimeout = null;
+        }
+
+        // --- Keyer Logic for Send Mode (Using Dynamic Timing Variables) ---
+        function handleKeyDown(e) {
+            if(e.repeat || !quizState.active || quizState.mode !== 'send' || els.nextBtn.classList.contains('hidden') === false) return;
+            e.preventDefault(); // Prevent spacebar scrolling
+            initAudio();
+            
+            const currentTime = Date.now();
+            
+            if(lastKeyReleaseTime > 0) {
+                const durationSinceLastRelease = currentTime - lastKeyReleaseTime;
+                
+                if(interElementTimeout) clearTimeout(interElementTimeout);
+                interElementTimeout = null;
+
+                // 1. If enough time passed for a word break, process a space before the new symbol
+                if(durationSinceLastRelease >= WORD_BREAK_MS) {
+                    processKeyerChar(' '); // Process explicit space
+                    
+                // 2. If enough time passed for a character break, process the accumulated morse
+                } else if (durationSinceLastRelease >= CHAR_BREAK_MS && quizState.currentMorse) {
+                    processKeyerChar(quizState.currentMorse);
                 }
-
-                // Update Header
-                els.counter.textContent = `Question ${quizState.currentQuestionIndex + 1} / ${QUIZ_TOTAL_QUESTIONS}`;
-                els.status.textContent = "Waiting for answer...";
-                els.status.className = "text-lg font-medium text-blue-400 mb-4";
-
-                // Load Data
-                quizState.currentSequence = quizState.questions[quizState.currentQuestionIndex];
-                
-                // Mode Specific Setup
-                if(quizState.mode === 'receive') {
-                    setupReceiveMode();
-                } else {
-                    setupSendMode();
-                }
             }
-
-            // --- Receive Mode Implementation ---
-            function setupReceiveMode() {
-                els.rxControls.classList.remove('hidden');
-                els.txControls.classList.add('hidden');
-                
-                els.input.value = '';
-                els.input.disabled = false;
-                els.input.focus();
-                els.rxFeedback.textContent = '';
-                els.submitBtn.disabled = false;
-                els.submitBtn.textContent = "Submit";
-                els.endBtn.classList.add('hidden');
-
-                // Auto-play first time
-                setTimeout(() => playSequence(quizState.currentSequence), 500);
-            }
-
-            function submitReceiveAnswer() {
-                const val = els.input.value.toUpperCase().trim();
-                const correct = quizState.currentSequence;
-                
-                els.input.disabled = true;
-                els.submitBtn.disabled = true;
-
-                if(val === correct) {
-                    quizState.score++;
-                    els.rxFeedback.textContent = "Correct!";
-                    els.rxFeedback.className = "mt-4 text-xl font-bold text-green-400";
-                } else {
-                    els.rxFeedback.textContent = `Incorrect. It was: ${correct}`;
-                    els.rxFeedback.className = "mt-4 text-xl font-bold text-red-400";
-                }
-
-                setTimeout(() => {
-                    quizState.currentQuestionIndex++;
-                    loadQuestion();
-                }, 2000);
-            }
-
-            // --- Send Mode Implementation ---
-            let keyPressStart = 0;
-            let keyerTimeout = null;
-
-            function setupSendMode() {
-                els.rxControls.classList.add('hidden');
-                els.txControls.classList.remove('hidden');
-                els.endBtn.classList.remove('hidden'); // Allow bailing out
-
-                els.targetText.textContent = quizState.currentSequence;
-                els.txInputDisplay.textContent = '';
-                els.txDecodedDisplay.textContent = '';
-                els.txFeedback.textContent = '';
-                els.nextBtn.classList.add('hidden');
-                
-                quizState.userKeyingBuffer = '';
-                quizState.currentMorse = '';
-            }
-
-            // Keyer Logic for Send Mode
-            function handleKeyDown(e) {
-                if(e.repeat || !quizState.active || quizState.mode !== 'send') return;
-                initAudio();
-                
-                // Visuals
-                els.keyerBtn.classList.add('bg-sky-300'); // Highlight
-                
-                // Audio
+            
+            // Visuals
+            els.keyerBtn.classList.add('bg-sky-300'); 
+            
+            // Audio
+            if (!osc) {
                 osc = audioCtx.createOscillator();
                 gain = audioCtx.createGain();
                 osc.frequency.value = FREQ;
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
-                
-                keyPressStart = Date.now();
-                
-                if(keyerTimeout) clearTimeout(keyerTimeout);
             }
+            
+            keyPressStart = currentTime;
+        }
 
-            function handleKeyUp() {
-                if(!quizState.active || quizState.mode !== 'send') return;
-                
-                // Stop Audio
-                if(osc) {
-                    osc.stop();
-                    osc.disconnect();
-                    osc = null;
-                }
-                
-                // Visuals
-                els.keyerBtn.classList.remove('bg-sky-300');
-
-                // Decode Duration
-                const duration = Date.now() - keyPressStart;
-                const symbol = (duration < 200) ? '.' : '-'; // Simple threshold
-                
-                quizState.currentMorse += symbol;
-                els.txInputDisplay.textContent = quizState.currentMorse;
-
-                // Wait for character gap
-                keyerTimeout = setTimeout(processKeyerChar, 800);
+        function handleKeyUp() {
+            if(!quizState.active || quizState.mode !== 'send' || els.nextBtn.classList.contains('hidden') === false) return;
+            
+            // Stop Audio
+            if(osc) {
+                osc.stop();
+                osc.disconnect();
+                osc = null;
             }
+            
+            // Visuals
+            els.keyerBtn.classList.remove('bg-sky-300');
 
-            function processKeyerChar() {
-                const char = REVERSE_LOOKUP[quizState.currentMorse];
-                
-                if(char) {
-                    quizState.userKeyingBuffer += char;
-                    els.txDecodedDisplay.textContent = quizState.userKeyingBuffer;
-                    
-                    // Check if complete
-                    if(quizState.userKeyingBuffer.length === quizState.currentSequence.length) {
-                        validateSendAnswer();
-                    }
+            // Decode Duration and append symbol
+            const duration = Date.now() - keyPressStart;
+            const symbol = (duration < DASH_THRESHOLD_MS) ? '.' : '-'; 
+            
+            quizState.currentMorse += symbol;
+            els.txInputDisplay.textContent = quizState.currentMorse;
+            
+            lastKeyReleaseTime = Date.now();
+
+            // Set a timeout to process the character break (3T)
+            if(interElementTimeout) clearTimeout(interElementTimeout);
+            interElementTimeout = setTimeout(() => processKeyerChar(quizState.currentMorse), CHAR_BREAK_MS); 
+        }
+
+        function processKeyerChar(input) {
+            // 1. Pre-Check for Finish and Timer Clear
+            if (interElementTimeout) clearTimeout(interElementTimeout);
+            interElementTimeout = null;
+
+            if (els.nextBtn.classList.contains('hidden') === false) return;
+
+            let charToAdd = '';
+
+            if (input === ' ') {
+                charToAdd = ' '; // Explicit space from timer or KeyDown word break logic
+            } else if (typeof input === 'string' && input.length > 0) {
+                // Input is Morse code string (currentMorse)
+                const decodedChar = REVERSE_LOOKUP[input];
+                if (decodedChar) {
+                    charToAdd = decodedChar;
                 } else {
-                    // Invalid character
-                    els.txDecodedDisplay.textContent = quizState.userKeyingBuffer + " (?)";
-                    // Reset symbol buffer but keep typing
+                    charToAdd = '?'; // Invalid code
                 }
+            } else {
+                return; // Nothing meaningful to process
+            }
+
+            // 2. Add Character only if buffer is not yet full
+            if (quizState.userKeyingBuffer.length < quizState.currentSequence.length) {
+                quizState.userKeyingBuffer += charToAdd;
+            }
+
+            // 3. Update Display
+            // --- UPDATED: Replace the block character with a standard space
+            els.txDecodedDisplay.textContent = quizState.userKeyingBuffer; 
+
+            // 4. Check for Completion
+            if (quizState.userKeyingBuffer.length >= quizState.currentSequence.length) {
+                validateSendAnswer();
+                return;
+            }
+
+            // 5. Reset Morse Buffer and Set Next Timer
+            
+            // Reset morse buffer only if we processed a character, not a space
+            if (input !== ' ') {
                 quizState.currentMorse = '';
                 els.txInputDisplay.textContent = '_';
-            }
-
-            function validateSendAnswer() {
-                if(quizState.userKeyingBuffer === quizState.currentSequence) {
-                    quizState.score++;
-                    els.txFeedback.textContent = "Perfect Sending!";
-                    els.txFeedback.className = "mt-4 text-xl font-bold text-green-400";
-                } else {
-                    els.txFeedback.textContent = "Mismatch. Try the next one.";
-                    els.txFeedback.className = "mt-4 text-xl font-bold text-red-400";
-                }
                 
-                els.nextBtn.classList.remove('hidden');
-            }
-
-            // --- End Quiz ---
-            function endQuiz() {
-                quizState.active = false;
-                els.quizContainer.classList.add('hidden');
-                els.resultsContainer.classList.remove('hidden');
-                
-                const pct = (quizState.score / QUIZ_TOTAL_QUESTIONS) * 100;
-                els.scoreDisplay.textContent = `${quizState.score} / ${QUIZ_TOTAL_QUESTIONS} (${pct}%)`;
-                
-                if(pct >= 80) els.scoreDetails.textContent = "Excellent! You are exam ready.";
-                else if(pct >= 50) els.scoreDetails.textContent = "Good practice. Keep going.";
-                else els.scoreDetails.textContent = "Keep practicing your timing and codes.";
-
-                // Restore Setup
-                els.startBtn.parentElement.parentElement.classList.remove('hidden');
-            }
-
-            // --- Event Listeners ---
-            els.startBtn.addEventListener('click', startQuiz);
+                // Schedule the Word Break timer (7T break overall)
+                interElementTimeout = setTimeout(() => processKeyerChar(' '), WORD_BREAK_MS);
+            } 
+        }
             
-            // RX Listeners
-            els.playBtn.addEventListener('click', () => playSequence(quizState.currentSequence));
-            els.submitBtn.addEventListener('click', submitReceiveAnswer);
-            els.input.addEventListener('keyup', (e) => { if(e.key === 'Enter') submitReceiveAnswer(); });
-
-            // TX Listeners (Mouse/Touch)
-            els.keyerBtn.addEventListener('mousedown', handleKeyDown);
-            els.keyerBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyDown(e); });
-            window.addEventListener('mouseup', handleKeyUp);
-            window.addEventListener('touchend', handleKeyUp);
+        function validateSendAnswer() {
+            if(interElementTimeout) clearTimeout(interElementTimeout);
             
-            // TX Listeners (Spacebar)
-            window.addEventListener('keydown', (e) => {
-                if(e.code === 'Space' && quizState.active && quizState.mode === 'send') {
-                    e.preventDefault();
-                    handleKeyDown(e);
+            // Trim user input to the exact length of the target sequence
+            const finalAnswer = quizState.userKeyingBuffer.substring(0, quizState.currentSequence.length); 
+            const finalTarget = quizState.currentSequence;
+            
+            // Ensure display shows the final, trimmed result (now just using finalAnswer directly)
+            els.txDecodedDisplay.textContent = finalAnswer;
+
+            if(finalAnswer === finalTarget) {
+                quizState.score++;
+                els.txFeedback.textContent = "Perfect Sending!";
+                els.txFeedback.className = "mt-4 text-xl font-bold text-green-400";
+            } else {
+                // --- UPDATED: Ensure feedback uses standard space for comparison display
+                els.txFeedback.textContent = `Mismatch! You sent: ${finalAnswer} | Correct: ${finalTarget}`;
+                els.txFeedback.className = "mt-4 text-xl font-bold text-red-400";
+            }
+            
+            // Prevent further keying
+            els.nextBtn.classList.remove('hidden');
+        }
+
+        // --- End Quiz (Unchanged) ---
+        function endQuiz() {
+            if(interElementTimeout) clearTimeout(interElementTimeout);
+            quizState.active = false;
+            els.quizContainer.classList.add('hidden');
+            els.resultsContainer.classList.remove('hidden');
+            
+            const pct = (quizState.score / QUIZ_TOTAL_QUESTIONS) * 100;
+            els.scoreDisplay.textContent = `${quizState.score} / ${QUIZ_TOTAL_QUESTIONS} (${pct}%)`;
+            
+            if(pct >= 80) els.scoreDetails.textContent = "Excellent! You are exam ready.";
+            else if(pct >= 50) els.scoreDetails.textContent = "Good practice. Keep going.";
+            else els.scoreDetails.textContent = "Keep practicing your timing and codes.";
+
+            els.startBtn.parentElement.parentElement.classList.remove('hidden');
+        }
+
+        // --- Event Listeners (Unchanged) ---
+        els.startBtn.addEventListener('click', startQuiz);
+        els.playBtn.addEventListener('click', () => playSequence(quizState.currentSequence));
+        els.submitBtn.addEventListener('click', submitReceiveAnswer);
+        els.input.addEventListener('keyup', (e) => { if(e.key === 'Enter') submitReceiveAnswer(); });
+
+        // TX Listeners (Mouse/Touch)
+        els.keyerBtn.addEventListener('mousedown', handleKeyDown);
+        els.keyerBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyDown(e); });
+        window.addEventListener('mouseup', handleKeyUp);
+        window.addEventListener('touchend', handleKeyUp);
+        
+        // TX Listeners (Spacebar)
+        window.addEventListener('keydown', (e) => {
+            if(e.code === 'Space' && quizState.active && quizState.mode === 'send') {
+                e.preventDefault();
+                handleKeyDown(e);
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if(e.code === 'Space' && quizState.active && quizState.mode === 'send') {
+                handleKeyUp();
+            }
+        });
+
+        els.nextBtn.addEventListener('click', () => {
+            quizState.currentQuestionIndex++;
+            loadQuestion();
+        });
+        
+        els.endBtn.addEventListener('click', endQuiz);
+
+        // --- WPM SLIDER LISTENER (Unchanged) ---
+        if (els.wpmSlider) {
+             els.wpmSlider.addEventListener('input', (e) => {
+                recalculateTiming(e.target.value);
+                if (quizState.active && quizState.mode === 'receive') {
+                     loadQuestion(); 
                 }
             });
-            window.addEventListener('keyup', (e) => {
-                if(e.code === 'Space' && quizState.active && quizState.mode === 'send') {
-                    handleKeyUp();
-                }
-            });
+        }
+        
+        // --- INITIALIZATION ---
+        const initialWPM = els.wpmSlider ? els.wpmSlider.value : WPM_QUIZ;
+        recalculateTiming(initialWPM);
 
-            els.nextBtn.addEventListener('click', () => {
-                quizState.currentQuestionIndex++;
-                loadQuestion();
-            });
-            
-            els.endBtn.addEventListener('click', endQuiz);
 
-        })();
-    </script>
+    })();
+</script>
 </body>
 </html>
