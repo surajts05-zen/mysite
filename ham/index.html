@@ -320,6 +320,7 @@
                             <option value="5">5 Questions (Quick Test)</option>
                             <option value="10">10 Questions (Standard)</option>
                             <option value="20">20 Questions (Marathon)</option>
+							<option value="50">50 Questions (Mega Marathon)</option>
                         </select>
                     </div>
                     <button onclick="startQuiz()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-blue-700 transition">
@@ -1017,1033 +1018,1243 @@ const ELECTRONICS_CONTENT = [
     const QUIZ_QUESTIONS = [
   {
     "category": "rules",
+    "question": "The Licensing Authority for Amateur Radio in India is:",
+    "options": ["Ministry of Home Affairs", "Wireless Planning and Coordination (WPC) Wing", "Department of Telecommunications", "Ministry of Defence"],
+    "answer": "Wireless Planning and Coordination (WPC) Wing",
+    "explanation": "The WPC Wing of the Ministry of Communications is the regulatory body responsible for licensing amateur radio in India."
+  },
+  {
+    "category": "rules",
+    "question": "What is the fee for a 'Life Long' (20 years/up to age 80) General Grade license?",
+    "options": ["Rs. 1000", "Rs. 2000", "Rs. 100", "Rs. 500"],
+    "answer": "Rs. 2000",
+    "explanation": "The fee for a lifelong Amateur Station Operator Certificate (General or Restricted) is Rs. 2000."
+  },
+  {
+    "category": "rules",
+    "question": "Which of the following messages is forbidden in Amateur Radio?",
+    "options": ["Technical discussions", "Remarks on personal character", "Weather reports", "Q-codes"],
+    "answer": "Remarks on personal character",
+    "explanation": "Transmissions containing indecent language or remarks on the personal character of any person are strictly prohibited."
+  },
+  {
+    "category": "rules",
+    "question": "The secrecy of communications means:",
+    "options": ["You can share intercepted messages with friends", "You cannot divulge the contents of any message not intended for you", "You must use code words", "None of the above"],
+    "answer": "You cannot divulge the contents of any message not intended for you",
+    "explanation": "Under the Indian Wireless Telegraph Rules, if you receive a message not intended for you, you must not reproduce, communicate, or make use of it."
+  },
+  {
+    "category": "rules",
+    "question": "Third-party communication is:",
+    "options": ["Allowed freely", "Prohibited unless capable of being sent continuously", "Prohibited except in emergencies or specific agreements", "Mandatory"],
+    "answer": "Prohibited except in emergencies or specific agreements",
+    "explanation": "Amateur stations cannot be used to transmit messages for third parties (non-amateurs) unless typically in a disaster relief situation."
+  },
+  {
+    "category": "electronics",
+    "question": "The length of a half-wave dipole antenna for 7 MHz is approximately:",
+    "options": ["10 meters", "20 meters", "40 meters", "5 meters"],
+    "answer": "20 meters",
+    "explanation": "Formula: Length (meters) = 142.5 / Frequency (MHz). 142.5 / 7 ≈ 20.3 meters."
+  },
+  {
+    "category": "electronics",
+    "question": "The Velocity Factor of a standard coaxial cable is typically:",
+    "options": ["1.0", "0.66", "1.5", "0.1"],
+    "answer": "0.66",
+    "explanation": "Radio waves travel slower in a coaxial cable than in free space. The typical velocity factor is 0.66 (or 66%)."
+  },
+  {
+    "category": "electronics",
+    "question": "Which layer of the ionosphere disappears at night?",
+    "options": ["F2 layer", "D layer", "F1 layer", "E layer"],
+    "answer": "D layer",
+    "explanation": "The D layer (and often the E layer) is sustained by solar radiation and disappears rapidly after sunset, allowing signals to pass to the F layers."
+  },
+  {
+    "category": "electronics",
+    "question": "Skip distance is the:",
+    "options": ["Minimum distance reached by a sky wave", "Maximum range of ground wave", "Distance between antenna and ground", "Height of ionosphere"],
+    "answer": "Minimum distance reached by a sky wave",
+    "explanation": "Skip distance is the shortest distance from the transmitter where the sky wave signal returns to earth."
+  },
+  {
+    "category": "electronics",
+    "question": "SWR (Standing Wave Ratio) is a measure of:",
+    "options": ["Antenna height", "Impedance matching between line and load", "Battery voltage", "Audio quality"],
+    "answer": "Impedance matching between line and load",
+    "explanation": "SWR measures the ratio of forward power to reflected power. A 1:1 ratio indicates a perfect impedance match."
+  },
+  {
+    "category": "electronics",
+    "question": "The time constant of an RC circuit is:",
+    "options": ["R/C", "R × C", "C/R", "1/(RC)"],
+    "answer": "R × C",
+    "explanation": "The time constant ($$\\tau$$) is the product of Resistance and Capacitance ($$\\tau = R \\times C$$)."
+  },
+  {
+    "category": "electronics",
+    "question": "In a P-type semiconductor, the majority carriers are:",
+    "options": ["Electrons", "Holes", "Neutrons", "Photons"],
+    "answer": "Holes",
+    "explanation": "In P-type material, 'holes' (absence of electrons) are the majority charge carriers."
+  },
+  {
+    "category": "electronics",
+    "question": "A Zener diode is primarily used for:",
+    "options": ["Rectification", "Voltage Regulation", "Amplification", "Oscillation"],
+    "answer": "Voltage Regulation",
+    "explanation": "Zener diodes are designed to maintain a constant reverse voltage, making them ideal for regulation."
+  },
+  {
+    "category": "electronics",
+    "question": "The input impedance of a FET (Field Effect Transistor) is:",
+    "options": ["Very low", "Zero", "Very high", "Same as BJT"],
+    "answer": "Very high",
+    "explanation": "FETs have extremely high input impedance compared to Bipolar Junction Transistors (BJTs)."
+  },
+  {
+    "category": "electronics",
+    "question": "Which class of amplifier has the highest efficiency?",
+    "options": ["Class A", "Class B", "Class C", "Class AB"],
+    "answer": "Class C",
+    "explanation": "Class C amplifiers conduct for less than half a cycle, offering high efficiency but high distortion (used in RF transmitters)."
+  },
+  {
+    "category": "electronics",
+    "question": "1 Microfarad is equal to:",
+    "options": ["$$10^{-3}$$ Farads", "$$10^{-6}$$ Farads", "$$10^{-9}$$ Farads", "$$10^{-12}$$ Farads"],
+    "answer": "$$10^{-6}$$ Farads",
+    "explanation": "Micro denotes $$10^{-6}$$."
+  },
+  {
+    "category": "electronics",
+    "question": "The specific gravity of a fully charged Lead-Acid battery is approximately:",
+    "options": ["1.100", "1.280", "1.500", "2.000"],
+    "answer": "1.280",
+    "explanation": "A specific gravity of 1.260 to 1.280 indicates a fully charged lead-acid cell."
+  },
+  {
+    "category": "rules",
+    "question": "What is the Q-code for 'My frequency is...'?",
+    "options": ["QRG", "QTH", "QRL", "QRZ"],
+    "answer": "QRG",
+    "explanation": "QRG means 'Your exact frequency (or my frequency) is...'."
+  },
+  {
+    "category": "rules",
+    "question": "What is the Q-code for 'Stop transmitting'?",
+    "options": ["QRT", "QRO", "QRX", "QSB"],
+    "answer": "QRT",
+    "explanation": "QRT specifically means 'Stop sending' or 'Shutting down station'."
+  },
+  {
+    "category": "rules",
+    "question": "The RST report '599' indicates:",
+    "options": ["Unreadable signals", "Perfectly readable, very strong, perfect tone", "Fading signals", "Interference"],
+    "answer": "Perfectly readable, very strong, perfect tone",
+    "explanation": "R=5 (Readability), S=9 (Strength), T=9 (Tone) is the best possible report in CW."
+  },
+  {
+    "category": "rules",
+    "question": "In the RST system, the 'T' stands for:",
+    "options": ["Time", "Tone", "Transmission", "Temperature"],
+    "answer": "Tone",
+    "explanation": "RST stands for Readability, Signal Strength, and Tone (used only in CW/Telegraphy)."
+  },
+  {
+    "category": "rules",
+    "question": "A 'Dummy Load' is used to:",
+    "options": ["Increase range", "Test transmitter without radiating signals", "Match impedance", "Receive weak signals"],
+    "answer": "Test transmitter without radiating signals",
+    "explanation": "A dummy load absorbs transmitter power as heat to allow testing without causing interference on the air."
+  },
+  {
+    "category": "rules",
+    "question": "The suffix '/M' after a call sign indicates:",
+    "options": ["Mobile Station", "Maritime Mobile", "Main Station", "Military"],
+    "answer": "Mobile Station",
+    "explanation": "The suffix /M indicates the station is operating Mobile (e.g., from a car)."
+  },
+  {
+    "category": "rules",
+    "question": "Which time zone is used in the station log book?",
+    "options": ["Local Time", "UTC (Coordinated Universal Time)", "EST", "PST"],
+    "answer": "UTC (Coordinated Universal Time)",
+    "explanation": "UTC (formerly GMT) is the standard time used for amateur radio logging worldwide to avoid confusion."
+  },
+  {
+    "category": "rules",
+    "question": "If you hear a distress call (MAYDAY), you should:",
+    "options": ["Continue your conversation", "Cease transmission and listen", "Change frequency immediately", "Turn off your radio"],
+    "answer": "Cease transmission and listen",
+    "explanation": "You must immediately stop transmitting, listen, and assist if possible. Distress traffic has absolute priority."
+  },
+  {
+    "category": "electronics",
+    "question": "A transformer works on:",
+    "options": ["DC only", "AC only", "Pulsating DC", "Both AC and DC"],
+    "answer": "AC only",
+    "explanation": "Transformers rely on changing magnetic flux, which only occurs with AC (or changing current)."
+  },
+  {
+    "category": "electronics",
+    "question": "The potential difference is measured in:",
+    "options": ["Amperes", "Watts", "Volts", "Coulombs"],
+    "answer": "Volts",
+    "explanation": "Potential difference (Voltage) is measured in Volts."
+  },
+  {
+    "category": "electronics",
+    "question": "Which instrument is used to measure current?",
+    "options": ["Voltmeter", "Ammeter", "Ohmmeter", "Wattmeter"],
+    "answer": "Ammeter",
+    "explanation": "An Ammeter is connected in series to measure current."
+  },
+  {
+    "category": "electronics",
+    "question": "In a parallel circuit, the voltage across each component is:",
+    "options": ["Different", "The same", "Zero", "Infinite"],
+    "answer": "The same",
+    "explanation": "In a parallel circuit, all components share the same voltage nodes."
+  },
+  {
+    "category": "electronics",
+    "question": "Three resistors of 10 Ohms each are connected in parallel. The total resistance is:",
+    "options": ["30 Ohms", "10 Ohms", "3.33 Ohms", "0.3 Ohms"],
+    "answer": "3.33 Ohms",
+    "explanation": "For equal resistors in parallel: $$R_{total} = R / N$$. $$10 / 3 = 3.33$$ Ohms."
+  },
+  {
+    "category": "rules",
     "question": "What Q-code is used to ask 'Who is calling me?'",
-    "options": [
-      "QSY",
-      "QRZ",
-      "QRL",
-      "QTH"
-    ],
+    "options": ["QSY", "QRZ", "QRL", "QTH"],
+			
+			
+			
+		   
+	  
     "answer": "QRZ",
     "explanation": "QRZ specifically means 'Who is calling me?' or 'You are being called by...'. QSY is for changing frequency, QRL for being busy, and QTH for location."
   },
   {
     "category": "electronics",
     "question": "What is the unit of measure for electrical resistance?",
-    "options": [
-      "Ampere",
-      "Volt",
-      "Watt",
-      "Ohm"
-    ],
+    "options": ["Ampere", "Volt", "Watt", "Ohm"],
+			   
+			 
+			 
+		   
+	  
     "answer": "Ohm",
     "explanation": "Resistance is measured in Ohms ($$\\Omega$$), representing the opposition to current flow. Volts measure Voltage (pressure), Amperes measure Current (flow), and Watts measure Power."
   },
   {
     "category": "rules",
     "question": "What does the Q-code 'QTH' mean?",
-    "options": [
-      "What is the time?",
-      "What is your location?",
-      "Are you busy?",
-      "Shall I change frequency?"
-    ],
+    "options": ["What is the time?", "What is your location?", "Are you busy?", "Shall I change frequency?"],
+						  
+							   
+					  
+								 
+	  
     "answer": "What is your location?",
     "explanation": "QTH is the Q-code for 'What is your position/location?' (or 'My location is...')."
   },
   {
     "category": "electronics",
     "question": "An inductor stores energy in which type of field?",
-    "options": [
-      "Thermal field",
-      "Electric field",
-      "Magnetic field",
-      "Gravitational field"
-    ],
+    "options": ["Thermal field", "Electric field", "Magnetic field", "Gravitational field"],
+					  
+					   
+					   
+						   
+	  
     "answer": "Magnetic field",
     "explanation": "Inductors store energy by creating a magnetic field when current flows through the coil. Capacitors store energy in an electric field."
   },
   {
     "category": "rules",
     "question": "What is the frequency range for the HF (High Frequency) band according to ITU Art. 2?",
-    "options": [
-      "30 - 300 MHz",
-      "3 - 30 MHz",
-      "300 - 3000 kHz",
-      "300 - 3000 MHz"
-    ],
+    "options": ["30 - 300 MHz", "3 - 30 MHz", "300 - 3000 kHz", "300 - 3000 MHz"],
+					 
+				   
+					   
+					  
+	  
     "answer": "3 - 30 MHz",
     "explanation": "The HF band, where most long-distance amateur radio operates, is defined as 3 to 30 MegaHertz."
   },
   {
     "category": "electronics",
     "question": "In a series R-L-C circuit, what condition defines resonance?",
-    "options": [
-      "Resistance equals Impedance.",
-      "Inductive reactance (XL) is half the capacitive reactance (XC).",
-      "XL equals XC.",
-      "Voltage equals Current."
-    ],
+				
+									 
+    "options": ["Resistance equals Impedance.", "Inductive reactance (XL) is half the capacitive reactance (XC).", "XL equals XC.", "Voltage equals Current."],
+					  
+							   
+	  
     "answer": "XL equals XC.",
     "explanation": "Resonance occurs when the inductive reactance ($$X_L$$) exactly cancels out the capacitive reactance ($$X_C$$), leading to a minimum impedance (in a series circuit)."
   },
   {
     "category": "rules",
     "question": "Which call sign prefix block is allocated to India (ITU App. 42)?",
-    "options": [
-      "USA - USZ",
-      "GTA - GUZ",
-      "VTA - VWZ",
-      "F1A - F9Z"
-    ],
+    "options": ["USA - USZ", "GTA - GUZ", "VTA - VWZ", "F1A - F9Z"],
+				  
+				  
+				  
+				 
+	  
     "answer": "VTA - VWZ",
     "explanation": "India is allocated `ATA-AWZ`, `VTA-VWZ`, and `8TA-8YZ`. This is why our call signs start with `VU`."
   },
   {
     "category": "electronics",
     "question": "According to Ohm's law, if resistance (R) is kept constant and voltage (V) is doubled, the current (I) will:",
-    "options": [
-      "Be halved.",
-      "Remain the same.",
-      "Be doubled.",
-      "Be squared."
-    ],
+    "options": ["Be halved.", "Remain the same.", "Be doubled.", "Be squared."],
+				   
+						 
+					
+				   
+	  
     "answer": "Be doubled.",
     "explanation": "Ohm's Law is $$V = I \\times R$$. If V doubles and R is constant, I must also double ($$I = V/R$$)."
   },
   {
     "category": "rules",
     "question": "What is the emergency signal for 'Urgency' (a serious situation, but not immediate danger)?",
-    "options": [
-      "MAYDAY, MAYDAY, MAYDAY",
-      "PAN PAN, PAN PAN, PAN PAN",
-      "SECURITE, SECURITE, SECURITE",
-      "BREAK, BREAK, BREAK"
-    ],
+    "options": ["MAYDAY, MAYDAY, MAYDAY", "PAN PAN, PAN PAN, PAN PAN", "SECURITE, SECURITE, SECURITE", "BREAK, BREAK, BREAK"],
+							   
+								  
+									 
+						   
+	  
     "answer": "PAN PAN, PAN PAN, PAN PAN",
     "explanation": "The 'Urgency' signal is PAN PAN. 'MAYDAY' is for 'Distress' (immediate danger), and 'SECURITE' is for 'Safety' (navigational or weather warnings)."
   },
   {
     "category": "rules",
     "question": "The Q-signal to ask 'Are you troubled by static?' is:",
-    "options": [
-      "QRM",
-      "QRN",
-      "QSB",
-      "QTH"
-    ],
+    "options": ["QRM", "QRN", "QSB", "QTH"],
+			
+			
+			
+		   
+	  
     "answer": "QRN",
     "explanation": "QRN is the code for natural interference (static). QRM is for man-made interference."
   },
   {
     "category": "rules",
     "question": "What does the emission designation 'J3E' mean?",
-    "options": [
-      "FM Voice",
-      "CW (Morse Code)",
-      "SSB Voice",
-      "AM Voice"
-    ],
+    "options": ["FM Voice", "CW (Morse Code)", "SSB Voice", "AM Voice"],
+				 
+						
+				  
+				
+	  
     "answer": "SSB Voice",
     "explanation": "J = Single Sideband, 3 = Analogue (voice), E = Telephony (voice). Therefore, J3E is SSB voice."
   },
   {
     "category": "rules",
     "question": "What does the abbreviation 'AR' mean in a CW contact?",
-    "options": [
-      "All received",
-      "End of message",
-      "Wait",
-      "All correct"
-    ],
+    "options": ["All received", "End of message", "Wait", "All correct"],
+					 
+					   
+			 
+				   
+	  
     "answer": "End of message",
     "explanation": "'AR' is the procedural signal to indicate the end of a specific message, before handing it over."
   },
   {
     "category": "electronics",
     "question": "Which component is used to **block DC** current while allowing AC current to pass?",
-    "options": [
-      "Resistor",
-      "Inductor",
-      "Capacitor",
-      "Diode"
-    ],
+    "options": ["Resistor", "Inductor", "Capacitor", "Diode"],
+				 
+				 
+				  
+			 
+	  
     "answer": "Capacitor",
     "explanation": "A capacitor acts as an open circuit to DC (blocking it) and its reactance decreases with increasing frequency (allowing AC to pass). An inductor does the opposite."
   },
   {
     "category": "rules",
     "question": "What is the absolute highest priority emergency signal?",
-    "options": [
-      "PAN PAN",
-      "SECURITE",
-      "MAYDAY",
-      "SOS"
-    ],
+    "options": ["PAN PAN", "SECURITE", "MAYDAY", "SOS"],
+				
+				 
+			   
+		   
+	  
     "answer": "MAYDAY",
     "explanation": "MAYDAY is the distress signal for grave and imminent danger. It has absolute priority over all other communications."
   },
   {
     "category": "rules",
     "question": "How long must you preserve your amateur station logbook?",
-    "options": [
-      "For 6 months.",
-      "For 1 year from the date of the last entry.",
-      "For 5 years.",
-      "Indefinitely."
-    ],
+				
+					  
+    "options": ["For 6 months.", "For 1 year from the date of the last entry.", "For 5 years.", "Indefinitely."],
+					 
+					 
+	  
     "answer": "For 1 year from the date of the last entry.",
     "explanation": "According to Annexure I, Sec VI of the 1978 rules, the log must be preserved for a period of one year from the date of the last entry."
   },
   {
     "category": "rules",
     "question": "What does the Q-code 'QTR' mean?",
-    "options": [
-      "What is your location?",
-      "What is the correct time?",
-      "Are you ready?",
-      "Shall I stop sending?"
-    ],
+    "options": ["What is your location?", "What is the correct time?", "Are you ready?", "Shall I stop sending?"],
+							   
+								  
+					   
+							 
+	  
     "answer": "What is the correct time?",
     "explanation": "QTR is the Q-code for 'What is the correct time?'"
   },
   {
     "category": "rules",
     "question": "Which station provides the 'ATA' standard time signal service?",
-    "options": [
-      "USA",
-      "Canada",
-      "India",
-      "Russia"
-    ],
+    "options": ["USA", "Canada", "India", "Russia"],
+			
+			   
+			  
+			  
+	  
     "answer": "India",
     "explanation": "ATA is the call sign for India's standard time and frequency signal service, broadcast from the National Physical Laboratory in New Delhi."
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'What is my signal strength?' (1-5)?",
-    "options": [
-      "QSA",
-      "QRV",
-      "QRN",
-      "QRO"
-    ],
+    "options": ["QSA", "QRV", "QRN", "QRO"],
+			
+			
+			
+		   
+	  
     "answer": "QSA",
     "explanation": "QSA specifically means 'What is my signal strength?' or 'Your signal strength is...'. QRV means 'Are you ready?', QRN means 'Are you troubled by static?', and QRO means 'Shall I increase power?'."
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'What is the name of your station?'",
-    "options": [
-      "QRA",
-      "QTH",
-      "QTR",
-      "QRZ"
-    ],
+    "options": ["QRA", "QTH", "QTR", "QRZ"],
+			
+			
+			
+		   
+	  
     "answer": "QRA",
     "explanation": "QRA is the Q-code for 'What is the name of your station?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'What is my exact frequency?'",
-    "options": [
-      "QRG",
-      "QSY",
-      "QRX",
-      "QSO"
-    ],
+    "options": ["QRG", "QSY", "QRX", "QSO"],
+			
+			
+			
+		   
+	  
     "answer": "QRG",
     "explanation": "QRG is the Q-code for 'What is my exact frequency?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Does my frequency vary?'",
-    "options": [
-      "QRH",
-      "QRG",
-      "QSU",
-      "QSW"
-    ],
+    "options": ["QRH", "QRG", "QSU", "QSW"],
+			
+			
+			
+		   
+	  
     "answer": "QRH",
     "explanation": "QRH is the Q-code for 'Does my frequency vary?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'How is my tone? (1-3)'",
-    "options": [
-      "QRK",
-      "QRI",
-      "QSA",
-      "QSB"
-    ],
+    "options": ["QRK", "QRI", "QSA", "QSB"],
+			
+			
+			
+		   
+	  
     "answer": "QRI",
     "explanation": "QRI is the Q-code for 'How is my tone? (1-3)'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'What is my readability? (1-5)'",
-    "options": [
-      "QRK",
-      "QSA",
-      "QRI",
-      "QRM"
-    ],
+    "options": ["QRK", "QSA", "QRI", "QRM"],
+			
+			
+			
+		   
+	  
     "answer": "QRK",
     "explanation": "QRK is the Q-code for 'What is my readability? (1-5)'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Are you busy? (I am busy)'",
-    "options": [
-      "QRL",
-      "QRO",
-      "QRT",
-      "QUM"
-    ],
+    "options": ["QRL", "QRO", "QRT", "QUM"],
+			
+			
+			
+		   
+	  
     "answer": "QRL",
     "explanation": "QRL is the Q-code for 'Are you busy? (I am busy)'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Are you being interfered with? (Man-made)'",
-    "options": [
-      "QRN",
-      "QRM",
-      "QSB",
-      "QRO"
-    ],
+    "options": ["QRN", "QRM", "QSB", "QRO"],
+			
+			
+			
+		   
+	  
     "answer": "QRM",
     "explanation": "QRM is the Q-code for 'Are you being interfered with? (Man-made)'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Shall I increase power?'",
-    "options": [
-      "QRO",
-      "QRS",
-      "QRP",
-      "QRT"
-    ],
+    "options": ["QRO", "QRS", "QRP", "QRT"],
+			
+			
+			
+		   
+	  
     "answer": "QRO",
     "explanation": "QRO is the Q-code for 'Shall I increase power?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Shall I send more slowly?'",
-    "options": [
-      "QRS",
-      "QSZ",
-      "QTC",
-      "QRK"
-    ],
+    "options": ["QRS", "QSZ", "QTC", "QRK"],
+			
+			
+			
+		   
+	  
     "answer": "QRS",
     "explanation": "QRS is the Q-code for 'Shall I send more slowly?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Shall I stop sending?'",
-    "options": [
-      "QRT",
-      "QRU",
-      "QRP",
-      "QSO"
-    ],
+    "options": ["QRT", "QRU", "QRP", "QSO"],
+			
+			
+			
+		   
+	  
     "answer": "QRT",
     "explanation": "QRT is the Q-code for 'Shall I stop sending?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Have you anything for me? (No)'",
-    "options": [
-      "QRU",
-      "QTR",
-      "QTC",
-      "QSL"
-    ],
+    "options": ["QRU", "QTR", "QTC", "QSL"],
+			
+			
+			
+		   
+	  
     "answer": "QRU",
     "explanation": "QRU is the Q-code for 'Have you anything for me? (No)'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Are you ready?'",
-    "options": [
-      "QRV",
-      "QSL",
-      "QSV",
-      "QSU"
-    ],
+    "options": ["QRV", "QSL", "QSV", "QSU"],
+			
+			
+			
+		   
+	  
     "answer": "QRV",
     "explanation": "QRV is the Q-code for 'Are you ready?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Shall I inform... you are calling?'",
-    "options": [
-      "QRW",
-      "QRX",
-      "QRZ",
-      "QSO"
-    ],
+    "options": ["QRW", "QRX", "QRZ", "QSO"],
+			
+			
+			
+		   
+	  
     "answer": "QRW",
     "explanation": "QRW is the Q-code for 'Shall I inform... you are calling?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'When will you call again? (Stand by)'",
-    "options": [
-      "QRX",
-      "QRT",
-      "QRV",
-      "QSY"
-    ],
+    "options": ["QRX", "QRT", "QRV", "QSY"],
+			
+			
+			
+		   
+	  
     "answer": "QRX",
     "explanation": "QRX is the Q-code for 'When will you call again? (Stand by)'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Are my signals fading?'",
-    "options": [
-      "QSB",
-      "QSA",
-      "QRK",
-      "QRI"
-    ],
+    "options": ["QSB", "QSA", "QRK", "QRI"],
+			
+			
+			
+		   
+	  
     "answer": "QSB",
     "explanation": "QSB is the Q-code for 'Are my signals fading?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Can you acknowledge receipt? (I acknowledge)'",
-    "options": [
-      "QSL",
-      "QSO",
-      "QRU",
-      "QRW"
-    ],
+    "options": ["QSL", "QSO", "QRU", "QRW"],
+			
+			
+			
+		   
+	  
     "answer": "QSL",
     "explanation": "QSL is the Q-code for 'Can you acknowledge receipt? (I acknowledge)'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Can you communicate with...?'",
-    "options": [
-      "QSO",
-      "QTC",
-      "QSV",
-      "QSY"
-    ],
+    "options": ["QSO", "QTC", "QSV", "QSY"],
+			
+			
+			
+		   
+	  
     "answer": "QSO",
     "explanation": "QSO is the Q-code for 'Can you communicate with...?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Shall I reply on this frequency?'",
-    "options": [
-      "QSU",
-      "QSY",
-      "QSX",
-      "QRG"
-    ],
+    "options": ["QSU", "QSY", "QSX", "QRG"],
+			
+			
+			
+		   
+	  
     "answer": "QSU",
     "explanation": "QSU is the Q-code for 'Shall I reply on this frequency?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Shall I send 'V's? (For test)'",
-    "options": [
-      "QSV",
-      "QSA",
-      "QRV",
-      "QRK"
-    ],
+    "options": ["QSV", "QSA", "QRV", "QRK"],
+			
+			
+			
+		   
+	  
     "answer": "QSV",
     "explanation": "QSV is the Q-code for 'Shall I send 'V's? (For test)'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Will you send on this frequency?'",
-    "options": [
-      "QSW",
-      "QSU",
-      "QSX",
-      "QSO"
-    ],
+    "options": ["QSW", "QSU", "QSX", "QSO"],
+			
+			
+			
+		   
+	  
     "answer": "QSW",
     "explanation": "QSW is the Q-code for 'Will you send on this frequency?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Will you listen to... on...?'",
-    "options": [
-      "QSX",
-      "QSY",
-      "QSL",
-      "QRT"
-    ],
+    "options": ["QSX", "QSY", "QSL", "QRT"],
+			
+			
+			
+		   
+	  
     "answer": "QSX",
     "explanation": "QSX is the Q-code for 'Will you listen to... on...?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Shall I change frequency?'",
-    "options": [
-      "QSY",
-      "QRG",
-      "QRX",
-      "QSU"
-    ],
+    "options": ["QSY", "QRG", "QRX", "QSU"],
+			
+			
+			
+		   
+	  
     "answer": "QSY",
     "explanation": "QSY is the Q-code for 'Shall I change frequency?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Shall I send each word twice?'",
-    "options": [
-      "QSZ",
-      "QRS",
-      "QTC",
-      "QSO"
-    ],
+    "options": ["QSZ", "QRS", "QTC", "QSO"],
+			
+			
+			
+		   
+	  
     "answer": "QSZ",
     "explanation": "QSZ is the Q-code for 'Shall I send each word twice?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'How many messages to send?'",
-    "options": [
-      "QTC",
-      "QRU",
-      "QUM",
-      "QTR"
-    ],
+    "options": ["QTC", "QRU", "QUM", "QTR"],
+			
+			
+			
+		   
+	  
     "answer": "QTC",
     "explanation": "QTC is the Q-code for 'How many messages to send?'"
   },
   {
     "category": "rules",
     "question": "What Q-code is used to ask 'Is the distress traffic over?'",
-    "options": [
-      "QUM",
-      "QRT",
-      "QTC",
-      "QRV"
-    ],
+    "options": ["QUM", "QRT", "QTC", "QRV"],
+			
+			
+			
+		   
+	  
     "answer": "QUM",
     "explanation": "QUM is the Q-code for 'Is the distress traffic over?'"
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'AA' stand for?",
-    "options": [
-      "All After",
-      "Acknowledge All",
-      "Anyone Answer",
-      "Amateur Antenna"
-    ],
+    "options": ["All After", "Acknowledge All", "Anyone Answer", "Amateur Antenna"],
+				  
+						
+					  
+					   
+	  
     "answer": "All After",
     "explanation": "'AA' is a pro-signal meaning 'All after' a specific word or phrase."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'AB' stand for?",
-    "options": [
-      "Always Before",
-      "All Before",
-      "Ask Back",
-      "Answer Back"
-    ],
+    "options": ["Always Before", "All Before", "Ask Back", "Answer Back"],
+					  
+				   
+				 
+				   
+	  
     "answer": "All Before",
     "explanation": "'AB' is a pro-signal meaning 'All before' a specific word or phrase."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'AR' indicate?",
-    "options": [
-      "All Received",
-      "End of transmission / End of message",
-      "Awaiting Reply",
-      "Ask to Repeat"
-    ],
+				
+					 
+    "options": ["All Received", "End of transmission / End of message", "Awaiting Reply", "Ask to Repeat"],
+					   
+					 
+	  
     "answer": "End of transmission / End of message",
     "explanation": "'AR' is sent at the end of a message or transmission."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'AS' stand for?",
-    "options": [
-      "Acknowledge Signal",
-      "Antenna Switch",
-      "Wait / Stand by",
-      "All Sent"
-    ],
+    "options": ["Acknowledge Signal", "Antenna Switch", "Wait / Stand by", "All Sent"],
+						   
+					   
+						
+				
+	  
     "answer": "Wait / Stand by",
     "explanation": "'AS' is a pro-signal meaning 'Wait' or 'Stand by'."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'C' stand for?",
-    "options": [
-      "Call",
-      "Confirm",
-      "Yes / Correct",
-      "Current"
-    ],
+    "options": ["Call", "Confirm", "Yes / Correct", "Current"],
+			 
+				
+					  
+			   
+	  
     "answer": "Yes / Correct",
     "explanation": "'C' is an abbreviation meaning 'Yes' or 'Correct'."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'CFM' stand for?",
-    "options": [
-      "Call Forwarding Message",
-      "Confirm",
-      "Current Frequency Monitored",
-      "Call for Me"
-    ],
+    "options": ["Call Forwarding Message", "Confirm", "Current Frequency Monitored", "Call for Me"],
+								
+				
+									
+				   
+	  
     "answer": "Confirm",
     "explanation": "'CFM' is an abbreviation meaning 'Confirm'."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'CL' stand for?",
-    "options": [
-      "Clear",
-      "Close Loop",
-      "Closing down station",
-      "Call Later"
-    ],
+    "options": ["Clear", "Close Loop", "Closing down station", "Call Later"],
+			  
+				   
+							 
+				  
+	  
     "answer": "Closing down station",
     "explanation": "'CL' is an abbreviation meaning 'Closing down station'."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'CQ' stand for?",
-    "options": [
-      "Confirmed Quality",
-      "Calling any station",
-      "Contact quickly",
-      "Check Quality"
-    ],
+    "options": ["Confirmed Quality", "Calling any station", "Contact quickly", "Check Quality"],
+						  
+							
+						
+					 
+	  
     "answer": "Calling any station",
     "explanation": "'CQ' is a general call to any station."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'DE' stand for?",
-    "options": [
-      "Delta Echo",
-      "Distress Emergency",
-      "From (e.g., 'VU2XYZ DE VU3ABC')",
-      "Do Exchange"
-    ],
+				
+				   
+						   
+    "options": ["Delta Echo", "Distress Emergency", "From (e.g., 'VU2XYZ DE VU3ABC')", "Do Exchange"],
+				   
+	  
     "answer": "From (e.g., 'VU2XYZ DE VU3ABC')",
     "explanation": "'DE' is used to separate the station being called from the station calling, meaning 'From'."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'K' stand for?",
-    "options": [
-      "Keep listening",
-      "Keyed",
-      "Go ahead and transmit (Over)",
-      "Know"
-    ],
+				
+					   
+			  
+    "options": ["Keep listening", "Keyed", "Go ahead and transmit (Over)", "Know"],
+			
+	  
     "answer": "Go ahead and transmit (Over)",
     "explanation": "'K' is used to indicate 'Go ahead' or 'Over,' inviting the other station to transmit."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'NIL' stand for?",
-    "options": [
-      "Negative Interference Level",
-      "Nothing",
-      "Now I'm Listening",
-      "No Information Lost"
-    ],
+    "options": ["Negative Interference Level", "Nothing", "Now I'm Listening", "No Information Lost"],
+									
+				
+						  
+						   
+	  
     "answer": "Nothing",
     "explanation": "'NIL' is an abbreviation meaning 'Nothing' or 'I have nothing for you'."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'OK' stand for?",
-    "options": [
-      "Only Keying",
-      "Output Keyed",
-      "Correct / Agreed",
-      "Over Key"
-    ],
+    "options": ["Only Keying", "Output Keyed", "Correct / Agreed", "Over Key"],
+					
+					 
+						 
+				
+	  
     "answer": "Correct / Agreed",
     "explanation": "'OK' is an abbreviation meaning 'Correct' or 'Agreed'."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'R' stand for?",
-    "options": [
-      "Ready",
-      "Repeat",
-      "Received (Roger)",
-      "Report"
-    ],
+    "options": ["Ready", "Repeat", "Received (Roger)", "Report"],
+			  
+			   
+						 
+			  
+	  
     "answer": "Received (Roger)",
     "explanation": "'R' is an abbreviation meaning 'Received' or 'Roger'."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'TU' stand for?",
-    "options": [
-      "Transmit Unit",
-      "Tune Up",
-      "Thank You",
-      "Time Unit"
-    ],
+    "options": ["Transmit Unit", "Tune Up", "Thank You", "Time Unit"],
+					  
+				
+				  
+				 
+	  
     "answer": "Thank You",
     "explanation": "'TU' is an abbreviation meaning 'Thank You'."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'VA' stand for?",
-    "options": [
-      "Volume Acknowledged",
-      "Very Active",
-      "End of work (Signing off - SK)",
-      "Verify Antenna"
-    ],
+    "options": ["Volume Acknowledged", "Very Active", "End of work (Signing off - SK)", "Verify Antenna"],
+							
+					
+									   
+					  
+	  
     "answer": "End of work (Signing off - SK)",
     "explanation": "'VA' is a pro-signal used to signify the end of a contact or end of work, similar to SK (Silent Key)."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'WA' stand for?",
-    "options": [
-      "Word After",
-      "Wait Again",
-      "Wire Antenna",
-      "Working All"
-    ],
+    "options": ["Word After", "Wait Again", "Wire Antenna", "Working All"],
+				   
+				   
+					 
+				   
+	  
     "answer": "Word after",
     "explanation": "'WA' is a pro-signal meaning 'Word after' (for clarification)."
   },
   {
     "category": "prosigns",
     "question": "What does the procedural signal 'WB' stand for?",
-    "options": [
-      "Word Before",
-      "Welcome Back",
-      "Wire Break",
-      "Whisper Back"
-    ],
+    "options": ["Word Before", "Welcome Back", "Wire Break", "Whisper Back"],
+					
+					 
+				   
+					
+	  
     "answer": "Word before",
     "explanation": "'WB' is a pro-signal meaning 'Word before' (for clarification)."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'A'?",
-    "options": [
-      "Alpha",
-      "America",
-      "Apple",
-      "Answer"
-    ],
+    "options": ["Alpha", "America", "Apple", "Answer"],
+			  
+				
+			  
+			  
+	  
     "answer": "Alfa",
     "explanation": "The phonetic word for 'A' is Alfa."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'B'?",
-    "options": [
-      "Beta",
-      "Bravo",
-      "Bunker",
-      "Balloon"
-    ],
+    "options": ["Beta", "Bravo", "Bunker", "Balloon"],
+			 
+			  
+			   
+			   
+	  
     "answer": "Bravo",
     "explanation": "The phonetic word for 'B' is Bravo."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'C'?",
-    "options": [
-      "Clear",
-      "Confirm",
-      "Charlie",
-      "Cobra"
-    ],
+    "options": ["Clear", "Confirm", "Charlie", "Cobra"],
+			  
+				
+				
+			 
+	  
     "answer": "Charlie",
     "explanation": "The phonetic word for 'C' is Charlie."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'D'?",
-    "options": [
-      "Direct",
-      "Digit",
-      "Delta",
-      "Dragon"
-    ],
+    "options": ["Direct", "Digit", "Delta", "Dragon"],
+			   
+			  
+			  
+			  
+	  
     "answer": "Delta",
     "explanation": "The phonetic word for 'D' is Delta."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'E'?",
-    "options": [
-      "Echo",
-      "Easy",
-      "Eagle",
-      "Enter"
-    ],
+    "options": ["Echo", "Easy", "Eagle", "Enter"],
+			 
+			 
+			  
+			 
+	  
     "answer": "Echo",
     "explanation": "The phonetic word for 'E' is Echo."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'F'?",
-    "options": [
-      "Fast",
-      "Foxtrot",
-      "Final",
-      "Fire"
-    ],
+    "options": ["Fast", "Foxtrot", "Final", "Fire"],
+			 
+				
+			  
+			
+	  
     "answer": "Foxtrot",
     "explanation": "The phonetic word for 'F' is Foxtrot."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'G'?",
-    "options": [
-      "General",
-      "Golf",
-      "Gator",
-      "Ground"
-    ],
+    "options": ["General", "Golf", "Gator", "Ground"],
+				
+			 
+			  
+			  
+	  
     "answer": "Golf",
     "explanation": "The phonetic word for 'G' is Golf."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'H'?",
-    "options": [
-      "Home",
-      "Hotel",
-      "Happy",
-      "Hurry"
-    ],
+    "options": ["Home", "Hotel", "Happy", "Hurry"],
+			 
+			  
+			  
+			 
+	  
     "answer": "Hotel",
     "explanation": "The phonetic word for 'H' is Hotel."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'I'?",
-    "options": [
-      "Item",
-      "India",
-      "Ice",
-      "Idle"
-    ],
+    "options": ["Item", "India", "Ice", "Idle"],
+			 
+			  
+			
+			
+	  
     "answer": "India",
     "explanation": "The phonetic word for 'I' is India."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'J'?",
-    "options": [
-      "Junction",
-      "Juliett",
-      "Jolly",
-      "Jump"
-    ],
+    "options": ["Junction", "Juliett", "Jolly", "Jump"],
+				 
+				
+			  
+			
+	  
     "answer": "Juliett",
     "explanation": "The phonetic word for 'J' is Juliett."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'K'?",
-    "options": [
-      "Key",
-      "Kilo",
-      "King",
-      "Known"
-    ],
+    "options": ["Key", "Kilo", "King", "Known"],
+			
+			 
+			 
+			 
+	  
     "answer": "Kilo",
     "explanation": "The phonetic word for 'K' is Kilo."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'L'?",
-    "options": [
-      "Local",
-      "Lima",
-      "Light",
-      "Leader"
-    ],
+    "options": ["Local", "Lima", "Light", "Leader"],
+			  
+			 
+			  
+			  
+	  
     "answer": "Lima",
     "explanation": "The phonetic word for 'L' is Lima."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'M'?",
-    "options": [
-      "Mike",
-      "Main",
-      "Marker",
-      "Measure"
-    ],
+    "options": ["Mike", "Main", "Marker", "Measure"],
+			 
+			 
+			   
+			   
+	  
     "answer": "Mike",
     "explanation": "The phonetic word for 'M' is Mike."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'N'?",
-    "options": [
-      "Negative",
-      "Number",
-      "November",
-      "Night"
-    ],
+    "options": ["Negative", "Number", "November", "Night"],
+				 
+			   
+				 
+			 
+	  
     "answer": "November",
     "explanation": "The phonetic word for 'N' is November."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'O'?",
-    "options": [
-      "Open",
-      "Out",
-      "Oscar",
-      "Order"
-    ],
+    "options": ["Open", "Out", "Oscar", "Order"],
+			 
+			
+			  
+			 
+	  
     "answer": "Oscar",
     "explanation": "The phonetic word for 'O' is Oscar."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'P'?",
-    "options": [
-      "Power",
-      "Papa",
-      "Pass",
-      "Primary"
-    ],
+    "options": ["Power", "Papa", "Pass", "Primary"],
+			  
+			 
+			 
+			   
+	  
     "answer": "Papa",
     "explanation": "The phonetic word for 'P' is Papa."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'Q'?",
-    "options": [
-      "Quick",
-      "Quake",
-      "Quebec",
-      "Quasar"
-    ],
+    "options": ["Quick", "Quake", "Quebec", "Quasar"],
+			  
+			  
+			   
+			  
+	  
     "answer": "Quebec",
     "explanation": "The phonetic word for 'Q' is Quebec."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'R'?",
-    "options": [
-      "Received",
-      "Report",
-      "Romeo",
-      "Roger"
-    ],
+    "options": ["Received", "Report", "Romeo", "Roger"],
+				 
+			   
+			  
+			 
+	  
     "answer": "Romeo",
     "explanation": "The phonetic word for 'R' is Romeo."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'S'?",
-    "options": [
-      "Start",
-      "Sierra",
-      "Signal",
-      "Stop"
-    ],
+    "options": ["Start", "Sierra", "Signal", "Stop"],
+			  
+			   
+			   
+			
+	  
     "answer": "Sierra",
     "explanation": "The phonetic word for 'S' is Sierra."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'T'?",
-    "options": [
-      "Target",
-      "Tango",
-      "Total",
-      "Time"
-    ],
+    "options": ["Target", "Tango", "Total", "Time"],
+			   
+			  
+			  
+			
+	  
     "answer": "Tango",
     "explanation": "The phonetic word for 'T' is Tango."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'U'?",
-    "options": [
-      "Unit",
-      "Under",
-      "Uniform",
-      "Up"
-    ],
+    "options": ["Unit", "Under", "Uniform", "Up"],
+			 
+			  
+				
+		  
+	  
     "answer": "Uniform",
     "explanation": "The phonetic word for 'U' is Uniform."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'V'?",
-    "options": [
-      "Vector",
-      "Verify",
-      "Victor",
-      "Viking"
-    ],
+    "options": ["Vector", "Verify", "Victor", "Viking"],
+			   
+			   
+			   
+			  
+	  
     "answer": "Victor",
     "explanation": "The phonetic word for 'V' is Victor."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'W'?",
-    "options": [
-      "Water",
-      "Whiskey",
-      "White",
-      "Wind"
-    ],
+    "options": ["Water", "Whiskey", "White", "Wind"],
+			  
+				
+			  
+			
+	  
     "answer": "Whiskey",
     "explanation": "The phonetic word for 'W' is Whiskey."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'X'?",
-    "options": [
-      "Xerox",
-      "X-ray",
-      "Xylo",
-      "Examine"
-    ],
+    "options": ["Xerox", "X-ray", "Xylo", "Examine"],
+			  
+			  
+			 
+			   
+	  
     "answer": "X-ray",
     "explanation": "The phonetic word for 'X' is X-ray."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'Y'?",
-    "options": [
-      "Yellow",
-      "Yankee",
-      "Yawn",
-      "Yield"
-    ],
+    "options": ["Yellow", "Yankee", "Yawn", "Yield"],
+			   
+			   
+			 
+			 
+	  
     "answer": "Yankee",
     "explanation": "The phonetic word for 'Y' is Yankee."
   },
   {
     "category": "prosigns",
     "question": "What is the NATO phonetic word for the letter 'Z'?",
-    "options": [
-      "Zero",
-      "Zebra",
-      "Zulu",
-      "Zone"
-    ],
+    "options": ["Zero", "Zebra", "Zulu", "Zone"],
+			 
+			  
+			 
+			
+	  
     "answer": "Zulu",
     "explanation": "The phonetic word for 'Z' is Zulu."
   },
@@ -2051,12 +2262,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 1,
     "question": "What is the unit of electrical resistance?",
-    "options": [
-      "Volt",
-      "Ohm",
-      "Ampere",
-      "Watt"
-    ],
+    "options": ["Volt", "Ohm", "Ampere", "Watt"],
+			 
+			
+			   
+			
+	  
     "answer": "Ohm",
     "explanation": "Resistance is measured in Ohms (Ω)."
   },
@@ -2064,12 +2275,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 1,
     "question": "Which particle carries negative charge in an atom?",
-    "options": [
-      "Proton",
-      "Neutron",
-      "Electron",
-      "Photon"
-    ],
+    "options": ["Proton", "Neutron", "Electron", "Photon"],
+			   
+				
+				 
+			  
+	  
     "answer": "Electron",
     "explanation": "Electrons carry negative charge."
   },
@@ -2077,12 +2288,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 1,
     "question": "Ohm's law is written as which equation?",
-    "options": [
-      "V = I × R",
-      "I = V × R",
-      "P = VI",
-      "V = IR^2"
-    ],
+    "options": ["V = I × R", "I = V × R", "P = VI", "V = IR^2"],
+				   
+				   
+			   
+				
+	  
     "answer": "V = I × R",
     "explanation": "Ohm's law relates voltage, current and resistance."
   },
@@ -2090,12 +2301,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 1,
     "question": "Which component stores energy in an electric field?",
-    "options": [
-      "Inductor",
-      "Capacitor",
-      "Resistor",
-      "Transformer"
-    ],
+    "options": ["Inductor", "Capacitor", "Resistor", "Transformer"],
+				 
+				  
+				 
+				   
+	  
     "answer": "Capacitor",
     "explanation": "Capacitors store energy in an electric field."
   },
@@ -2103,12 +2314,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 1,
     "question": "Which material is a good conductor?",
-    "options": [
-      "Rubber",
-      "Glass",
-      "Copper",
-      "Air"
-    ],
+    "options": ["Rubber", "Glass", "Copper", "Air"],
+			   
+			  
+			   
+		   
+	  
     "answer": "Copper",
     "explanation": "Copper is a common conductor."
   },
@@ -2116,12 +2327,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 1,
     "question": "Power dissipated in a resistor can be calculated by which formula?",
-    "options": [
-      "P = V × I",
-      "P = R/I",
-      "P = V^2 × I",
-      "P = I^3 R"
-    ],
+    "options": ["P = V × I", "P = R/I", "P = V^2 × I", "P = I^3 R"],
+				   
+				
+					 
+				 
+	  
     "answer": "P = V × I",
     "explanation": "Power = voltage × current."
   },
@@ -2129,12 +2340,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 2,
     "question": "What is the relationship between frequency f and period T?",
-    "options": [
-      "T = f",
-      "T = 1/f",
-      "f = 2πT",
-      "f = T^2"
-    ],
+    "options": ["T = f", "T = 1/f", "f = 2πT", "f = T^2"],
+			  
+				
+				 
+			   
+	  
     "answer": "T = 1/f",
     "explanation": "Period is inverse of frequency."
   },
@@ -2142,12 +2353,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 2,
     "question": "Inductive reactance XL equals which expression?",
-    "options": [
-      "XL = 1/(2πfL)",
-      "XL = 2πfL",
-      "XL = R/L",
-      "XL = L/(2πf)"
-    ],
+    "options": ["XL = 1/(2πfL)", "XL = 2πfL", "XL = R/L", "XL = L/(2πf)"],
+					   
+				   
+				 
+					 
+	  
     "answer": "XL = 2πfL",
     "explanation": "Inductive reactance increases with frequency."
   },
@@ -2155,12 +2366,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 2,
     "question": "Capacitive reactance XC equals which expression?",
-    "options": [
-      "XC = 2πfC",
-      "XC = 1/(2πfC)",
-      "XC = R × C",
-      "XC = f/(2πC)"
-    ],
+    "options": ["XC = 2πfC", "XC = 1/(2πfC)", "XC = R × C", "XC = f/(2πC)"],
+				   
+					   
+					
+					 
+	  
     "answer": "XC = 1/(2πfC)",
     "explanation": "Capacitive reactance decreases with frequency."
   },
@@ -2168,12 +2379,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 2,
     "question": "Resonance in an RLC circuit occurs when which condition holds?",
-    "options": [
-      "R = 0",
-      "XL = XC",
-      "V = I",
-      "Q = 0"
-    ],
+    "options": ["R = 0", "XL = XC", "V = I", "Q = 0"],
+			  
+				
+			  
+			 
+	  
     "answer": "XL = XC",
     "explanation": "At resonance inductive and capacitive reactances cancel."
   },
@@ -2181,12 +2392,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 2,
     "question": "RMS voltage relates to peak voltage by which factor?",
-    "options": [
-      "0.5",
-      "0.707",
-      "1.414",
-      "2"
-    ],
+    "options": ["0.5", "0.707", "1.414", "2"],
+			
+			  
+			  
+		 
+	  
     "answer": "0.707",
     "explanation": "Vrms = 0.707 × Vpeak for a sine wave."
   },
@@ -2194,12 +2405,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 2,
     "question": "Impedance Z of a circuit combining R and reactance is given by which formula?",
-    "options": [
-      "Z = R + X",
-      "Z = √(R^2 + (XL − XC)^2)",
-      "Z = R × X",
-      "Z = (XL + XC)/R"
-    ],
+				
+				  
+    "options": ["Z = R + X", "Z = √(R^2 + (XL − XC)^2)", "Z = R × X", "Z = (XL + XC)/R"],
+				   
+					   
+	  
     "answer": "Z = √(R^2 + (XL − XC)^2)",
     "explanation": "Impedance combines resistance and reactance."
   },
@@ -2207,12 +2418,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 3,
     "question": "A P-N junction diode allows current to flow in which direction?",
-    "options": [
-      "Both directions equally",
-      "Only from P to N (forward)",
-      "Only from N to P in reverse",
-      "Neither direction"
-    ],
+    "options": ["Both directions equally", "Only from P to N (forward)", "Only from N to P in reverse", "Neither direction"],
+								
+								   
+									
+						 
+	  
     "answer": "Only from P to N (forward)",
     "explanation": "Diodes conduct when forward biased."
   },
@@ -2220,12 +2431,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 3,
     "question": "What does 'doping' a semiconductor mean?",
-    "options": [
-      "Removing impurities",
-      "Adding impurities to change conductivity",
-      "Melting the material",
-      "Cooling the crystal"
-    ],
+				
+							
+    "options": ["Removing impurities", "Adding impurities to change conductivity", "Melting the material", "Cooling the crystal"],
+							 
+						   
+	  
     "answer": "Adding impurities to change conductivity",
     "explanation": "Doping introduces donor or acceptor atoms."
   },
@@ -2233,12 +2444,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 3,
     "question": "Which part of a BJT controls the collector current?",
-    "options": [
-      "Emitter",
-      "Base",
-      "Collector",
-      "Substrate"
-    ],
+    "options": ["Emitter", "Base", "Collector", "Substrate"],
+				
+			 
+				  
+				 
+	  
     "answer": "Base",
     "explanation": "A small base current controls a larger collector current."
   },
@@ -2246,12 +2457,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 3,
     "question": "Which device is typically used for rectification in a power supply?",
-    "options": [
-      "Transistor",
-      "Diode",
-      "Inductor",
-      "Capacitor"
-    ],
+    "options": ["Transistor", "Diode", "Inductor", "Capacitor"],
+				   
+			  
+				 
+				 
+	  
     "answer": "Diode",
     "explanation": "Diodes convert AC to DC by rectification."
   },
@@ -2259,12 +2470,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 3,
     "question": "An N-type semiconductor has majority carriers that are which?",
-    "options": [
-      "Holes",
-      "Electrons",
-      "Protons",
-      "Neutrons"
-    ],
+    "options": ["Holes", "Electrons", "Protons", "Neutrons"],
+			  
+				  
+				
+				
+	  
     "answer": "Electrons",
     "explanation": "N-type has excess free electrons."
   },
@@ -2272,12 +2483,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 3,
     "question": "A transistor used as a switch operates in which region?",
-    "options": [
-      "Active region",
-      "Saturation and cut-off",
-      "Reverse breakdown",
-      "Linear region"
-    ],
+    "options": ["Active region", "Saturation and cut-off", "Reverse breakdown", "Linear region"],
+					  
+							   
+						  
+					 
+	  
     "answer": "Saturation and cut-off",
     "explanation": "In switching, transistor toggles between cut-off and saturation."
   },
@@ -2285,12 +2496,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 4,
     "question": "Which receiver architecture converts incoming signals to an intermediate frequency (IF)?",
-    "options": [
-      "Crystal receiver",
-      "Superheterodyne",
-      "Direct conversion",
-      "Digital only"
-    ],
+    "options": ["Crystal receiver", "Superheterodyne", "Direct conversion", "Digital only"],
+						 
+						
+						  
+					
+	  
     "answer": "Superheterodyne",
     "explanation": "Superhet uses IF for stable selectivity."
   },
@@ -2298,12 +2509,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 4,
     "question": "What is selectivity in a radio receiver?",
-    "options": [
-      "Ability to amplify weak signals",
-      "Ability to reject nearby frequencies",
-      "Ability to transmit",
-      "Ability to change frequency quickly"
-    ],
+    "options": ["Ability to amplify weak signals", "Ability to reject nearby frequencies", "Ability to transmit", "Ability to change frequency quickly"],
+										
+											 
+							
+										   
+	  
     "answer": "Ability to reject nearby frequencies",
     "explanation": "Selectivity separates desired signal from others."
   },
@@ -2311,12 +2522,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 4,
     "question": "Single-Sideband (SSB) is efficient because it does what?",
-    "options": [
-      "Uses both sidebands",
-      "Suppresses carrier and one sideband",
-      "Increases bandwidth",
-      "Uses more power"
-    ],
+    "options": ["Uses both sidebands", "Suppresses carrier and one sideband", "Increases bandwidth", "Uses more power"],
+							
+											
+							
+					   
+	  
     "answer": "Suppresses carrier and one sideband",
     "explanation": "SSB saves power and bandwidth by removing carrier and one sideband."
   },
@@ -2324,12 +2535,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 5,
     "question": "The primary function of an oscillator in a transmitter is to produce what?",
-    "options": [
-      "DC power",
-      "A stable periodic carrier signal",
-      "Audio only",
-      "Antenna impedance"
-    ],
+				
+				 
+    "options": ["DC power", "A stable periodic carrier signal", "Audio only", "Antenna impedance"],
+				   
+						 
+	  
     "answer": "A stable periodic carrier signal",
     "explanation": "Oscillator generates the RF carrier."
   },
@@ -2337,12 +2548,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 5,
     "question": "What component increases the power level of a modulated RF signal before transmission?",
-    "options": [
-      "Antenna",
-      "RF Power Amplifier",
-      "Oscillator",
-      "Mixer"
-    ],
+    "options": ["Antenna", "RF Power Amplifier", "Oscillator", "Mixer"],
+				
+						   
+				   
+			 
+	  
     "answer": "RF Power Amplifier",
     "explanation": "The RF power amplifier boosts signal power for transmission."
   },
@@ -2350,12 +2561,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 5,
     "question": "Modulation is the process of:",
-    "options": [
-      "Converting DC to AC",
-      "Adding information onto a carrier",
-      "Measuring frequency",
-      "Tuning an antenna"
-    ],
+    "options": ["Converting DC to AC", "Adding information onto a carrier", "Measuring frequency", "Tuning an antenna"],
+							
+										  
+							
+						 
+	  
     "answer": "Adding information onto a carrier",
     "explanation": "Modulation imposes info on the carrier (AM/FM/SSB)."
   },
@@ -2363,12 +2574,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 6,
     "question": "Which propagation mode is mainly responsible for long-distance HF communication?",
-    "options": [
-      "Space wave",
-      "Ground wave",
-      "Sky wave (ionospheric)",
-      "Surface wave"
-    ],
+    "options": ["Space wave", "Ground wave", "Sky wave (ionospheric)", "Surface wave"],
+				   
+					
+							   
+					
+	  
     "answer": "Sky wave (ionospheric)",
     "explanation": "Sky wave refracted by ionosphere enables long-distance HF contacts."
   },
@@ -2376,12 +2587,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 6,
     "question": "The ionospheric layer most responsible for HF long-distance refraction is which?",
-    "options": [
-      "D layer",
-      "E layer",
-      "F layer",
-      "Troposphere"
-    ],
+    "options": ["D layer", "E layer", "F layer", "Troposphere"],
+				
+				
+				
+				   
+	  
     "answer": "F layer",
     "explanation": "F layer refracts HF signals for long-distance propagation."
   },
@@ -2389,12 +2600,12 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 6,
     "question": "Line-of-sight VHF/UHF signals primarily use which propagation?",
-    "options": [
-      "Sky wave",
-      "Space wave",
-      "Ground wave",
-      "Ionospheric"
-    ],
+    "options": ["Sky wave", "Space wave", "Ground wave", "Ionospheric"],
+				 
+				   
+					
+				   
+	  
     "answer": "Space wave",
     "explanation": "VHF/UHF are mainly line-of-sight (space wave)."
   },
@@ -2402,27 +2613,195 @@ const ELECTRONICS_CONTENT = [
     "category": "electronics",
     "chapter": 7,
     "question": "A transformer cannot operate on which type of current?",
-    "options": [
-      "AC",
-      "Pulsating DC",
-      "DC",
-      "High-frequency AC"
-    ],
+    "options": ["AC", "Pulsating DC", "DC", "High-frequency AC"],
+		   
+					 
+		   
+						 
+	  
     "answer": "DC",
-    "explanation": "Transformers require changing flux — DC produces none."
+    "explanation": "Transformers require changing flux \u2014 DC produces none."
   },
   {
     "category": "electronics",
     "chapter": 7,
     "question": "The voltage ratio of an ideal transformer equals which ratio?",
-    "options": [
-      "Np/Ns",
-      "Ns/Np",
-      "Vp/Vs",
-      "Ns × Np"
-    ],
+    "options": ["Np/Ns", "Ns/Np", "Vp/Vs", "Ns × Np"],
+			  
+			  
+			  
+				
+	  
     "answer": "Ns/Np",
     "explanation": "Vs/Vp = Ns/Np (turns ratio)."
+  },
+  {
+    "category": "electronics",
+    "question": "The Transformer works on the principle of",
+    "options": ["Self Inductance", "Mutual Inductance", "both a & b", "None"],
+    "answer": "Mutual Inductance",
+    "explanation": "Transformers transfer energy from one circuit to another via the magnetic coupling between coils."
+  },
+  {
+    "category": "electronics",
+    "question": "The Frequency of oscillation of a series RLC resonant circuit is",
+    "options": ["f=1/2π√LC", "f=1/π√LC", "f=2π√LC", "None"],
+    "answer": "f=1/2π√LC",
+    "explanation": "The resonant frequency formula is $$f = \\frac{1}{2\\pi\\sqrt{LC}}$$."
+  },
+  {
+    "category": "electronics",
+    "question": "The Capacitor is a",
+    "options": ["Passive device", "Active device", "both a & b", "None"],
+    "answer": "Passive device",
+    "explanation": "Capacitors, resistors, and inductors are passive devices because they cannot introduce gain."
+  },
+  {
+    "category": "electronics",
+    "question": "The frequency of a sinusoidal signal v(s)=10sin100t volts is",
+    "options": ["100/2π c/s", "50 c/s", "100 c/s", "100t c/s"],
+    "answer": "100/2π c/s",
+    "explanation": "Standard form is $$v = A\\sin(\\omega t)$$. Here $$\\omega = 100$$. Since $$f = \\omega / 2\\pi$$, frequency is $$100/2\\pi$$ Hz."
+  },
+  {
+    "category": "electronics",
+    "question": "The resistance value of an Insulator is",
+    "options": ["Zero", "Very High", "Less than unity", "None"],
+    "answer": "Very High",
+    "explanation": "Insulators prevent current flow, meaning they have very high resistance."
+  },
+  {
+    "category": "electronics",
+    "question": "The Conductance is proportional to",
+    "options": ["Resistance", "Inverse of Resistance", "Reactance", "Inverse of Reactance"],
+    "answer": "Inverse of Resistance",
+    "explanation": "Conductance (G) is the reciprocal of Resistance (R), given by $$G = 1/R$$."
+  },
+  {
+    "category": "electronics",
+    "question": "The power can be expressed as",
+    "options": ["V=IR", "P=VI", "P=I^2R", "both b & c"],
+    "answer": "both b & c",
+    "explanation": "Power laws include $$P=VI$$ and $$P=I^2R$$."
+  },
+  {
+    "category": "electronics",
+    "question": "The Law behind electromagnetism is",
+    "options": ["Newton's law", "Faradays law", "Kirchhoffs law", "keplers law"],
+    "answer": "Faradays law",
+    "explanation": "Faraday's Law of Induction describes how a changing magnetic field creates an electric current."
+  },
+  {
+    "category": "electronics",
+    "question": "As per Kirchhoffs voltage law, in a closed circuit",
+    "options": ["All branch voltages at a node are zero", "All branch currents at a node are zero", "Sum of voltage drops equals applied voltage", "None of the above"],
+    "answer": "Sum of voltage drops equals applied voltage",
+    "explanation": "KVL states that the sum of voltage rises equals the sum of voltage drops in a closed loop."
+  },
+  {
+    "category": "electronics",
+    "question": "The Bridge rectifier is a",
+    "options": ["Full-wave type", "Half-wave type", "both a & b", "None"],
+    "answer": "Full-wave type",
+    "explanation": "A bridge rectifier uses four diodes to provide full-wave rectification."
+  },
+  {
+    "category": "electronics",
+    "question": "A Diode can be used as",
+    "options": ["Rectifier", "Detector", "Switch", "All the above"],
+    "answer": "All the above",
+    "explanation": "Diodes are versatile and used for rectification, detection (demodulation), and switching."
+  },
+  {
+    "category": "electronics",
+    "question": "An Oscillator is based on",
+    "options": ["Positive feedback", "Negative feedback", "No feedback", "None"],
+    "answer": "Positive feedback",
+    "explanation": "Oscillators use positive feedback (regenerative) to sustain oscillations."
+  },
+  {
+    "category": "electronics",
+    "question": "The output signal of a CE amplifier will be",
+    "options": ["45 deg out of phase", "90 deg out of phase", "180 deg out of phase", "270 deg out of phase"],
+    "answer": "180 deg out of phase",
+    "explanation": "A Common Emitter (CE) amplifier inverts the signal, creating a 180-degree phase shift."
+  },
+  {
+    "category": "electronics",
+    "question": "The typical value of IF in a Superheterodyne receiver is",
+    "options": ["450 kHz", "455 kHz", "500 kHz", "405 kHz"],
+    "answer": "455 kHz",
+    "explanation": "455 kHz is the standard Intermediate Frequency (IF) for AM broadcast receivers."
+  },
+  {
+    "category": "electronics",
+    "question": "The most suitable antenna for receiving VHF range is",
+    "options": ["Dipole", "Log periodic", "Yaagi", "None"],
+    "answer": "Yaagi",
+    "explanation": "Yagi (or Yagi-Uda) antennas are highly directional and high-gain, suitable for VHF."
+  },
+  {
+    "category": "electronics",
+    "question": "For a Step-down Transformer, the relation between the number of turns is",
+    "options": ["Ns > Np", "Ns < Np", "Ns = Np", "None"],
+    "answer": "Ns < Np",
+    "explanation": "In a step-down transformer, the secondary turns ($$N_s$$) are fewer than primary turns ($$N_p$$)."
+  },
+  {
+    "category": "electronics",
+    "question": "The power conversion efficiency of a Full-wave rectifier is",
+    "options": ["40.6%", "81.2%", "100%", "Zero"],
+    "answer": "81.2%",
+    "explanation": "Theoretical maximum efficiency for a full-wave rectifier is 81.2%."
+  },
+  {
+    "category": "electronics",
+    "question": "The device that can be used as a Voltage Regulator is",
+    "options": ["Gun diode", "Zener Diode", "Pin Diode", "both a & c"],
+    "answer": "Zener Diode",
+    "explanation": "Zener diodes are designed to maintain a fixed voltage across them when reverse-biased."
+  },
+  {
+    "category": "rules",
+    "question": "What is the standard repeater shift in the VHF band?",
+    "options": ["5 MHz", "600 kHz", "1 MHz", "900 kHz"],
+    "answer": "600 kHz",
+    "explanation": "The standard offset for VHF (2m band) repeaters is 600 kHz."
+  },
+  {
+    "category": "rules",
+    "question": "What is the standard repeater shift in the UHF band?",
+    "options": ["600 kHz", "1 MHz", "5 MHz", "90 kHz"],
+    "answer": "5 MHz",
+    "explanation": "The standard offset for UHF (70cm band) repeaters is 5 MHz."
+  },
+  {
+    "category": "rules",
+    "question": "Call signs for General Grade in India start with:",
+    "options": ["VU3", "VU2", "VU1", "VU4"],
+    "answer": "VU2",
+    "explanation": "General Grade licenses typically use the VU2 prefix, while Restricted Grade uses VU3."
+  },
+  {
+    "category": "rules",
+    "question": "When must an amateur station identify itself?",
+    "options": ["Only at start", "Only at end", "At least once every 10 minutes", "Never"],
+    "answer": "At least once every 10 minutes",
+    "explanation": "Regulations require identification at least once every 10 minutes during transmission."
+  },
+  {
+    "category": "rules",
+    "question": "What is the fee for a 'Life Long' General Grade license (up to 80 years)?",
+    "options": ["Rs 1000", "Rs 2000", "Rs 100", "Rs 500"],
+    "answer": "Rs 2000",
+    "explanation": "The fee for a lifelong Amateur Station Operator Certificate (General or Restricted) is Rs. 2000."
+  },
+  {
+    "category": "rules",
+    "question": "What is the correct procedure to 'break in' to a phone contact?",
+    "options": ["Say 'Break Break'", "Say your call sign between transmissions", "Whistle loudly", "Say 'CQ'"],
+    "answer": "Say your call sign between transmissions",
+    "explanation": "The correct method is to announce your call sign during a pause between the other stations' transmissions."
   }
 ]
 
