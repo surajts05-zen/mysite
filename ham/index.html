@@ -2464,6 +2464,8 @@ const ELECTRONICS_CONTENT = [
         
         // --- Transmission (Keyer) Logic (Unchanged) ---
 
+      // --- Transmission (Keyer) Logic (FIXED) ---
+
         let isKeying = false;
         let pressStartTime = 0;
         let lastReleaseTime = 0;
@@ -2471,81 +2473,112 @@ const ELECTRONICS_CONTENT = [
         let decodedMessage = '';
         let checkTimeout = null;
         let keysPressed = {};
-
-function decodeCurrentSequence() {
-    let char = REVERSE_MORSE[currentMorseSequence] || '';
-    
-    if (char) {
-        decodedMessage += char;
-        decodedOutput.textContent = decodedMessage;
-    }
-    
-    // THE FIX: Reset the sequence after the character break timeout 
-    // This prevents the next element from concatenating with a failed partial sequence.
-    currentMorseSequence = '';
-    
-    inputMorseDisplay.textContent = currentMorseSequence || '_';
-}
         
-function handleKeyDown(e) {
-    if (e.repeat || !quizState.active || quizState.mode !== 'send' || els.nextBtn.classList.contains('hidden') === false) return;
-    initAudio();
+        // Global audio context for keyer (re-using existing if avail or creating new)
+        let keyerAudioCtx = null; 
+        let keyerOsc = null;
+        let keyerGain = null;
 
-    const currentTime = Date.now();
-
-    if (lastKeyReleaseTime > 0) {
-        const durationSinceLastRelease = currentTime - lastKeyReleaseTime;
-
-        if (interElementTimeout) clearTimeout(interElementTimeout);
-        interElementTimeout = null;
-
-        // 1. If enough time passed for a word break (7T), process a space
-        if (durationSinceLastRelease >= WORD_BREAK_MS) {
-            // ONLY process a space if the last processed input was NOT already a space (i.e., we processed a character).
-            // We check the last character in the buffer to prevent redundant spaces.
-            if (quizState.userKeyingBuffer[quizState.userKeyingBuffer.length - 1] !== ' ') {
-                processKeyerChar(' '); // Process explicit space
+        function initKeyerAudio() {
+            if (!keyerAudioCtx) {
+                keyerAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-        
-        // 2. If enough time passed for a character break (3T), process the accumulated morse
-        } else if (durationSinceLastRelease >= CHAR_BREAK_MS && quizState.currentMorse) {
-            processKeyerChar(quizState.currentMorse);
+            if (keyerAudioCtx.state === 'suspended') {
+                keyerAudioCtx.resume();
+            }
         }
-    }
 
-    // Visuals
-    els.keyerBtn.classList.add('bg-sky-300');
+        function decodeCurrentSequence() {
+            let char = REVERSE_MORSE[currentMorseSequence] || '';
+            
+            if (char) {
+                decodedMessage += char;
+                decodedOutput.textContent = decodedMessage;
+            }
+            
+            // Reset sequence
+            currentMorseSequence = '';
+            inputMorseDisplay.textContent = '_';
+        }
+        
+        function handleKeyDown(e) {
+            // 1. Safety Check: If e exists and is a repeat key press, ignore it
+            if (e && e.repeat) return;
+            
+            // 2. Prevent re-triggering if already keying
+            if (isKeying) return;
+            
+            isKeying = true;
+            initKeyerAudio();
 
-    // Audio
-    if (!osc) {
-        osc = audioCtx.createOscillator();
-        gain = audioCtx.createGain();
-        osc.frequency.value = FREQ;
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-    }
+            const currentTime = Date.now();
 
-    keyPressStart = currentTime;
-}
+            // Handle word/char spacing logic based on previous release time
+            if (lastReleaseTime > 0) {
+                const durationSinceLastRelease = currentTime - lastReleaseTime;
 
-        function handleKeyUp() {
+                if (checkTimeout) clearTimeout(checkTimeout);
+                checkTimeout = null;
+
+                // Word break logic (optional for visual spacing)
+                if (durationSinceLastRelease >= WORD_BREAK_MS) {
+                     if (decodedMessage.slice(-1) !== ' ') {
+                        decodedMessage += ' ';
+                        decodedOutput.textContent = decodedMessage;
+                     }
+                }
+            }
+
+            // Visuals
+            keyerButton.classList.add('bg-sky-300', 'ring-8', 'ring-sky-300');
+
+            // Audio Start
+            if (!keyerOsc) {
+                keyerOsc = keyerAudioCtx.createOscillator();
+                keyerGain = keyerAudioCtx.createGain();
+                keyerOsc.frequency.value = FREQUENCY; // Uses global FREQUENCY constant
+                keyerOsc.connect(keyerGain);
+                keyerGain.connect(keyerAudioCtx.destination);
+                keyerOsc.start();
+                keyerGain.gain.setValueAtTime(1, keyerAudioCtx.currentTime);
+            }
+
+            pressStartTime = currentTime;
+        }
+
+        function handleKeyUp(e) {
             if (!isKeying) return;
 
             const pressDuration = Date.now() - pressStartTime;
             isKeying = false;
             lastReleaseTime = Date.now();
-            keyerButton.classList.remove('bg-sky-500', 'ring-8', 'ring-sky-300');
             
-            if (keyerOscillator) {
-                keyerGainNode.gain.linearRampToValueAtTime(0.001, audioContext.currentTime + 0.01); 
-                keyerOscillator.stop(audioContext.currentTime + 0.01); 
-                keyerOscillator.disconnect();
+            // Visuals
+            keyerButton.classList.remove('bg-sky-300', 'ring-8', 'ring-sky-300');
+            
+            // Audio Stop
+            if (keyerOsc) {
+                // Smooth fade out to prevent clicking
+                const now = keyerAudioCtx.currentTime;
+                keyerGain.gain.setValueAtTime(keyerGain.gain.value, now);
+                keyerGain.gain.linearRampToValueAtTime(0.001, now + 0.01);
+                keyerOsc.stop(now + 0.01);
                 
-                keyerOscillator = null;
-                keyerGainNode = null;
+                // Cleanup nodes
+                setTimeout(() => {
+                    if (keyerOsc) { // Double check in case restarted quickly
+                         keyerOsc.disconnect();
+                         keyerGain.disconnect();
+                         keyerOsc = null;
+                         keyerGain = null;
+                    }
+                }, 20);
+                
+                // Immediate nullify to allow quick restart
+                keyerOsc = null; 
             }
 
+            // Logic: Dot vs Dash
             let element;
             if (pressDuration < DASH_THRESHOLD_MS) {
                 element = '.';
@@ -2556,7 +2589,8 @@ function handleKeyDown(e) {
             currentMorseSequence += element;
             inputMorseDisplay.textContent = currentMorseSequence;
 
-            checkTimeout = setTimeout(decodeCurrentSequence, CHAR_BREAK_MS + T);
+            // Schedule decoding
+            checkTimeout = setTimeout(decodeCurrentSequence, CHAR_BREAK_MS);
         }
         
         // --- Initialization and Event Listeners ---
@@ -2567,11 +2601,11 @@ function handleKeyDown(e) {
         // 1. Reception Practice: Combined Play/Pause/Resume handler
         playMorseButton.addEventListener('click', () => {
             if (!isPlaying) {
-                startPlayback(); // Start new
+                startPlayback(); 
             } else if (isPaused) {
-                resumePlayback(); // Resume paused
+                resumePlayback(); 
             } else {
-                pausePlayback(); // Pause active playback
+                pausePlayback(); 
             }
         });
         
@@ -2584,29 +2618,36 @@ function handleKeyDown(e) {
 
 
         // 2. Transmission Practice (Button)
+        // FIXED: Passing 'e' to handleKeyDown
         keyerButton.addEventListener('mousedown', (e) => {
             e.preventDefault(); 
-            handleKeyDown();
+            handleKeyDown(e);
         });
-        keyerButton.addEventListener('mouseup', handleKeyUp);
+        keyerButton.addEventListener('mouseup', (e) => {
+            handleKeyUp(e);
+        });
+        // Touch events
         keyerButton.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            handleKeyDown();
+            handleKeyDown(e);
         });
-        keyerButton.addEventListener('touchend', handleKeyUp);
+        keyerButton.addEventListener('touchend', (e) => {
+            e.preventDefault(); // Prevents mouse emulation
+            handleKeyUp(e);
+        });
 
-        // 2. Transmission Practice (Spacebar Key)
+        // 3. Transmission Practice (Spacebar Key)
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !keysPressed[e.code] && document.activeElement !== inputText) {
                 e.preventDefault(); 
                 keysPressed[e.code] = true;
-                handleKeyDown();
+                handleKeyDown(e);
             }
         });
         document.addEventListener('keyup', (e) => {
             if (e.code === 'Space' && document.activeElement !== inputText) {
                 keysPressed[e.code] = false;
-                handleKeyUp();
+                handleKeyUp(e);
             }
         });
         
@@ -2619,7 +2660,6 @@ function handleKeyDown(e) {
             if (checkTimeout) clearTimeout(checkTimeout);
             checkTimeout = null;
         });
-
         })(); 
     </script>
 <script>
